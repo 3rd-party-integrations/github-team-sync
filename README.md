@@ -107,6 +107,9 @@ optional arguments:
   -i INITFILE, --init INITFILE
                         Full path to settings.yml file. Default is 
                         settings.yml in your current directory
+  -m MAPPING, --mapping MAPPING
+                        A mappings file for teams and groups.Default is
+                        mappings.yml
 ```
 
 #### Listing Active Directory Group Members
