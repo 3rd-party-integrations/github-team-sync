@@ -1,3 +1,4 @@
+import os
 import sys
 import ldap
 import yaml
@@ -159,7 +160,9 @@ def main():
     parser.add_argument("-l", "--list", dest="list", help="List users in groups/teams and exit. No changes are made",
                         default=False, const=True, action="store_const")
     parser.add_argument("-i", "--init", dest="initfile", help="Full path to settings.yml file. Default is "
-                        "settings.yml in your current directory", default=None)
+                                                              "settings.yml in your current directory", default=None)
+    parser.add_argument("-m", "--mapping", dest="mapping", help="A mappings file for teams and groups."
+                                                                "Default is mappings.yml")
     args = parser.parse_args()
 
     # Location of the settings file. Default is the current working path
@@ -168,6 +171,16 @@ def main():
     else:
         settings_file = "settings.yml"
     adsync = ADSync(settings_file)
+
+    # Check for a mappings file
+    mapping = args.mapping if args.mapping else 'mapping.yml'
+    if os.path.isfile(mapping):
+        # This is where we can loop through
+        # mappings in a YAML file
+        print("file exists")
+    else:
+        print("no such file")
+
     # Get AD users
     if args.ad_group:
         print(args.ad_group)
