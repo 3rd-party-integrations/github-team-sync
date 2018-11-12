@@ -1,0 +1,7 @@
+---
+- ad_group: team-sync-demo
+  gh_org: github-demo
+  gh_team: team-sync-demo
+- ad_group: team-sync-demo-2
+  gh_org: github-demo
+  gh_team: team-sync-demo-2
