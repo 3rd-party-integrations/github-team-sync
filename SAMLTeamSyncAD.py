@@ -1,12 +1,13 @@
-#!/usr/bin/env python3
-
+import sys
 import ldap
 import yaml
 import argparse
-#from urllib.parse import urlparse
 from pprint import pprint
-from urlparse import urlparse
 from github import Github, GithubException
+if (sys.version_info > (3, 0)):
+    from urllib.parse import urlparse
+else:
+    from urlparse import urlparse
 
 
 class ADSync:
