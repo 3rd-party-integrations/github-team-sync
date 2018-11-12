@@ -9,7 +9,6 @@ if (sys.version_info > (3, 0)):
 else:
     from urlparse import urlparse
 
-
 class ADSync:
     def __init__(self, settings_file):
         with open(settings_file, 'r') as stream:
@@ -125,13 +124,12 @@ class ADSync:
         result = ad_conn.search_s(basedn, ldap.SCOPE_SUBTREE, ad_filter)
         if result:
             if len(result[0]) >= 2 and 'member' in result[0][1]:
-                members_tmp = result[0][1]['member']
-                members_tmp = [u for u in members_tmp if u != 0]
+                members_tmp = [u for u in [i.decode('utf-8') for i in result[0][1]['member']] if u != 0]
                 for m in members_tmp:
                     try:
-                        attr = self.get_attr_by_dn(str(m), ad_conn, attr='sAMAccountName')
+                        attr = self.get_attr_by_dn(m, ad_conn, attr='sAMAccountName')
                         if attr != 0:
-                            members.append(str(attr))
+                            members.append(attr.decode('utf-8'))
                     except Exception as exc:
                         print(exc)
         return members
