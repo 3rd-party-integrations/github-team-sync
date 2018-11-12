@@ -15,7 +15,7 @@ This utility provides the following functionality:
 | LDAP SSL | No | SSL or TLS connections. This is a WIP |
 
 ## Getting Started
-To get started, ensure that you are using **Python 2.7**. _Python 3.x is currently not supported, but future versions will support 2.7 and 3.4+_. The following additional libraries are required:
+To get started, ensure that you are using **Python 2.7** or **Python 3.4+**. The following additional libraries are required:
 
 - [ ] PyGithub
 - [ ] python-ldap
