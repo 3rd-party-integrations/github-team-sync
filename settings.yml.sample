@@ -1,0 +1,45 @@
+default:
+  # This section will be used for sending email alerts
+  # when sync succeeds or fails. It is currently not used
+  resource_owner_email: <ghe-admin@example.com>
+  email_template_success: email-template-success.html
+  email_template_failure: email-template-failure.html
+  # Slack notifications
+  slack_token: <token>
+  slack_room: #general
+  slack_send_as: github-sync-robot
+
+github:
+  # This server URL should be the API endpoint for
+  # GitHub. To use on github.com, simply use https://api.github.com
+  #server_url: https://api.github.com
+  server_url: https://github.example.com/api/v3
+  token: e92ff0813a76da15f32a675dcd54ea1a97339e82
+
+ldap:
+  # A list of server hostnames or IP addresses to try connecting to
+  servers:
+    - dc1.example.com
+    - 10.10.10.10
+  # The port to connect to for LDAP
+  port: 389
+  # If using SSL, specify that port
+  ssl_port: 636
+  # Specify the path to the AD cert, if using SSL
+  ssl_cert:
+  # Whether or not to start TLS
+  start_tls: false
+  # The Base DN to lookup users
+  user_base_dn: CN=Users,DC=example,DC=com
+  # The Base DN for groups
+  group_base_dn: OU=Groups,DC=example,DC=com
+  # User Filter
+  user_filter: (&(objectClass=USER)(sAMAccountName={username}))
+  # Optional second User Filter
+  user_filter2: (&(objectClass=USER)(dn={userdn}))
+  # Group Filter
+  group_filter: (&(objectClass=GROUP)(cn={group_name}))
+  # Active Directory bind user. This must be in <user>@<domain> format
+  bind_user: bind_user@example.com
+  # The password to use for binding
+  bind_password: asqw!234
