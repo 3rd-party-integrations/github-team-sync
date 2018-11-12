@@ -178,6 +178,9 @@ def main():
         # This is where we can loop through
         # mappings in a YAML file
         print("file exists")
+        with open(mapping, 'r') as stream:
+            m = yaml.load(stream)
+            print(m)
     else:
         print("no such file")
 
