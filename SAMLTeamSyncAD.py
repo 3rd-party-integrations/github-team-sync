@@ -26,7 +26,6 @@ class ADSync:
             self.AD_BIND_USER = settings['ldap']['bind_user']
             self.AD_BIND_PWD = settings['ldap']['bind_password']
             self.AD_PAGE_SIZE = settings['ldap']['page_size']
-            #self.AD_SEARCH_DN = settings['ldap']['search_dn']
             self.SERVER = urlparse(self.GITHUB_SERVER)
 
         self.conn = Connection(self.AD_SERVERS[0],
@@ -40,6 +39,7 @@ class ADSync:
         """
         Get members of the requested group in Active Directory
         :param group_name: The name of the group
+        :type group_name: str
         :return: members
         :rtype: list
         """
@@ -55,6 +55,12 @@ class ADSync:
         return member_list
 
     def get_attr_by_dn(self, dn):
+        """
+        Get an attribute for a given object. Right now we only care about the sAMAccountName,
+        so it's hard-coded... we can adjust this if we see a need later down the line
+        :param dn: Object's full DN to lookup
+        :return: username
+        """
         self.conn.search(search_base=self.AD_USER_BASEDN,
                          search_filter=self.AD_USER_FILTER2.replace('{userdn}', dn),
                          attributes=['sAMAccountName'])
@@ -130,6 +136,7 @@ def main():
             print("AD Group: {}".format(args.ad_group))
             print("---------------")
             for member in ad_members:
+                print(type(member))
                 print(member)
             print("")
         # If we want GHE users listed
