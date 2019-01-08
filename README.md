@@ -13,6 +13,7 @@ This utility provides the following functionality:
 | Dynamic Config | Yes | Utilize a `settings` file to derive Active Directory and GitHub settings |
 | Email Notifications | No | Email administrators when the script fails and, optionally, succeeds. This is a WIP |
 | LDAP SSL | No | SSL or TLS connections. This is a WIP |
+| Slack Messaging | No | Send a notification to Slack. This is a WIP |
 
 ## Getting Started
 To get started, ensure that you are using **Python 2.7** or **Python 3.4+**. The following additional libraries are required:
