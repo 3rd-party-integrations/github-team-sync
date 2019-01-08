@@ -59,7 +59,7 @@ class ADSync:
                          search_filter=self.AD_USER_FILTER2.replace('{userdn}', dn),
                          attributes=['sAMAccountName'])
         username = self.conn.entries[0]['sAMAccountName']
-        return username
+        return str(username)
 
 
 def main():
