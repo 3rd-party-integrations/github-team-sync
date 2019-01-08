@@ -19,7 +19,7 @@ This utility provides the following functionality:
 To get started, ensure that you are using **Python 2.7** or **Python 3.4+**. The following additional libraries are required:
 
 - [ ] PyGithub
-- [ ] python-ldap
+- [ ] python-ldap3
 - [ ] PyYAML
 
 Install the required libraries.
@@ -64,6 +64,8 @@ ldap:
   ssl_cert:
   # Whether or not to start TLS
   start_tls: false
+  # Base DN
+  base_dn: DC=example,DC=com
   # The Base DN to lookup users
   user_base_dn: CN=Users,DC=example,DC=com
   # The Base DN for groups
@@ -143,4 +145,5 @@ This option will add users to GitHub teams when found in Active Directory, as we
 
 ```bash
 $ python SAMLTeamSyncAD.py --sync --team GHETeamA --group ADGroupA
+$ python3 SAMLTeamSyncAD.py -s -t GHETeamA -g "AD Group A"
 ```
