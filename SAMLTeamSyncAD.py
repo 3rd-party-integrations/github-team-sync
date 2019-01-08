@@ -136,7 +136,6 @@ def main():
             print("AD Group: {}".format(args.ad_group))
             print("---------------")
             for member in ad_members:
-                print(type(member))
                 print(member)
             print("")
         # If we want GHE users listed
