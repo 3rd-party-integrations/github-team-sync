@@ -98,7 +98,7 @@ optional arguments:
                         GitHub
   -s, --sync            Perform a full sync, removing users from the GitHub
                         team that are not present in the AD group, and adding
-                        users tothe GitHub Team that are in the AD group
+                        users to the GitHub Team that are in the AD group
                         missing in the Team
   -t TEAM, --team TEAM  The name of the GitHub Team to sync users with
   -o ORG, --org ORG     The name of the GitHub Organization where the Teams
