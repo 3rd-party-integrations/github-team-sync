@@ -188,11 +188,11 @@ def main():
         else:
             # Get the GitHub info
             g = Github(base_url=adsync.GITHUB_SERVER, login_or_token=adsync.GITHUB_TOKEN)
-            print(args.org)
+            print(args.org + '\\' + args.team)
             org = g.get_organization(args.org)
             try:
                 # Get the Team info
-                team = org.get_teams()[0]
+                team = next(t for t in org.get_teams() if t.name == args.team)
                 # Get a list of members in the Team
                 ghe_members = []
                 for m in team.get_members():
