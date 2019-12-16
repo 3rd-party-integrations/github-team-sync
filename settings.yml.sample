@@ -29,6 +29,8 @@ ldap:
   ssl_cert:
   # Whether or not to start TLS
   start_tls: false
+  # LDAP Base DN
+  base_dn: DC=example,DC=com
   # The Base DN to lookup users
   user_base_dn: CN=Users,DC=example,DC=com
   # The Base DN for groups
