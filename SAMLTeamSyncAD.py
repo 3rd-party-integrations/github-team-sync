@@ -1,18 +1,16 @@
+#!/usr/bin/env python3
 import sys
 import yaml
 import argparse
 from ldap3 import Server, Connection, ALL
 from github import Github, GithubException
-if (sys.version_info > (3, 0)):
-    from urllib.parse import urlparse
-else:
-    from urlparse import urlparse
+from urllib.parse import urlparse
 
 class ADSync:
     def __init__(self, settings_file):
-        with open(settings_file, 'r') as stream:
+        with open(settings_file, 'rb') as stream:
             # Read settings from the config file and store them as constants
-            settings = yaml.load(stream)
+            settings = yaml.load(stream, Loader=yaml.FullLoader)
             self.GITHUB_SERVER = settings['github']['server_url']
             self.GITHUB_TOKEN = settings['github']['token']
             self.AD_SERVERS = settings['ldap']['servers']
