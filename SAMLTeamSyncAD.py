@@ -19,7 +19,6 @@ class ADSync:
             self.AD_USER_BASEDN = settings['ldap']['user_base_dn']
             self.AD_GROUP_BASEDN = settings['ldap']['group_base_dn']
             self.AD_USER_FILTER = settings['ldap']['user_filter']
-            self.AD_USER_FILTER2 = settings['ldap']['user_filter2']
             self.AD_GROUP_FILTER = settings['ldap']['group_filter']
             self.AD_BIND_USER = settings['ldap']['bind_user']
             self.AD_BIND_PWD = settings['ldap']['bind_password']
@@ -52,17 +51,18 @@ class ADSync:
                     member_list.append(self.get_attr_by_dn(member))
         return member_list
 
-    def get_attr_by_dn(self, dn):
+    def get_attr_by_dn(self, userdn):
         """
         Get an attribute for a given object. Right now we only care about the sAMAccountName,
         so it's hard-coded... we can adjust this if we see a need later down the line
-        :param dn: Object's full DN to lookup
+        :param userdn: Object's full DN to lookup
         :return: username
         """
-        self.conn.search(search_base=self.AD_USER_BASEDN,
-                         search_filter=self.AD_USER_FILTER2.replace('{userdn}', dn),
+        self.conn.search(search_base=userdn,
+                         search_filter=self.AD_USER_FILTER,
                          attributes=['sAMAccountName'])
         username = self.conn.entries[0]['sAMAccountName']
+        print(username)
         return str(username)
 
 
