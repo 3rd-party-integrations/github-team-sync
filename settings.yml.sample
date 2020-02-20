@@ -36,11 +36,9 @@ ldap:
   # The Base DN for groups
   group_base_dn: OU=Groups,DC=example,DC=com
   # User Filter
-  user_filter: (&(objectClass=USER)(sAMAccountName={username}))
-  # Optional second User Filter
-  user_filter2: (&(objectClass=USER)(dn={userdn}))
+  user_filter: (objectClass=person)
   # Group Filter
-  group_filter: (&(objectClass=GROUP)(cn={group_name}))
+  group_filter: (&(objectClass=group)(cn={group_name}))
   # Active Directory bind user. This must be in <user>@<domain> format
   bind_user: bind_user@example.com
   # The password to use for binding
