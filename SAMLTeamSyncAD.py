@@ -62,7 +62,6 @@ class ADSync:
                          search_filter=self.AD_USER_FILTER,
                          attributes=['sAMAccountName'])
         username = self.conn.entries[0]['sAMAccountName']
-        print(username)
         return str(username)
 
 
@@ -91,6 +90,8 @@ def main():
                         default=False, const=True, action="store_const")
     parser.add_argument("-i", "--init", dest="initfile", help="Full path to settings.yml file. Default is "
                         "settings.yml in your current directory", default=None)
+    parser.add_argument("-n", "--skip-null", dest="skip_null", const=True, default=False,
+                        help="Skip empty groups in Active Directory, to avoid emptying the GitHub group")
     args = parser.parse_args()
 
     # Location of the settings file. Default is the current working path
