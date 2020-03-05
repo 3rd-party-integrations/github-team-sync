@@ -1,18 +1,16 @@
+#!/usr/bin/env python3
 import sys
 import yaml
 import argparse
 from ldap3 import Server, Connection, ALL
 from github import Github, GithubException
-if (sys.version_info > (3, 0)):
-    from urllib.parse import urlparse
-else:
-    from urlparse import urlparse
+from urllib.parse import urlparse
 
 class ADSync:
     def __init__(self, settings_file):
-        with open(settings_file, 'r') as stream:
+        with open(settings_file, 'rb') as stream:
             # Read settings from the config file and store them as constants
-            settings = yaml.load(stream)
+            settings = yaml.load(stream, Loader=yaml.FullLoader)
             self.GITHUB_SERVER = settings['github']['server_url']
             self.GITHUB_TOKEN = settings['github']['token']
             self.AD_SERVERS = settings['ldap']['servers']
@@ -21,7 +19,6 @@ class ADSync:
             self.AD_USER_BASEDN = settings['ldap']['user_base_dn']
             self.AD_GROUP_BASEDN = settings['ldap']['group_base_dn']
             self.AD_USER_FILTER = settings['ldap']['user_filter']
-            self.AD_USER_FILTER2 = settings['ldap']['user_filter2']
             self.AD_GROUP_FILTER = settings['ldap']['group_filter']
             self.AD_BIND_USER = settings['ldap']['bind_user']
             self.AD_BIND_PWD = settings['ldap']['bind_password']
@@ -54,15 +51,15 @@ class ADSync:
                     member_list.append(self.get_attr_by_dn(member))
         return member_list
 
-    def get_attr_by_dn(self, dn):
+    def get_attr_by_dn(self, userdn):
         """
         Get an attribute for a given object. Right now we only care about the sAMAccountName,
         so it's hard-coded... we can adjust this if we see a need later down the line
-        :param dn: Object's full DN to lookup
+        :param userdn: Object's full DN to lookup
         :return: username
         """
-        self.conn.search(search_base=self.AD_USER_BASEDN,
-                         search_filter=self.AD_USER_FILTER2.replace('{userdn}', dn),
+        self.conn.search(search_base=userdn,
+                         search_filter=self.AD_USER_FILTER,
                          attributes=['sAMAccountName'])
         username = self.conn.entries[0]['sAMAccountName']
         return str(username)
@@ -93,6 +90,8 @@ def main():
                         default=False, const=True, action="store_const")
     parser.add_argument("-i", "--init", dest="initfile", help="Full path to settings.yml file. Default is "
                         "settings.yml in your current directory", default=None)
+    parser.add_argument("-n", "--skip-null", dest="skip_null", const=True, default=False,
+                        help="Skip empty groups in Active Directory, to avoid emptying the GitHub group")
     args = parser.parse_args()
 
     # Location of the settings file. Default is the current working path

@@ -16,7 +16,7 @@ This utility provides the following functionality:
 | Slack Messaging | No | Send a notification to Slack. This is a WIP |
 
 ## Getting Started
-To get started, ensure that you are using **Python 2.7** or **Python 3.4+**. The following additional libraries are required:
+To get started, ensure that you are using **Python 3.4+**. The following additional libraries are required:
 
 - [ ] PyGithub
 - [ ] python-ldap3
@@ -25,7 +25,7 @@ To get started, ensure that you are using **Python 2.7** or **Python 3.4+**. The
 Install the required libraries.
 
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 Once you have all of the requirements installed, be sure to edit the `settings.yml` to match your environment.
@@ -49,7 +49,7 @@ github:
   # GitHub. To use on github.com, simply use https://api.github.com
   #server_url: https://api.github.com
   server_url: https://github.example.com/api/v3
-  token: e92ff0813a76da15f32a675dcd54ea1a97339e82
+  token: <token>
 
 ldap:
   # A list of server hostnames or IP addresses to try connecting to
@@ -80,14 +80,16 @@ ldap:
   bind_user: bind_user@example.com
   # The password to use for binding
   bind_password: asqw!234
+  # Set the page size (default is 1000)
+  page_size: 1000
 ```
 
 ## Usage Examples
 #### Using the Help
 
 ```bash
-$ python ADTeamSyncGHE.py --help
-usage: ADTeamSyncGHE2.py [-h] [-r] [-a] [-g AD_GROUP] [-s] [-t TEAM] [-o ORG]
+$ python3 ADTeamSyncGHE.py --help
+usage: ADTeamSyncGHE.py [-h] [-r] [-a] [-g AD_GROUP] [-s] [-t TEAM] [-o ORG]
                          [-l]
 
 optional arguments:
@@ -115,7 +117,7 @@ optional arguments:
 #### Listing Active Directory Group Members
 This option will list members in Active Directory groups
 ```bash
-$ python SAMLTeamSyncAD.py --list --group ADGroupA
+$ python3 SAMLTeamSyncAD.py --list --group ADGroupA
 Succesfully authenticated
 AD Group: ADGroupA
 ---------------
@@ -125,7 +127,7 @@ ghusera
 #### Listing GitHub Team Members
 This option will list members in GitHub teams
 ```bash
-$ python SAMLTeamSyncAD.py --list --team GHETeamA
+$ python3 SAMLTeamSyncAD.py --list --team GHETeamA
 GitHub Team: GHETeamA
 ---------------
 primetheus
@@ -134,16 +136,16 @@ primetheus
 #### Add Users to GitHub Teams from AD
 This option will only add users to GitHub teams when they are found in Active Directory. It will not remove users from teams
 ```bash
-$ python SAMLTeamSyncAD.py --add --team GHETeamA --group ADGroupA
+$ python3 SAMLTeamSyncAD.py --add --team GHETeamA --group ADGroupA
 
 -- OR --
-$ python SAMLTeamSyncAD.py -a -t GHETeamA -g ADGroupA
+$ python3 SAMLTeamSyncAD.py -a -t GHETeamA -g ADGroupA
 ```
 
 #### Full User Sync from Active Directory Group to GitHub Team
 This option will add users to GitHub teams when found in Active Directory, as well as remove users from GitHub teams when they don't exist in the AD group. 
 
 ```bash
-$ python SAMLTeamSyncAD.py --sync --team GHETeamA --group ADGroupA
+$ python3 SAMLTeamSyncAD.py --sync --team GHETeamA --group ADGroupA
 $ python3 SAMLTeamSyncAD.py -s -t GHETeamA -g "AD Group A"
 ```
