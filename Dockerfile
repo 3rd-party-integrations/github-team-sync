@@ -1,17 +1,12 @@
-FROM python:2
+FROM python:3-alpine
 
 LABEL version="0.9"
 LABEL description="LDAP Team Sync for GitHub"
 
 MAINTAINER GitHub Services <services@github.com>
 
-COPY . /opt/saml-ad-team-sync
-WORKDIR /opt/saml-ad-team-sync
-
-RUN apt-get update && \
-    apt-get -y install lib{ldap,sasl}2-dev && \
-    apt-get clean && \
-    rm -fr /var/lib/apt/lists/* 
+COPY . /opt/teamsync
+WORKDIR /opt/teamsync
     
 RUN pip install --upgrade -r requirements.txt
 
