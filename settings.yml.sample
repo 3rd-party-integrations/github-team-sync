@@ -14,7 +14,9 @@ github:
   # GitHub. To use on github.com, simply use https://api.github.com
   #server_url: https://api.github.com
   server_url: https://github.example.com/api/v3
-  token: <token>
+  # This is an optional override for the environment secret
+  # GITHUB_TOKEN=
+  #token: <token>
 
 ldap:
   # A list of server hostnames or IP addresses to try connecting to
@@ -42,6 +44,8 @@ ldap:
   # Active Directory bind user. This must be in <user>@<domain> format
   bind_user: bind_user@example.com
   # The password to use for binding
-  bind_password: asqw!234
+  # This is an optional override for the environment secret
+  # AD_BIND_PASSWORD=
+  #bind_password: asqw!234
   # Page size for paginating LDAP query (default is 1000 for Active Directory)
   page_size: 1000

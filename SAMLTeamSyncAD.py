@@ -2,6 +2,7 @@
 import sys
 import yaml
 import argparse
+import os
 from ldap3 import Server, Connection, ALL
 from github import Github, GithubException
 from urllib.parse import urlparse
@@ -12,7 +13,6 @@ class ADSync:
             # Read settings from the config file and store them as constants
             settings = yaml.load(stream, Loader=yaml.FullLoader)
             self.GITHUB_SERVER = settings['github']['server_url']
-            self.GITHUB_TOKEN = settings['github']['token']
             self.AD_SERVERS = settings['ldap']['servers']
             self.AD_SERVER_PORT = settings['ldap']['port']
             self.AD_BASEDN = settings['ldap']['base_dn']
@@ -21,8 +21,20 @@ class ADSync:
             self.AD_USER_FILTER = settings['ldap']['user_filter']
             self.AD_GROUP_FILTER = settings['ldap']['group_filter']
             self.AD_BIND_USER = settings['ldap']['bind_user']
-            self.AD_BIND_PWD = settings['ldap']['bind_password']
             self.AD_PAGE_SIZE = settings['ldap']['page_size']
+            if 'token' in settings['github']:
+                if settings['github']['token']:
+                    self.GITHUB_TOKEN = settings['github']['token']
+            elif os.environ['GITHUB_TOKEN']:
+                self.GITHUB_TOKEN = os.environ['GITHUB_TOKEN']
+            else:
+                print('Please set a GitHub token')
+                os.exit(255)
+            if 'bind_password' in settings['ldap']:
+                if settings['ldap']['bind_password']:
+                    self.AD_BIND_PWD = settings['ldap']['bind_password']
+            elif os.environ['AD_BIND_PASSWORD']:
+                self.AD_BIND_PWD = os.environ['AD_BIND_PASSWORD']
             self.SERVER = urlparse(self.GITHUB_SERVER)
 
         self.conn = Connection(self.AD_SERVERS[0],

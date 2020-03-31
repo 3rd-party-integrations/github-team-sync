@@ -49,7 +49,9 @@ github:
   # GitHub. To use on github.com, simply use https://api.github.com
   #server_url: https://api.github.com
   server_url: https://github.example.com/api/v3
-  token: <token>
+  # This is an optional override for the environment secret
+  # GITHUB_TOKEN=
+  #token: <token>
 
 ldap:
   # A list of server hostnames or IP addresses to try connecting to
@@ -79,7 +81,9 @@ ldap:
   # Active Directory bind user. This must be in <user>@<domain> format
   bind_user: bind_user@example.com
   # The password to use for binding
-  bind_password: asqw!234
+  # This is an optional override for the environment secret
+  # AD_BIND_PASSWORD=
+  #bind_password: asqw!234
   # Set the page size (default is 1000)
   page_size: 1000
 ```
@@ -104,7 +108,8 @@ optional arguments:
                         team that are not present in the AD group, and adding
                         users to the GitHub Team that are in the AD group
                         missing in the Team
-  -t TEAM, --team TEAM  The name of the GitHub Team to sync users with
+  -t TEAM, --team TEAM  The name of the GitHub Team to sync users with. 
+                        This is case-sensitve, and needs quotations if the team name has spaces.
   -o ORG, --org ORG     The name of the GitHub Organization where the Teams
                         reside
   -l, --list            List users in groups/teams and exit. No changes are
