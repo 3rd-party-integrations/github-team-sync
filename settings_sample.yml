@@ -41,7 +41,11 @@ ldap:
   user_filter: (objectClass=person)
   # Group Filter
   group_filter: (&(objectClass=group)(cn={group_name}))
-  # Active Directory bind user. This must be in <user>@<domain> format
+  # Group Attribute, eg: member or uniqueMember
+  group_attr: member
+  # User Login Name, eg: sAMAccountName or uid
+  user_attr: sAMAccountName
+  # AD/LDAP bind user. This must be in <user>@<domain> format
   bind_user: bind_user@example.com
   # The password to use for binding
   # This is an optional override for the environment secret
