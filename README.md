@@ -6,11 +6,11 @@ This utility provides the following functionality:
 
 | Feature | Supported | Description | 
 | --- | --- | --- |
-| List | Yes | List users in Active Directory groups or GitHub Teams |
-| Add Users | Yes | Add users to `Teams` in GitHub when they are present in the AD group and not in the GitHub `Team` |
-| Remove Users | Yes | Remove users from `Teams` in GitHub when they are not present in the Active Directory group |
-| Sync Users | Yes | Add or remove users from `Teams` in GitHub to keep in sync with Active Directory groups |
-| Dynamic Config | Yes | Utilize a `settings` file to derive Active Directory and GitHub settings |
+| List | Yes | List users in AD/LDAP groups or GitHub Teams |
+| Add Users | Yes | Add users to `Teams` in GitHub when they are present in the AD/LDAP group and not in the GitHub `Team` |
+| Remove Users | Yes | Remove users from `Teams` in GitHub when they are not present in the AD/LDAP group |
+| Sync Users | Yes | Add or remove users from `Teams` in GitHub to keep in sync with AD/LDAP groups |
+| Dynamic Config | Yes | Utilize a `settings` file to derive AD/LDAP and GitHub settings |
 | Email Notifications | No | Email administrators when the script fails and, optionally, succeeds. This is a WIP |
 | LDAP SSL | No | SSL or TLS connections. This is a WIP |
 | Slack Messaging | No | Send a notification to Slack. This is a WIP |
@@ -78,7 +78,11 @@ ldap:
   user_filter2: (&(objectClass=USER)(dn={userdn}))
   # Group Filter
   group_filter: (&(objectClass=GROUP)(cn={group_name}))
-  # Active Directory bind user. This must be in <user>@<domain> format
+  # Group Attribute, eg: member or uniqueMember
+  group_attr: member
+  # User Login Name, eg: sAMAccountName or uid
+  user_attr: sAMAccountName
+  # AD/LDAP bind user. This must be in <user>@<domain> or DN format
   bind_user: bind_user@example.com
   # The password to use for binding
   # This is an optional override for the environment secret
@@ -92,21 +96,21 @@ ldap:
 #### Using the Help
 
 ```bash
-$ python3 ADTeamSyncGHE.py --help
-usage: ADTeamSyncGHE.py [-h] [-r] [-a] [-g AD_GROUP] [-s] [-t TEAM] [-o ORG]
+$ python3 SAMLTeamSyncLDAP.py --help
+usage: SAMLTeamSyncLDAP.py [-h] [-r] [-a] [-g LDAP_GROUP] [-s] [-t TEAM] [-o ORG]
                          [-l]
 
 optional arguments:
   -h, --help            show this help message and exit
   -r, --remove          Remove users from the GitHub Team that are not in the
-                        AD group
-  -a, --add             Add users in the AD group to the GitHub Team
-  -g AD_GROUP, --group AD_GROUP
-                        The name of the Active Directory group to sync with
+                        AD/LDAP group
+  -a, --add             Add users in the AD/LDAP group to the GitHub Team
+  -g LDAP_GROUP, --group LDAP_GROUP
+                        The name of the AD/LDAP group to sync with
                         GitHub
   -s, --sync            Perform a full sync, removing users from the GitHub
-                        team that are not present in the AD group, and adding
-                        users to the GitHub Team that are in the AD group
+                        team that are not present in the AD/LDAP group, and adding
+                        users to the GitHub Team that are in the AD/LDAP group
                         missing in the Team
   -t TEAM, --team TEAM  The name of the GitHub Team to sync users with. 
                         This is case-sensitve, and needs quotations if the team name has spaces.
@@ -119,12 +123,12 @@ optional arguments:
                         settings.yml in your current directory
 ```
 
-#### Listing Active Directory Group Members
-This option will list members in Active Directory groups
+#### Listing AD/LDAP Group Members
+This option will list members in AD/LDAP groups
 ```bash
-$ python3 SAMLTeamSyncAD.py --list --group ADGroupA
+$ python3 SAMLTeamSyncLDAP.py --list --group ADGroupA
 Succesfully authenticated
-AD Group: ADGroupA
+AD/LDAP Group: ADGroupA
 ---------------
 ghusera
 ```
@@ -132,25 +136,25 @@ ghusera
 #### Listing GitHub Team Members
 This option will list members in GitHub teams
 ```bash
-$ python3 SAMLTeamSyncAD.py --list --team GHETeamA
+$ python3 SAMLTeamSyncLDAP.py --list --team GHETeamA
 GitHub Team: GHETeamA
 ---------------
 primetheus
 ```
 
-#### Add Users to GitHub Teams from AD
-This option will only add users to GitHub teams when they are found in Active Directory. It will not remove users from teams
+#### Add Users to GitHub Teams from AD/LDAP
+This option will only add users to GitHub teams when they are found in AD/LDAP. It will not remove users from teams.
 ```bash
-$ python3 SAMLTeamSyncAD.py --add --team GHETeamA --group ADGroupA
+$ python3 SAMLTeamSyncLDAP.py --add --team GHETeamA --group ADGroupA
 
 -- OR --
-$ python3 SAMLTeamSyncAD.py -a -t GHETeamA -g ADGroupA
+$ python3 SAMLTeamSyncLDAP.py -a -t GHETeamA -g ADGroupA
 ```
 
-#### Full User Sync from Active Directory Group to GitHub Team
-This option will add users to GitHub teams when found in Active Directory, as well as remove users from GitHub teams when they don't exist in the AD group. 
+#### Full User Sync from AD/LDAP Group to GitHub Team
+This option will add users to GitHub teams when found in AD/LDAP, as well as remove users from GitHub teams when they don't exist in the AD/LDAP group. 
 
 ```bash
-$ python3 SAMLTeamSyncAD.py --sync --team GHETeamA --group ADGroupA
-$ python3 SAMLTeamSyncAD.py -s -t GHETeamA -g "AD Group A"
+$ python3 SAMLTeamSyncLDAP.py --sync --team GHETeamA --group ADGroupA
+$ python3 SAMLTeamSyncLDAP.py -s -t GHETeamA -g "AD Group A"
 ```
