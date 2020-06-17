@@ -1,0 +1,29 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+pytest-mock = "*"
+isort = "*"
+black = "*"
+pre-commit = "*"
+pylint = "*"
+seed-isort-config = "*"
+green = "*"
+tox = "*"
+tox-gh-actions = "*"
+
+[packages]
+"github3.py" = "*"
+flask = "*"
+pyyaml = "*"
+env_file = "*"
+ldap3 = "*"
+
+[pipenv]
+allow_prereleases = true
+
+[requires]
+python_version = "3.8"
