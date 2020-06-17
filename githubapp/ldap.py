@@ -36,8 +36,8 @@ class LDAPClient:
         Get members of the requested group in LDAP/Active Directory
         :param group_name: The name of the group
         :type group_name: str
-        :return: member_list
-        :rtype: list
+        :return member_list: List of members found in this LDAP group
+        :rtype member_list: list
         """
         member_list = []
         entries = self.conn.extend.standard.paged_search(search_base=self.LDAP_BASEDN,
@@ -50,6 +50,14 @@ class LDAPClient:
                 for member in entry['attributes'][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
                     try:
                         member_list.append(self.get_attr_by_dn(member))
+                    except IndexError:
+                        if self.LDAP_GROUP_BASEDN in member:
+                            pass
+                            #print("Nested groups are not yet supported.")
+                            #print("This feature is currently under development.")
+                            #print("{} was not processed.".format(member))
+                        else:
+                            print("Unable to look up '{}'".format(member))
                     except Exception as e:
                         print(e)
         return member_list
@@ -59,7 +67,9 @@ class LDAPClient:
         Get an attribute for a given object. Right now we only care about the sAMAccountName/uid,
         so it's hard-coded... we can adjust this if we see a need later down the line
         :param user_dn: Object's full DN to lookup
-        :return: username
+        :type user_dn: str
+        :return username: The user's UID or username
+        :rtype username: str
         """
         try:
             self.conn.search(search_base=user_dn,
