@@ -1,13 +1,14 @@
 FROM python:3-alpine
 
-LABEL version="0.9"
+LABEL version="2.0"
 LABEL description="LDAP Team Sync for GitHub"
 
 MAINTAINER GitHub Services <services@github.com>
 
-COPY . /opt/teamsync
-WORKDIR /opt/teamsync
+COPY . /opt/github-team-sync
+WORKDIR /opt/github-team-sync
     
-RUN pip install --upgrade -r requirements.txt
+RUN apk add --no-cache libxml2-dev libxslt-dev pipenv python3-dev make gcc libffi-dev build-base
+RUN pipenv install
 
-CMD /bin/bash
+CMD pipenv run flask run
