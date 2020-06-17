@@ -14,6 +14,7 @@ class LDAPClient:
             self.LDAP_USER_BASEDN = settings['ldap']['user_base_dn']
             self.LDAP_USER_FILTER = settings['ldap']['user_filter']
             self.LDAP_USER_ATTRIBUTE = settings['ldap']['user_attribute']
+            self.LDAP_USER_MAIL_ATTRIBUTE = settings['ldap']['user_mail_attribute']
             self.LDAP_GROUP_BASEDN = settings['ldap']['group_base_dn']
             self.LDAP_GROUP_FILTER = settings['ldap']['group_filter']
             self.LDAP_GROUP_MEMBER_ATTRIBUTE = settings['ldap']['group_member_attribute']
@@ -25,11 +26,13 @@ class LDAPClient:
             elif os.environ['LDAP_BIND_PASSWORD']:
                 self.LDAP_BIND_PWD = os.environ['LDAP_BIND_PASSWORD']
 
-        self.conn = Connection(self.LDAP_SERVERS[0],
-                               user=self.LDAP_BIND_USER,
-                               password=self.LDAP_BIND_PWD,
-                               auto_bind=True,
-                               auto_range=True)
+        self.conn = Connection(
+            self.LDAP_SERVERS[0],
+            user=self.LDAP_BIND_USER,
+            password=self.LDAP_BIND_PWD,
+            auto_bind=True,
+            auto_range=True
+        )
 
     def get_group_members(self, group_name):
         """
@@ -40,11 +43,15 @@ class LDAPClient:
         :rtype member_list: list
         """
         member_list = []
-        entries = self.conn.extend.standard.paged_search(search_base=self.LDAP_BASEDN,
-                                                         search_filter=self.LDAP_GROUP_FILTER.replace('{group_name}',
-                                                                                                      group_name),
-                                                         attributes=[self.LDAP_GROUP_MEMBER_ATTRIBUTE],
-                                                         paged_size=self.LDAP_PAGE_SIZE)
+        entries = self.conn.extend.standard.paged_search(
+            search_base=self.LDAP_BASEDN,
+            search_filter=self.LDAP_GROUP_FILTER.replace(
+                '{group_name}',
+                group_name
+            ),
+            attributes=[self.LDAP_GROUP_MEMBER_ATTRIBUTE],
+            paged_size=self.LDAP_PAGE_SIZE
+        )
         for entry in entries:
             if entry['type'] == 'searchResEntry':
                 for member in entry['attributes'][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
@@ -53,9 +60,9 @@ class LDAPClient:
                     except IndexError:
                         if self.LDAP_GROUP_BASEDN in member:
                             pass
-                            #print("Nested groups are not yet supported.")
-                            #print("This feature is currently under development.")
-                            #print("{} was not processed.".format(member))
+                            # print("Nested groups are not yet supported.")
+                            # print("This feature is currently under development.")
+                            # print("{} was not processed.".format(member))
                         else:
                             print("Unable to look up '{}'".format(member))
                     except Exception as e:
@@ -72,10 +79,17 @@ class LDAPClient:
         :rtype username: str
         """
         try:
-            self.conn.search(search_base=user_dn,
-                             search_filter=self.LDAP_USER_FILTER,
-                             attributes=[self.LDAP_USER_ATTRIBUTE])
+            self.conn.search(
+                search_base=user_dn,
+                search_filter=self.LDAP_USER_FILTER,
+                attributes=[
+                    self.LDAP_USER_ATTRIBUTE,
+                    self.LDAP_USER_MAIL_ATTRIBUTE
+                ]
+            )
         except Exception as e:
             print(e)
-        username = self.conn.entries[0][self.LDAP_USER_ATTRIBUTE]
-        return str(username).casefold()
+        username = str(self.conn.entries[0][self.LDAP_USER_ATTRIBUTE]).casefold()
+        email = str(self.conn.entries[0][self.LDAP_USER_MAIL_ATTRIBUTE]).casefold()
+        user_info = {'username': username, 'email': email}
+        return user_info

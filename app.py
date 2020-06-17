@@ -15,9 +15,16 @@ def sync_team():
     slug = payload['team']['slug']
     parent = payload['team']['parent']
     ldap_members = ldap_lookup(group=slug)
-    team_members = github_lookup(team_id=payload['team']['id'])
-    sync = compare_members(ldap_group=ldap_members, github_team=team_members)
-    pprint(sync)
+    team_members = github_lookup(
+        team_id=payload['team']['id'],
+        attribute='username'
+    )
+    compare = compare_members(
+        ldap_group=ldap_members,
+        github_team=team_members,
+        attribute='username'
+    )
+    pprint(compare)
 
 
 def ldap_lookup(group=None):
@@ -29,35 +36,49 @@ def ldap_lookup(group=None):
     :rtype: list
     """
     group_members = ldap.get_group_members(group)
-    ldap_members = [str(member).casefold() for member in group_members]
+    ldap_members = [member for member in group_members]
     return ldap_members
 
 
-def github_lookup(team_id=None):
+def github_lookup(team_id=None, attribute='username'):
     """
     Look up members of a give team in GitHub
     :param team_id:
+    :param attribute:
     :type team_id: int
+    :type attribute: str
     :return: team_members
     :rtype: list
     """
+    team_members = []
     owner = github_app.payload['organization']['login']
     org = github_app.installation_client.organization(owner)
     team = org.team(team_id)
-    team_members = [str(member).casefold() for member in team.members()]
+    if attribute == 'email':
+        for m in team.members():
+            user = github_app.installation_client.user(m.login)
+            team_members.append({'username': str(user.login).casefold(),
+                                 'email': str(user.email).casefold()})
+    else:
+        for member in team.members():
+            team_members.append({'username': str(member).casefold(),
+                                 'email': ''})
     return team_members
 
 
-def compare_members(ldap_group, github_team):
+def compare_members(ldap_group, github_team, attribute='username'):
     """
     Compare users in GitHub and LDAP to see which users need to be added or removed
     :param ldap_group:
     :param github_team:
+    :param attribute:
     :return: sync_state
     :rtype: dict
     """
-    add_users = list(set(ldap_group) - set(github_team))
-    remove_users = list(set(github_team) - set(ldap_group))
+    ldap_list = [x[attribute] for x in ldap_group]
+    github_list = [x[attribute] for x in github_team]
+    add_users = list(set(ldap_list) - set(github_list))
+    remove_users = list(set(github_list) - set(ldap_list))
     sync_state = {
         'ldap': ldap_group,
         'github': github_team,
@@ -69,5 +90,5 @@ def compare_members(ldap_group, github_team):
     return sync_state
 
 
-def sync_users():
+def sync_team():
     pass
