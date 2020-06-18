@@ -50,7 +50,7 @@ class LDAPClient:
             if entry['type'] == 'searchResEntry':
                 for member in entry['attributes'][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
                     try:
-                        if 'uid' in member:
+                        if any(attr in member.casefold() for attr in ['uid=', 'cn='])::
                             member_dn = member
                         else:
                             member_dn = f'uid={member},{self.LDAP_USER_BASE_DN}'
