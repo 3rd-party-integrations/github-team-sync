@@ -12,7 +12,7 @@ from logging import NullHandler
 # Set initial level to WARN. Users must manually enable logging for
 # flask_githubapp to see our logging.
 rootlogger = logging.getLogger(__name__)
-rootlogger.addHandler(NullHandler())
+#rootlogger.addHandler(NullHandler())
 
 if rootlogger.level == logging.NOTSET:
     rootlogger.setLevel(logging.WARN)

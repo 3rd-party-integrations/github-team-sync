@@ -18,7 +18,11 @@ class LDAPClient:
             self.LDAP_GROUP_BASEDN = settings['ldap']['group_base_dn']
             self.LDAP_GROUP_FILTER = settings['ldap']['group_filter']
             self.LDAP_GROUP_MEMBER_ATTRIBUTE = settings['ldap']['group_member_attribute']
-            self.LDAP_BIND_USER = settings['ldap']['bind_user']
+            if 'bind_user' in settings['ldap']:
+                self.LDAP_BIND_USER = settings['ldap']['bind_user']
+            else: 
+                self.LDAP_BIND_USER = settings['ldap']['bind_dn']
+
             self.LDAP_PAGE_SIZE = settings['ldap']['page_size']
             if 'bind_password' in settings['ldap']:
                 if settings['ldap']['bind_password']:
@@ -56,7 +60,8 @@ class LDAPClient:
             if entry['type'] == 'searchResEntry':
                 for member in entry['attributes'][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
                     try:
-                        member_list.append(self.get_attr_by_dn(member))
+                        member_dn = f'uid={member},{self.LDAP_USER_BASEDN}'
+                        member_list.append(self.get_attr_by_dn(member_dn))
                     except IndexError:
                         if self.LDAP_GROUP_BASEDN in member:
                             pass

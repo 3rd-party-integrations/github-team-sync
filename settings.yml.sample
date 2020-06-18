@@ -21,6 +21,8 @@ ldap:
   user_filter: (objectClass=person)
   # User attribute
   user_attribute: sAMAccountName
+  # User Mail attribute
+  user_mail_attribute: email
   # Group Filter
   group_filter: (&(objectClass=group)(cn={group_name}))
   # Group Member Attribute

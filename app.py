@@ -7,10 +7,12 @@ app = Flask(__name__)
 github_app = GitHubApp(app)
 ldap = LDAPClient('settings.yml')
 
-
+if __name__ == '__main__':
+    app.run(debug=True)
+    
 @github_app.on('team.created')
 def sync_team():
-    #pprint(github_app.payload)
+    pprint(github_app.payload)
     payload = github_app.payload
     slug = payload['team']['slug']
     parent = payload['team']['parent']
@@ -19,12 +21,29 @@ def sync_team():
         team_id=payload['team']['id'],
         attribute='username'
     )
+    
     compare = compare_members(
         ldap_group=ldap_members,
         github_team=team_members,
         attribute='username'
     )
+
     pprint(compare)
+
+    owner = github_app.payload['organization']['login']
+    org = github_app.installation_client.organization(owner)
+    team = org.team(payload['team']['id'])
+    for user in compare['action']['add']:
+        # Validate that user is in org
+        if org.is_member(user):
+            team.add_or_update_membership(user)
+        else:
+            pprint(f'Skipping {user} as they are not part of the org')
+
+    for user in compare['action']['remove']:
+        pprint(f'Removing {user}')
+        team.revoke_membership(user)            
+
 
 
 def ldap_lookup(group=None):
@@ -39,6 +58,10 @@ def ldap_lookup(group=None):
     ldap_members = [member for member in group_members]
     return ldap_members
 
+def github_team(team_id):
+    owner = github_app.payload['organization']['login']
+    org = github_app.installation_client.organization(owner)
+    return org.team(team_id)
 
 def github_lookup(team_id=None, attribute='username'):
     """
@@ -51,9 +74,7 @@ def github_lookup(team_id=None, attribute='username'):
     :rtype: list
     """
     team_members = []
-    owner = github_app.payload['organization']['login']
-    org = github_app.installation_client.organization(owner)
-    team = org.team(team_id)
+    team = github_team(team_id)
     if attribute == 'email':
         for m in team.members():
             user = github_app.installation_client.user(m.login)

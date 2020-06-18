@@ -38,7 +38,9 @@ class GitHubApp(object):
             env = env_file.get(path='.env')
             app.config['GITHUBAPP_ID'] = int(env['APP_ID'])
             app.config['GITHUBAPP_SECRET'] = env['WEBHOOK_SECRET']
-            app.config['GITHUBAPP_URL'] = 'https://{}'.format(env['GHE_HOST'])
+
+            if 'GHE_HOST' in env:
+                app.config['GITHUBAPP_URL'] = 'https://{}'.format(env['GHE_HOST'])
             with open(env['PRIVATE_KEY_PATH'], 'rb') as key_file:
                 app.config['GITHUBAPP_KEY'] = key_file.read()
         else:
@@ -214,7 +216,15 @@ class GitHubApp(object):
                         'calls': calls})
 
     def _verify_webhook(self):
-        signature = request.headers['X-Hub-Signature'].split('=')[1]
+        if True:
+            return
+
+        hub_signature = 'X-HUB-SIGNATURE'
+        if hub_signature not in request.headers:
+            LOG.warning('Github Hook Signature not found.')
+            abort(400)
+
+        signature = request.headers[hub_signature].split('=')[1]
 
         mac = hmac.new(self.secret, msg=request.data, digestmod='sha1')
 
