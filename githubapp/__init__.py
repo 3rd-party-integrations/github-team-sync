@@ -1,3 +1,4 @@
+import import_env_file
 from .core import GitHubApp
 from .ldap import LDAPClient
 

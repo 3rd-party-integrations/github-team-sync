@@ -1,39 +1,29 @@
-import yaml
 import os
 from ldap3 import Server, Connection, ALL
 
-
 class LDAPClient:
-    def __init__(self, settings_file):
-        with open(settings_file, 'rb') as stream:
-            # Read settings from the config file and store them as constants
-            settings = yaml.load(stream, Loader=yaml.FullLoader)
-            self.LDAP_SERVERS = settings['ldap']['servers']
-            self.LDAP_SERVER_PORT = settings['ldap']['port']
-            self.LDAP_BASEDN = settings['ldap']['base_dn']
-            self.LDAP_USER_BASEDN = settings['ldap']['user_base_dn']
-            self.LDAP_USER_FILTER = settings['ldap']['user_filter']
-            self.LDAP_USER_ATTRIBUTE = settings['ldap']['user_attribute']
-            self.LDAP_USER_MAIL_ATTRIBUTE = settings['ldap']['user_mail_attribute']
-            self.LDAP_GROUP_BASEDN = settings['ldap']['group_base_dn']
-            self.LDAP_GROUP_FILTER = settings['ldap']['group_filter']
-            self.LDAP_GROUP_MEMBER_ATTRIBUTE = settings['ldap']['group_member_attribute']
-            if 'bind_user' in settings['ldap']:
-                self.LDAP_BIND_USER = settings['ldap']['bind_user']
-            else: 
-                self.LDAP_BIND_USER = settings['ldap']['bind_dn']
-
-            self.LDAP_PAGE_SIZE = settings['ldap']['page_size']
-            if 'bind_password' in settings['ldap']:
-                if settings['ldap']['bind_password']:
-                    self.LDAP_BIND_PWD = settings['ldap']['bind_password']
-            elif os.environ['LDAP_BIND_PASSWORD']:
-                self.LDAP_BIND_PWD = os.environ['LDAP_BIND_PASSWORD']
-
+    def __init__(self):
+        # Read settings from the config file and store them as constants
+        self.LDAP_SERVER_HOST = os.environ['LDAP_SERVER_HOST']
+        self.LDAP_SERVER_PORT = os.environ['LDAP_SERVER_PORT']
+        self.LDAP_BASE_DN = os.environ['LDAP_BASE_DN']
+        self.LDAP_USER_BASE_DN = os.environ['LDAP_USER_BASE_DN']
+        self.LDAP_USER_FILTER = os.environ['LDAP_USER_FILTER']
+        self.LDAP_USER_ATTRIBUTE = os.environ['LDAP_USER_ATTRIBUTE']
+        self.LDAP_USER_MAIL_ATTRIBUTE = os.environ['LDAP_USER_MAIL_ATTRIBUTE']
+        self.LDAP_GROUP_BASE_DN = os.environ['LDAP_GROUP_BASE_DN']
+        self.LDAP_GROUP_FILTER = os.environ['LDAP_GROUP_FILTER']
+        self.LDAP_GROUP_MEMBER_ATTRIBUTE = os.environ['LDAP_GROUP_MEMBER_ATTRIBUTE']
+        if 'bind_user' in os.environ:
+            self.LDAP_BIND_USER = os.environ['LDAP_BIND_USER']
+        else: 
+            self.LDAP_BIND_USER = os.environ['LDAP_BIND_DN']
+        self.LDAP_PAGE_SIZE = os.environ['LDAP_SEARCH_PAGE_SIZE']
+        self.LDAP_BIND_PASSWORD = os.environ['LDAP_BIND_PASSWORD']
         self.conn = Connection(
-            self.LDAP_SERVERS[0],
+            self.LDAP_SERVER_HOST,
             user=self.LDAP_BIND_USER,
-            password=self.LDAP_BIND_PWD,
+            password=self.LDAP_BIND_PASSWORD,
             auto_bind=True,
             auto_range=True
         )
@@ -48,7 +38,7 @@ class LDAPClient:
         """
         member_list = []
         entries = self.conn.extend.standard.paged_search(
-            search_base=self.LDAP_BASEDN,
+            search_base=self.LDAP_BASE_DN,
             search_filter=self.LDAP_GROUP_FILTER.replace(
                 '{group_name}',
                 group_name
@@ -60,10 +50,13 @@ class LDAPClient:
             if entry['type'] == 'searchResEntry':
                 for member in entry['attributes'][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
                     try:
-                        member_dn = f'uid={member},{self.LDAP_USER_BASEDN}'
+                        if 'uid' in member:
+                            member_dn = member
+                        else:
+                            member_dn = f'uid={member},{self.LDAP_USER_BASE_DN}'
                         member_list.append(self.get_attr_by_dn(member_dn))
                     except IndexError:
-                        if self.LDAP_GROUP_BASEDN in member:
+                        if self.LDAP_GROUP_BASE_DN in member:
                             pass
                             # print("Nested groups are not yet supported.")
                             # print("This feature is currently under development.")

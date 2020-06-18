@@ -34,17 +34,12 @@ class GitHubApp(object):
 
     @staticmethod
     def load_env(app):
-        if os.path.exists('.env'):
-            env = env_file.get(path='.env')
-            app.config['GITHUBAPP_ID'] = int(env['APP_ID'])
-            app.config['GITHUBAPP_SECRET'] = env['WEBHOOK_SECRET']
-
-            if 'GHE_HOST' in env:
-                app.config['GITHUBAPP_URL'] = 'https://{}'.format(env['GHE_HOST'])
-            with open(env['PRIVATE_KEY_PATH'], 'rb') as key_file:
-                app.config['GITHUBAPP_KEY'] = key_file.read()
-        else:
-            raise FileNotFoundError('Please create a .env file')
+        app.config['GITHUBAPP_ID'] = int(os.environ['APP_ID'])
+        app.config['GITHUBAPP_SECRET'] = os.environ['WEBHOOK_SECRET']
+        if 'GHE_HOST' in os.environ:
+            app.config['GITHUBAPP_URL'] = 'https://{}'.format(os.environ['GHE_HOST'])
+        with open(os.environ['PRIVATE_KEY_PATH'], 'rb') as key_file:
+            app.config['GITHUBAPP_KEY'] = key_file.read()
 
     def init_app(self, app):
         """

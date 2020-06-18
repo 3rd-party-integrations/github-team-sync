@@ -19,8 +19,8 @@ tox-gh-actions = "*"
 "github3.py" = "*"
 flask = "*"
 pyyaml = "*"
-env_file = "*"
 ldap3 = "*"
+import_env_file = "*"
 
 [pipenv]
 allow_prereleases = true

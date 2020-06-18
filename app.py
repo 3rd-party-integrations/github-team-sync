@@ -1,15 +1,12 @@
-import yaml
 from pprint import pprint
 from flask import Flask
 from githubapp import GitHubApp, LDAPClient
+import os
 
 app = Flask(__name__)
 github_app = GitHubApp(app)
-ldap = LDAPClient('settings.yml')
+ldap = LDAPClient()
 
-if __name__ == '__main__':
-    app.run(debug=True)
-    
 @github_app.on('team.created')
 def sync_team():
     pprint(github_app.payload)
