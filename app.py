@@ -1,11 +1,11 @@
-import yaml
 from pprint import pprint
 from flask import Flask
 from githubapp import GitHubApp, LDAPClient
+import os
 
 app = Flask(__name__)
 github_app = GitHubApp(app)
-ldap = LDAPClient('settings.yml')
+ldap = LDAPClient()
 
 
 @github_app.on('team.created')
