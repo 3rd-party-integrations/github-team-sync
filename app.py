@@ -3,10 +3,28 @@ from flask import Flask
 from githubapp import GitHubApp, LDAPClient
 from distutils.util import strtobool
 import os
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
+import time
 
 app = Flask(__name__)
 github_app = GitHubApp(app)
 ldap = LDAPClient()
+
+
+
+# Schedule a full sync
+scheduler = BackgroundScheduler(daemon=True)
+scheduler.start()
+atexit.register(lambda: scheduler.shutdown(wait=False))
+
+@scheduler.scheduled_job('interval', id='sync_all_teams', seconds=45)
+def sync_all_teams():
+    pprint(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
+
+# Sync right when we start
+# For some reason this kicks off twice
+sync_all_teams()
 
 @github_app.on('team.created')
 def sync_team():
