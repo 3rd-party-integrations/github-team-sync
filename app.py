@@ -1,6 +1,7 @@
 from pprint import pprint
 from flask import Flask
 from githubapp import GitHubApp, LDAPClient
+from distutils.util import strtobool
 import os
 
 app = Flask(__name__)
@@ -9,8 +10,15 @@ ldap = LDAPClient()
 
 @github_app.on('team.created')
 def sync_team():
-    pprint(github_app.payload)
+    """
+
+    :return:
+    """
+    # pprint(github_app.payload)
     payload = github_app.payload
+    owner = github_app.payload['organization']['login']
+    org = github_app.installation_client.organization(owner)
+    team = org.team(payload['team']['id'])
     slug = payload['team']['slug']
     parent = payload['team']['parent']
     ldap_members = ldap_lookup(group=slug)
@@ -18,29 +26,26 @@ def sync_team():
         team_id=payload['team']['id'],
         attribute='username'
     )
-    
+
     compare = compare_members(
         ldap_group=ldap_members,
         github_team=team_members,
         attribute='username'
     )
-
     pprint(compare)
-
-    owner = github_app.payload['organization']['login']
-    org = github_app.installation_client.organization(owner)
-    team = org.team(payload['team']['id'])
-    for user in compare['action']['add']:
-        # Validate that user is in org
-        if org.is_member(user):
-            team.add_or_update_membership(user)
-        else:
-            pprint(f'Skipping {user} as they are not part of the org')
-
-    for user in compare['action']['remove']:
-        pprint(f'Removing {user}')
-        team.revoke_membership(user)            
-
+    try:
+        execute_sync(
+            org=org,
+            team=team,
+            slug=slug,
+            state=compare
+        )
+    except ValueError as e:
+        if strtobool(os.environ['OPEN_ISSUE_ON_FAILURE']):
+            open_issue(slug=slug, message=e)
+    except AssertionError as e:
+        if strtobool(os.environ['OPEN_ISSUE_ON_FAILURE']):
+            open_issue(slug=slug, message=e)
 
 
 def ldap_lookup(group=None):
@@ -55,10 +60,17 @@ def ldap_lookup(group=None):
     ldap_members = [member for member in group_members]
     return ldap_members
 
+
 def github_team(team_id):
+    """
+    Look up team info in GitHub
+    :param team_id:
+    :return:
+    """
     owner = github_app.payload['organization']['login']
     org = github_app.installation_client.organization(owner)
     return org.team(team_id)
+
 
 def github_lookup(team_id=None, attribute='username'):
     """
@@ -108,5 +120,48 @@ def compare_members(ldap_group, github_team, attribute='username'):
     return sync_state
 
 
-def sync_team():
-    pass
+def execute_sync(org, team, slug, state):
+    """
+    Perform the synchronization
+    :param org:
+    :param team:
+    :param slug:
+    :param state:
+    :return:
+    """
+    total_changes = len(state['action']['remove']) + len(state['action']['add'])
+    if len(state['ldap']) == 0:
+        message = "LDAP group returned empty: {}".format(slug)
+        raise ValueError(message)
+    elif int(total_changes) > int(os.environ['CHANGE_THRESHOLD']):
+        message = "Skipping sync for {}.<br>".format(slug)
+        message += "Total number of changes ({}) would exceed the change threshold ({}).".format(
+            str(total_changes), str(os.environ['CHANGE_THRESHOLD'])
+        )
+        message += "<br>Please investigate this change and increase your threshold if this is accurate."
+        raise AssertionError(message)
+    else:
+        for user in state['action']['add']:
+            # Validate that user is in org
+            if org.is_member(user):
+                pprint(f'Adding {user} to {slug}')
+                team.add_or_update_membership(user)
+            else:
+                pprint(f'Skipping {user} as they are not part of the org')
+
+        for user in state['action']['remove']:
+            pprint(f'Removing {user} from {slug}')
+            team.revoke_membership(user)
+
+def open_issue(slug, message):
+    repo_for_issues = os.environ['REPO_FOR_ISSUES']
+    owner = repo_for_issues.split('/')[0]
+    repository = repo_for_issues.split('/')[1]
+    assignee = os.environ['ISSUE_ASSIGNEE']
+    issue = github_app.installation_client.create_issue(
+        owner=owner,
+        repository=repository,
+        assignee=assignee,
+        title="Team sync failed for @{}/{}".format(owner, slug),
+        body=str(message)
+    )
