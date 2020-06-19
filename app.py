@@ -39,6 +39,7 @@ def sync_team():
         team=team,
         state=compare
     )
+    open_issue(slug=slug)
 
 
 def ldap_lookup(group=None):
@@ -131,3 +132,16 @@ def execute_sync(org, team, state):
     for user in state['action']['remove']:
         pprint(f'Removing {user}')
         team.revoke_membership(user)
+
+def open_issue(slug):
+    repo_for_issues = os.environ['REPO_FOR_ISSUES']
+    owner = repo_for_issues.split('/')[0]
+    repository = repo_for_issues.split('/')[1]
+    assignee = os.environ['ISSUE_ASSIGNEE']
+    issue = github_app.installation_client.create_issue(
+        owner=owner,
+        repository=repository,
+        assignee=assignee,
+        title="Team sync failed for {}".format(slug),
+        body="Team sync failed for {}".format(slug)
+    )
