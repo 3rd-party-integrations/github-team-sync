@@ -22,6 +22,7 @@ class LDAPClient:
             raise Exception('LDAP credentials have not been specified')
         self.LDAP_PAGE_SIZE = os.environ['LDAP_SEARCH_PAGE_SIZE']
         self.LDAP_BIND_PASSWORD = os.environ['LDAP_BIND_PASSWORD']
+
         self.conn = Connection(
             self.LDAP_SERVER_HOST,
             user=self.LDAP_BIND_USER,
@@ -52,7 +53,7 @@ class LDAPClient:
             if entry['type'] == 'searchResEntry':
                 for member in entry['attributes'][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
                     try:
-                        if any(attr in member.casefold() for attr in ['uid=', 'cn='])::
+                        if any(attr in member.casefold() for attr in ['uid=', 'cn=']):
                             member_dn = member
                         else:
                             member_dn = f'uid={member},{self.LDAP_USER_BASE_DN}'
