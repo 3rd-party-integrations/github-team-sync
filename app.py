@@ -11,6 +11,9 @@ ldap = LDAPClient()
 def sync_team():
     pprint(github_app.payload)
     payload = github_app.payload
+    owner = github_app.payload['organization']['login']
+    org = github_app.installation_client.organization(owner)
+    team = org.team(payload['team']['id'])
     slug = payload['team']['slug']
     parent = payload['team']['parent']
     ldap_members = ldap_lookup(group=slug)
@@ -24,23 +27,12 @@ def sync_team():
         github_team=team_members,
         attribute='username'
     )
-
     pprint(compare)
-
-    owner = github_app.payload['organization']['login']
-    org = github_app.installation_client.organization(owner)
-    team = org.team(payload['team']['id'])
-    for user in compare['action']['add']:
-        # Validate that user is in org
-        if org.is_member(user):
-            team.add_or_update_membership(user)
-        else:
-            pprint(f'Skipping {user} as they are not part of the org')
-
-    for user in compare['action']['remove']:
-        pprint(f'Removing {user}')
-        team.revoke_membership(user)            
-
+    sync_team(
+        org=org,
+        team=team,
+        state=compare
+    )
 
 
 def ldap_lookup(group=None):
@@ -108,5 +100,14 @@ def compare_members(ldap_group, github_team, attribute='username'):
     return sync_state
 
 
-def sync_team():
-    pass
+def sync_team(org, team ,state):
+    for user in state['action']['add']:
+        # Validate that user is in org
+        if org.is_member(user):
+            team.add_or_update_membership(user)
+        else:
+            pprint(f'Skipping {user} as they are not part of the org')
+
+    for user in state['action']['remove']:
+        pprint(f'Removing {user}')
+        team.revoke_membership(user)

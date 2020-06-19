@@ -1,5 +1,8 @@
 import os
+import logging
 from ldap3 import Server, Connection, ALL
+
+LOG = logging.getLogger(__name__)
 
 class LDAPClient:
     def __init__(self):
@@ -14,10 +17,12 @@ class LDAPClient:
         self.LDAP_GROUP_BASE_DN = os.environ['LDAP_GROUP_BASE_DN']
         self.LDAP_GROUP_FILTER = os.environ['LDAP_GROUP_FILTER']
         self.LDAP_GROUP_MEMBER_ATTRIBUTE = os.environ['LDAP_GROUP_MEMBER_ATTRIBUTE']
-        if 'bind_user' in os.environ:
+        if 'LDAP_BIND_USER' in os.environ:
             self.LDAP_BIND_USER = os.environ['LDAP_BIND_USER']
-        else: 
+        elif 'LDAP_BIND_DN' in os.environ:
             self.LDAP_BIND_USER = os.environ['LDAP_BIND_DN']
+        else:
+            raise Exception('LDAP credentials have not been specified')
         self.LDAP_PAGE_SIZE = os.environ['LDAP_SEARCH_PAGE_SIZE']
         self.LDAP_BIND_PASSWORD = os.environ['LDAP_BIND_PASSWORD']
         self.conn = Connection(
@@ -50,7 +55,7 @@ class LDAPClient:
             if entry['type'] == 'searchResEntry':
                 for member in entry['attributes'][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
                     try:
-                        if 'uid' in member:
+                        if any(attr in member.casefold() for attr in ['uid=', 'cn=']):
                             member_dn = member
                         else:
                             member_dn = f'uid={member},{self.LDAP_USER_BASE_DN}'

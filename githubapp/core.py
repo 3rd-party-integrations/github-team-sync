@@ -2,7 +2,6 @@
 Flask extension for rapid GitHub app development
 """
 import os.path
-import env_file
 import hmac
 import logging
 
