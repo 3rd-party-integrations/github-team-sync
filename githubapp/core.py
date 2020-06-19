@@ -125,9 +125,11 @@ class GitHubApp(object):
         if ctx is not None:
             if not hasattr(ctx, 'githubapp_installation'):
                 client = self.client
-                client.login_as_app_installation(self.key,
-                                                 self.id,
-                                                 self.payload['installation']['id'])
+                client.login_as_app_installation(
+                    self.key,
+                    self.id,
+                    self.payload['installation']['id']
+                )
                 ctx.githubapp_installation = client
             return ctx.githubapp_installation
 

@@ -2,14 +2,20 @@ from pprint import pprint
 from flask import Flask
 from githubapp import GitHubApp, LDAPClient
 import os
+import argparse
 
 app = Flask(__name__)
 github_app = GitHubApp(app)
 ldap = LDAPClient()
 
+
 @github_app.on('team.created')
 def sync_team():
-    pprint(github_app.payload)
+    """
+
+    :return:
+    """
+    # pprint(github_app.payload)
     payload = github_app.payload
     owner = github_app.payload['organization']['login']
     org = github_app.installation_client.organization(owner)
@@ -21,7 +27,7 @@ def sync_team():
         team_id=payload['team']['id'],
         attribute='username'
     )
-    
+
     compare = compare_members(
         ldap_group=ldap_members,
         github_team=team_members,
@@ -47,10 +53,17 @@ def ldap_lookup(group=None):
     ldap_members = [member for member in group_members]
     return ldap_members
 
+
 def github_team(team_id):
+    """
+    Look up team info in GitHub
+    :param team_id:
+    :return:
+    """
     owner = github_app.payload['organization']['login']
     org = github_app.installation_client.organization(owner)
     return org.team(team_id)
+
 
 def github_lookup(team_id=None, attribute='username'):
     """
@@ -100,7 +113,14 @@ def compare_members(ldap_group, github_team, attribute='username'):
     return sync_state
 
 
-def execute_sync(org, team ,state):
+def execute_sync(org, team, state):
+    """
+    Perform the synchronization
+    :param org:
+    :param team:
+    :param state:
+    :return:
+    """
     for user in state['action']['add']:
         # Validate that user is in org
         if org.is_member(user):

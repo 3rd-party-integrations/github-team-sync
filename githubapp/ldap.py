@@ -6,6 +6,7 @@ from pprint import pprint
 
 LOG = logging.getLogger(__name__)
 
+
 class LDAPClient:
     def __init__(self):
         # Read settings from the config file and store them as constants
@@ -65,51 +66,33 @@ class LDAPClient:
         for entry in entries:
             if entry['type'] == 'searchResEntry':
                 for member in entry['attributes'][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
-                    try:
-                        member_dn = self.get_user_info(member)
-                        pprint(member_dn)
-                        username = str(member_dn['attributes'][self.LDAP_USER_ATTRIBUTE][0]).casefold()
-                        email = str(member_dn['attributes'][self.LDAP_USER_MAIL_ATTRIBUTE][0]).casefold()
-                        user_info = {'username': username, 'email': email}
-                        member_list.append(user_info)
-                    except IndexError:
-                        if self.LDAP_GROUP_BASE_DN in member:
+                    if self.LDAP_GROUP_BASE_DN in member:
+                        pass
+                        # print("Nested groups are not yet supported.")
+                        # print("This feature is currently under development.")
+                        # print("{} was not processed.".format(member))
+                        # print("Unable to look up '{}'".format(member))
+                        # print(e)
+                    else:
+                        try:
+                            member_dn = self.get_user_info(member)
+                            pprint(member_dn)
+                            username = str(member_dn['attributes'][self.LDAP_USER_ATTRIBUTE][0]).casefold()
+                            email = str(member_dn['attributes'][self.LDAP_USER_MAIL_ATTRIBUTE][0]).casefold()
+                            user_info = {'username': username, 'email': email}
+                            member_list.append(user_info)
+                        except Exception as e:
                             pass
-                            # print("Nested groups are not yet supported.")
-                            # print("This feature is currently under development.")
-                            # print("{} was not processed.".format(member))
-                        else:
-                            print("Unable to look up '{}'".format(member))
-                    except Exception as e:
-                        print(e)
         return member_list
 
-    # def get_attr_by_dn(self, user_dn):
-    #     """
-    #     Get an attribute for a given object. Right now we only care about the sAMAccountName/uid,
-    #     so it's hard-coded... we can adjust this if we see a need later down the line
-    #     :param user_dn: Object's full DN to lookup
-    #     :type user_dn: str
-    #     :return username: The user's UID or username
-    #     :rtype username: str
-    #     """
-    #     try:
-    #         self.conn.search(
-    #             search_base=user_dn,
-    #             search_filter=self.LDAP_USER_FILTER,
-    #             attributes=[
-    #                 self.LDAP_USER_ATTRIBUTE,
-    #                 self.LDAP_USER_MAIL_ATTRIBUTE
-    #             ]
-    #         )
-    #     except Exception as e:
-    #         print(e)
-    #     username = str(self.conn.entries[0][self.LDAP_USER_ATTRIBUTE]).casefold()
-    #     email = str(self.conn.entries[0][self.LDAP_USER_MAIL_ATTRIBUTE]).casefold()
-    #     user_info = {'username': username, 'email': email}
-    #     return user_info
-
     def get_user_info(self, member=None):
+        """
+        Look up user info from LDAP
+        :param member:
+        :type member:
+        :return:
+        :rtype:
+        """
         if any(attr in member.casefold() for attr in ['uid=', 'cn=']):
             search_base = member
         else:
