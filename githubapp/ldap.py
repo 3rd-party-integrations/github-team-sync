@@ -76,7 +76,7 @@ class LDAPClient:
                     else:
                         try:
                             member_dn = self.get_user_info(member)
-                            pprint(member_dn)
+                            #pprint(member_dn)
                             username = str(member_dn['attributes'][self.LDAP_USER_ATTRIBUTE][0]).casefold()
                             email = str(member_dn['attributes'][self.LDAP_USER_MAIL_ATTRIBUTE][0]).casefold()
                             user_info = {'username': username, 'email': email}

@@ -1,13 +1,12 @@
 from pprint import pprint
 from flask import Flask
 from githubapp import GitHubApp, LDAPClient
+from distutils.util import strtobool
 import os
-import argparse
 
 app = Flask(__name__)
 github_app = GitHubApp(app)
 ldap = LDAPClient()
-
 
 @github_app.on('team.created')
 def sync_team():
@@ -34,12 +33,19 @@ def sync_team():
         attribute='username'
     )
     pprint(compare)
-    execute_sync(
-        org=org,
-        team=team,
-        state=compare
-    )
-    open_issue(slug=slug)
+    try:
+        execute_sync(
+            org=org,
+            team=team,
+            slug=slug,
+            state=compare
+        )
+    except ValueError as e:
+        if strtobool(os.environ['OPEN_ISSUE_ON_FAILURE']):
+            open_issue(slug=slug, message=e)
+    except AssertionError as e:
+        if strtobool(os.environ['OPEN_ISSUE_ON_FAILURE']):
+            open_issue(slug=slug, message=e)
 
 
 def ldap_lookup(group=None):
@@ -114,26 +120,40 @@ def compare_members(ldap_group, github_team, attribute='username'):
     return sync_state
 
 
-def execute_sync(org, team, state):
+def execute_sync(org, team, slug, state):
     """
     Perform the synchronization
     :param org:
     :param team:
+    :param slug:
     :param state:
     :return:
     """
-    for user in state['action']['add']:
-        # Validate that user is in org
-        if org.is_member(user):
-            team.add_or_update_membership(user)
-        else:
-            pprint(f'Skipping {user} as they are not part of the org')
+    total_changes = len(state['action']['remove']) + len(state['action']['add'])
+    if len(state['ldap']) == 0:
+        message = "LDAP group returned empty: {}".format(slug)
+        raise ValueError(message)
+    elif int(total_changes) > int(os.environ['CHANGE_THRESHOLD']):
+        message = "Skipping sync for {}.<br>".format(slug)
+        message += "Total number of changes ({}) would exceed the change threshold ({}).".format(
+            str(total_changes), str(os.environ['CHANGE_THRESHOLD'])
+        )
+        message += "<br>Please investigate this change and increase your threshold if this is accurate."
+        raise AssertionError(message)
+    else:
+        for user in state['action']['add']:
+            # Validate that user is in org
+            if org.is_member(user):
+                pprint(f'Adding {user} to {slug}')
+                team.add_or_update_membership(user)
+            else:
+                pprint(f'Skipping {user} as they are not part of the org')
 
-    for user in state['action']['remove']:
-        pprint(f'Removing {user}')
-        team.revoke_membership(user)
+        for user in state['action']['remove']:
+            pprint(f'Removing {user} from {slug}')
+            team.revoke_membership(user)
 
-def open_issue(slug):
+def open_issue(slug, message):
     repo_for_issues = os.environ['REPO_FOR_ISSUES']
     owner = repo_for_issues.split('/')[0]
     repository = repo_for_issues.split('/')[1]
@@ -142,6 +162,6 @@ def open_issue(slug):
         owner=owner,
         repository=repository,
         assignee=assignee,
-        title="Team sync failed for {}".format(slug),
-        body="Team sync failed for {}".format(slug)
+        title="Team sync failed for @{}/{}".format(owner, slug),
+        body=str(message)
     )
