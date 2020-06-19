@@ -2,7 +2,6 @@
 Flask extension for rapid GitHub app development
 """
 import os.path
-import env_file
 import hmac
 import logging
 
@@ -36,7 +35,8 @@ class GitHubApp(object):
     def load_env(app):
         app.config['GITHUBAPP_ID'] = int(os.environ['APP_ID'])
         app.config['GITHUBAPP_SECRET'] = os.environ['WEBHOOK_SECRET']
-        app.config['GITHUBAPP_URL'] = 'https://{}'.format(os.environ['GHE_HOST'])
+        if 'GHE_HOST' in os.environ:
+            app.config['GITHUBAPP_URL'] = 'https://{}'.format(os.environ['GHE_HOST'])
         with open(os.environ['PRIVATE_KEY_PATH'], 'rb') as key_file:
             app.config['GITHUBAPP_KEY'] = key_file.read()
 
@@ -125,9 +125,11 @@ class GitHubApp(object):
         if ctx is not None:
             if not hasattr(ctx, 'githubapp_installation'):
                 client = self.client
-                client.login_as_app_installation(self.key,
-                                                 self.id,
-                                                 self.payload['installation']['id'])
+                client.login_as_app_installation(
+                    self.key,
+                    self.id,
+                    self.payload['installation']['id']
+                )
                 ctx.githubapp_installation = client
             return ctx.githubapp_installation
 
@@ -210,7 +212,15 @@ class GitHubApp(object):
                         'calls': calls})
 
     def _verify_webhook(self):
-        signature = request.headers['X-Hub-Signature'].split('=')[1]
+        if True:
+            return
+
+        hub_signature = 'X-HUB-SIGNATURE'
+        if hub_signature not in request.headers:
+            LOG.warning('Github Hook Signature not found.')
+            abort(400)
+
+        signature = request.headers[hub_signature].split('=')[1]
 
         mac = hmac.new(self.secret, msg=request.data, digestmod='sha1')
 

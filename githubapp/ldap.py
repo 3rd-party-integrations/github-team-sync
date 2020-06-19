@@ -1,5 +1,11 @@
 import os
+import json
+import logging
 from ldap3 import Server, Connection, ALL
+from pprint import pprint
+
+LOG = logging.getLogger(__name__)
+
 
 class LDAPClient:
     def __init__(self):
@@ -8,15 +14,29 @@ class LDAPClient:
         self.LDAP_SERVER_PORT = os.environ['LDAP_SERVER_PORT']
         self.LDAP_BASE_DN = os.environ['LDAP_BASE_DN']
         self.LDAP_USER_BASE_DN = os.environ['LDAP_USER_BASE_DN']
-        self.LDAP_USER_FILTER = os.environ['LDAP_USER_FILTER']
         self.LDAP_USER_ATTRIBUTE = os.environ['LDAP_USER_ATTRIBUTE']
+        self.LDAP_USER_FILTER = os.environ['LDAP_USER_FILTER'].replace(
+            '{ldap_user_attribute}',
+            self.LDAP_USER_ATTRIBUTE
+        )
         self.LDAP_USER_MAIL_ATTRIBUTE = os.environ['LDAP_USER_MAIL_ATTRIBUTE']
         self.LDAP_GROUP_BASE_DN = os.environ['LDAP_GROUP_BASE_DN']
         self.LDAP_GROUP_FILTER = os.environ['LDAP_GROUP_FILTER']
         self.LDAP_GROUP_MEMBER_ATTRIBUTE = os.environ['LDAP_GROUP_MEMBER_ATTRIBUTE']
-        self.LDAP_BIND_USER = os.environ['LDAP_BIND_USER']
-        self.LDAP_PAGE_SIZE = os.environ['LDAP_SEARCH_PAGE_SIZE']
-        self.LDAP_BIND_PASSWORD = os.environ['LDAP_BIND_PASSWORD']
+        if 'LDAP_BIND_USER' in os.environ:
+            self.LDAP_BIND_USER = os.environ['LDAP_BIND_USER']
+        elif 'LDAP_BIND_DN' in os.environ:
+            self.LDAP_BIND_USER = os.environ['LDAP_BIND_DN']
+        else:
+            raise Exception('LDAP credentials have not been specified')
+        if 'LDAP_PAGE_SIZE' in os.environ:
+            self.LDAP_PAGE_SIZE = os.environ['LDAP_SEARCH_PAGE_SIZE']
+        else:
+            self.LDAP_PAGE_SIZE = 1000
+        if 'LDAP_BIND_PASSWORD' in os.environ:
+            self.LDAP_BIND_PASSWORD = os.environ['LDAP_BIND_PASSWORD']
+        else:
+            raise Exception('LDAP credentials have not been specified')
         self.conn = Connection(
             self.LDAP_SERVER_HOST,
             user=self.LDAP_BIND_USER,
@@ -46,41 +66,47 @@ class LDAPClient:
         for entry in entries:
             if entry['type'] == 'searchResEntry':
                 for member in entry['attributes'][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
-                    try:
-                        member_list.append(self.get_attr_by_dn(member))
-                    except IndexError:
-                        if self.LDAP_GROUP_BASE_DN in member:
+                    if self.LDAP_GROUP_BASE_DN in member:
+                        pass
+                        # print("Nested groups are not yet supported.")
+                        # print("This feature is currently under development.")
+                        # print("{} was not processed.".format(member))
+                        # print("Unable to look up '{}'".format(member))
+                        # print(e)
+                    else:
+                        try:
+                            member_dn = self.get_user_info(member)
+                            #pprint(member_dn)
+                            username = str(member_dn['attributes'][self.LDAP_USER_ATTRIBUTE][0]).casefold()
+                            email = str(member_dn['attributes'][self.LDAP_USER_MAIL_ATTRIBUTE][0]).casefold()
+                            user_info = {'username': username, 'email': email}
+                            member_list.append(user_info)
+                        except Exception as e:
                             pass
-                            # print("Nested groups are not yet supported.")
-                            # print("This feature is currently under development.")
-                            # print("{} was not processed.".format(member))
-                        else:
-                            print("Unable to look up '{}'".format(member))
-                    except Exception as e:
-                        print(e)
         return member_list
 
-    def get_attr_by_dn(self, user_dn):
+    def get_user_info(self, member=None):
         """
-        Get an attribute for a given object. Right now we only care about the sAMAccountName/uid,
-        so it's hard-coded... we can adjust this if we see a need later down the line
-        :param user_dn: Object's full DN to lookup
-        :type user_dn: str
-        :return username: The user's UID or username
-        :rtype username: str
+        Look up user info from LDAP
+        :param member:
+        :type member:
+        :return:
+        :rtype:
         """
+        if any(attr in member.casefold() for attr in ['uid=', 'cn=']):
+            search_base = member
+        else:
+            search_base = self.LDAP_USER_BASE_DN
         try:
-            self.conn.search(
-                search_base=user_dn,
-                search_filter=self.LDAP_USER_FILTER,
-                attributes=[
-                    self.LDAP_USER_ATTRIBUTE,
-                    self.LDAP_USER_MAIL_ATTRIBUTE
-                ]
-            )
+            try:
+                self.conn.search(
+                    search_base=search_base,
+                    search_filter=self.LDAP_USER_FILTER.replace('{username}', member),
+                    attributes=["*"]
+                )
+                data = json.loads(self.conn.entries[0].entry_to_json())
+                return data
+            except Exception as e:
+                print(e)
         except Exception as e:
             print(e)
-        username = str(self.conn.entries[0][self.LDAP_USER_ATTRIBUTE]).casefold()
-        email = str(self.conn.entries[0][self.LDAP_USER_MAIL_ATTRIBUTE]).casefold()
-        user_info = {'username': username, 'email': email}
-        return user_info
