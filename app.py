@@ -28,7 +28,7 @@ def sync_team():
         attribute='username'
     )
     pprint(compare)
-    sync_team(
+    execute_sync(
         org=org,
         team=team,
         state=compare
@@ -100,7 +100,7 @@ def compare_members(ldap_group, github_team, attribute='username'):
     return sync_state
 
 
-def sync_team(org, team ,state):
+def execute_sync(org, team ,state):
     for user in state['action']['add']:
         # Validate that user is in org
         if org.is_member(user):
