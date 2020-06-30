@@ -1,9 +1,10 @@
 from pprint import pprint
 from flask import Flask
-from githubapp import GitHubApp, LDAPClient
+from githubapp import GitHubApp, LDAPClient, CRON_INTERVAL
 from distutils.util import strtobool
 import os
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 import atexit
 import time
 
@@ -191,8 +192,7 @@ def open_issue(client, slug, message):
         body=str(message)
     )
 
-
-@scheduler.scheduled_job('interval', id='sync_all_teams', seconds=int(os.environ['SYNC_SCHEDULE']))
+@scheduler.scheduled_job(trigger=CronTrigger.from_crontab(CRON_INTERVAL), id='sync_all_teams')
 def sync_all_teams():
     """
 

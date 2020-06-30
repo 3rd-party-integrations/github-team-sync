@@ -1,4 +1,5 @@
 import import_env_file
+import os
 from .core import GitHubApp
 from .ldap import LDAPClient
 
@@ -17,3 +18,5 @@ rootlogger = logging.getLogger(__name__)
 
 if rootlogger.level == logging.NOTSET:
     rootlogger.setLevel(logging.WARN)
+
+CRON_INTERVAL = os.environ['SYNC_SCHEDULE']
