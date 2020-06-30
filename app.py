@@ -3,30 +3,50 @@ from flask import Flask
 from githubapp import GitHubApp, LDAPClient
 from distutils.util import strtobool
 import os
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
+import time
 
 app = Flask(__name__)
 github_app = GitHubApp(app)
 ldap = LDAPClient()
 
-@github_app.on('team.created')
-def sync_team():
-    """
+# Schedule a full sync
+scheduler = BackgroundScheduler(daemon=True)
+scheduler.start()
+atexit.register(lambda: scheduler.shutdown(wait=False))
 
+@github_app.on('team.created')
+def sync_new_team():
+    """
+    Sync a new team when it is created
     :return:
     """
-    # pprint(github_app.payload)
-    payload = github_app.payload
     owner = github_app.payload['organization']['login']
-    org = github_app.installation_client.organization(owner)
-    team = org.team(payload['team']['id'])
-    slug = payload['team']['slug']
-    parent = payload['team']['parent']
+    team_id = github_app.payload['team']['id']
+    slug = github_app.payload['team']['slug']
+    client = github_app.installation_client
+    sync_team(client=client, owner=owner, team_id=team_id, slug=slug)
+
+
+def sync_team(client=None, owner=None, team_id=None, slug=None):
+    """
+
+    :param client:
+    :param owner:
+    :param team_id:
+    :param slug:
+    :return:
+    """
+    org = client.organization(owner)
+    team = org.team(team_id)
     ldap_members = ldap_lookup(group=slug)
     team_members = github_lookup(
-        team_id=payload['team']['id'],
+        client=client,
+        owner=owner,
+        team_id=team_id,
         attribute='username'
     )
-
     compare = compare_members(
         ldap_group=ldap_members,
         github_team=team_members,
@@ -42,10 +62,10 @@ def sync_team():
         )
     except ValueError as e:
         if strtobool(os.environ['OPEN_ISSUE_ON_FAILURE']):
-            open_issue(slug=slug, message=e)
+            open_issue(client=client, slug=slug, message=e)
     except AssertionError as e:
         if strtobool(os.environ['OPEN_ISSUE_ON_FAILURE']):
-            open_issue(slug=slug, message=e)
+            open_issue(client=client, slug=slug, message=e)
 
 
 def ldap_lookup(group=None):
@@ -61,32 +81,36 @@ def ldap_lookup(group=None):
     return ldap_members
 
 
-def github_team(team_id):
+def github_team(client=None, owner=None, team_id=None):
     """
     Look up team info in GitHub
+    :param client:
+    :param owner:
     :param team_id:
     :return:
     """
-    owner = github_app.payload['organization']['login']
-    org = github_app.installation_client.organization(owner)
+    org = client.organization(owner)
     return org.team(team_id)
 
 
-def github_lookup(team_id=None, attribute='username'):
+def github_lookup(client=None, owner=None, team_id=None, attribute='username'):
     """
     Look up members of a give team in GitHub
+    :param client:
+    :param owner:
     :param team_id:
     :param attribute:
+    :type owner: str
     :type team_id: int
     :type attribute: str
     :return: team_members
     :rtype: list
     """
     team_members = []
-    team = github_team(team_id)
+    team = github_team(client=client, owner=owner, team_id=team_id)
     if attribute == 'email':
         for m in team.members():
-            user = github_app.installation_client.user(m.login)
+            user = client.user(m.login)
             team_members.append({'username': str(user.login).casefold(),
                                  'email': str(user.email).casefold()})
     else:
@@ -153,15 +177,47 @@ def execute_sync(org, team, slug, state):
             pprint(f'Removing {user} from {slug}')
             team.revoke_membership(user)
 
-def open_issue(slug, message):
+
+def open_issue(client, slug, message):
     repo_for_issues = os.environ['REPO_FOR_ISSUES']
     owner = repo_for_issues.split('/')[0]
     repository = repo_for_issues.split('/')[1]
     assignee = os.environ['ISSUE_ASSIGNEE']
-    issue = github_app.installation_client.create_issue(
+    client.create_issue(
         owner=owner,
         repository=repository,
         assignee=assignee,
         title="Team sync failed for @{}/{}".format(owner, slug),
         body=str(message)
     )
+
+
+@scheduler.scheduled_job('interval', id='sync_all_teams', seconds=int(os.environ['SYNC_SCHEDULE']))
+def sync_all_teams():
+    """
+
+    :return:
+    """
+    pprint(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
+    with app.app_context() as ctx:
+        c = ctx.push()
+        gh = GitHubApp(c)
+        installations = gh.app_client.app_installations
+        for i in installations():
+            client = gh.app_installation(installation_id=i.id)
+            org = client.organization(i.account['login'])
+            for team in org.teams():
+                pprint(team.as_json())
+                sync_team(
+                    client=client,
+                    owner=i.account['login'],
+                    team_id=team.id,
+                    slug=team.slug
+                )
+
+# Sync right when we start
+# For some reason this kicks off twice
+sync_all_teams()
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000)
