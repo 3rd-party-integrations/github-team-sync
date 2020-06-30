@@ -11,8 +11,6 @@ app = Flask(__name__)
 github_app = GitHubApp(app)
 ldap = LDAPClient()
 
-
-
 # Schedule a full sync
 scheduler = BackgroundScheduler(daemon=True)
 scheduler.start()
@@ -20,7 +18,20 @@ atexit.register(lambda: scheduler.shutdown(wait=False))
 
 @scheduler.scheduled_job('interval', id='sync_all_teams', seconds=45)
 def sync_all_teams():
+    """
+
+    :return:
+    """
     pprint(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
+    with app.app_context() as ctx:
+        c = ctx.push()
+        gh = GitHubApp(c)
+        installations = gh.app_client.app_installations
+        for i in installations():
+            t = gh.app_installation(installation_id=i.id)
+            org = t.organization(i.account['login'])
+            for team in org.teams():
+                pprint(team.as_json())
 
 # Sync right when we start
 # For some reason this kicks off twice
@@ -183,3 +194,7 @@ def open_issue(slug, message):
         title="Team sync failed for @{}/{}".format(owner, slug),
         body=str(message)
     )
+
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000)
