@@ -62,7 +62,7 @@ CHANGE_THRESHOLD=25
 OPEN_ISSUE_ON_FAILURE=true
 REPO_FOR_ISSUES=github-demo/demo-repo
 ISSUE_ASSIGNEE=githubber
-SYNC_SCHEDULE=3600
+SYNC_SCHEDULE=0 * * * *
 ```
 
 ### Sample `.env` for OpenLDAP
@@ -93,7 +93,7 @@ CHANGE_THRESHOLD=25
 OPEN_ISSUE_ON_FAILURE=true
 REPO_FOR_ISSUES=github-demo/demo-repo
 ISSUE_ASSIGNEE=githubber
-SYNC_SCHEDULE=3600
+SYNC_SCHEDULE=0 * * * *
 ```
 
 ## Usage Examples
