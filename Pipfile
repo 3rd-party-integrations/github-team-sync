@@ -21,6 +21,7 @@ flask = "*"
 pyyaml = "*"
 ldap3 = "*"
 import_env_file = "*"
+apscheduler = "*"
 
 [pipenv]
 allow_prereleases = true

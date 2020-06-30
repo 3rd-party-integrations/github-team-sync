@@ -153,6 +153,28 @@ class GitHubApp(object):
         """
         return self.installation_client.session.auth.token
 
+    def app_installation(self, installation_id=None):
+        """
+        Login as installation when triggered on a non-webhook event.
+        This is necessary for scheduling tasks
+        :param installation_id:
+        :return:
+        """
+        """GitHub client authenticated as GitHub app installation"""
+        ctx = _app_ctx_stack.top
+        if installation_id is None:
+            raise RuntimeError('Installation ID is not specified.')
+        if ctx is not None:
+            if not hasattr(ctx, 'githubapp_installation'):
+                client = self.client
+                client.login_as_app_installation(
+                    self.key,
+                    self.id,
+                    installation_id
+                )
+                ctx.githubapp_installation = client
+            return ctx.githubapp_installation
+
     def on(self, event_action):
         """
         Decorator routes a GitHub hook to the wrapped function.
