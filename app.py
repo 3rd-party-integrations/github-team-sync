@@ -192,7 +192,7 @@ def open_issue(client, slug, message):
     )
 
 
-@scheduler.scheduled_job('interval', id='sync_all_teams', seconds=45)
+@scheduler.scheduled_job('interval', id='sync_all_teams', seconds=int(os.environ['SYNC_SCHEDULE']))
 def sync_all_teams():
     """
 
