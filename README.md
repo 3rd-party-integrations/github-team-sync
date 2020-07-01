@@ -30,7 +30,7 @@ so the following `events` and `permissions` will be required.
 | Repository permissions | `Issues` | `Read & write` |
 | Repostiroy permissions | `Metadata` | `Read-only` |
 
-| Event | Status | Description |
+| Event | Required? | Description |
 | --- | --- | --- |
 | `Team` | Optional | Trigger when a new team is `created`, `deleted`, `edited`, `renamed`, etc. |
 
