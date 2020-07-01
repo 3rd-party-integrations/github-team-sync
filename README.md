@@ -39,6 +39,7 @@ To get started, ensure that you are using **Python 3.4+**. The following additio
 - [ ] github3.py
 - [ ] python-ldap3
 - [ ] APScheduler
+- [ ] python-dotenv
 
 Install the required libraries.
 
