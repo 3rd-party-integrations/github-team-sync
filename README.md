@@ -17,6 +17,21 @@ This utility provides the following functionality:
 | Sync on team edit | No | This event is not processed currently, but can be easily added |
 | Custom team/group maps | No | The team `slug` and group name must match. Custom mapping will be in a future release |
 
+## Permissions and Events
+This application will need to be able to manage teams in GitHub,
+so the following `events` and `permissions` will be required.
+
+| Category | Attribute | Permission |
+| --- | --- | --- |
+| Organization permissions | `Members` | `Read & write` | 
+| User permissions | `Email addresses` | `Read-only` |
+| Repository permissions | `Issues` | `Read & write` |
+| Repostiroy permissions | `Metadata` | `Read-only` |
+
+| Event | Status | Description |
+| --- | --- | --- |
+| `Team` | Optional | Trigger when a new team is `created`, `deleted`, `edited`, `renamed`, etc. |
+
 ## Getting Started
 To get started, ensure that you are using **Python 3.4+**. The following additional libraries are required:
 
