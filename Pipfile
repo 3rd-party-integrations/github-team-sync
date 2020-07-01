@@ -20,8 +20,8 @@ tox-gh-actions = "*"
 flask = "*"
 pyyaml = "*"
 ldap3 = "*"
-import_env_file = "*"
 apscheduler = "*"
+python-dotenv = "*"
 
 [pipenv]
 allow_prereleases = true

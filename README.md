@@ -16,6 +16,23 @@ This utility provides the following functionality:
 | Sync on new team | Yes | Synchronize users when a new team is created |
 | Sync on team edit | No | This event is not processed currently, but can be easily added |
 | Custom team/group maps | No | The team `slug` and group name must match. Custom mapping will be in a future release |
+| Dry run / Test mode | Yes | Run and print the differences, but make no changes |
+| Nested teams/groups | No | Synchronize groups within groups. Presently, if a group is a member of another group it is skipped |
+
+## Permissions and Events
+This application will need to be able to manage teams in GitHub,
+so the following `events` and `permissions` will be required.
+
+| Category | Attribute | Permission |
+| --- | --- | --- |
+| Organization permissions | `Members` | `Read & write` | 
+| User permissions | `Email addresses` | `Read-only` |
+| Repository permissions | `Issues` | `Read & write` |
+| Repostiroy permissions | `Metadata` | `Read-only` |
+
+| Event | Status | Description |
+| --- | --- | --- |
+| `Team` | Optional | Trigger when a new team is `created`, `deleted`, `edited`, `renamed`, etc. |
 
 ## Getting Started
 To get started, ensure that you are using **Python 3.4+**. The following additional libraries are required:
@@ -24,6 +41,7 @@ To get started, ensure that you are using **Python 3.4+**. The following additio
 - [ ] github3.py
 - [ ] python-ldap3
 - [ ] APScheduler
+- [ ] python-dotenv
 
 Install the required libraries.
 
@@ -33,16 +51,18 @@ pipenv install
 
 Once you have all of the requirements installed, be sure to edit the `.env` to match your environment.
 
-### Sample `.env` for Active Directory
-
+### Sample `.env` for GitHub App settings
 ```env
 ## GitHub App settings
 WEBHOOK_SECRET=development
 APP_ID=12345
 PRIVATE_KEY_PATH=.ssh/team-sync.pem
 GHE_HOST=github.example.com
+```
 
-## LDAP Settings
+### Sample `.env` for Active Directory
+
+```env
 LDAP_SERVER_HOST=dc1.example.com
 LDAP_SERVER_PORT=389
 LDAP_BASE_DN="DC=example,DC=com"
@@ -56,24 +76,10 @@ LDAP_GROUP_MEMBER_ATTRIBUTE=member
 LDAP_BIND_USER="bind-user@example.com"
 LDAP_BIND_PASSWORD="p4$$w0rd"
 LDAP_SEARCH_PAGE_SIZE=1000
-
-## Additional settings
-CHANGE_THRESHOLD=25
-OPEN_ISSUE_ON_FAILURE=true
-REPO_FOR_ISSUES=github-demo/demo-repo
-ISSUE_ASSIGNEE=githubber
-SYNC_SCHEDULE=0 * * * *
 ```
 
 ### Sample `.env` for OpenLDAP
 ```env
-## GitHub App settings
-WEBHOOK_SECRET=development
-APP_ID=12345
-PRIVATE_KEY_PATH=.ssh/team-sync.pem
-GHE_HOST=github.example.com
-
-## LDAP Settings
 LDAP_SERVER_HOST=dc1.example.com
 LDAP_SERVER_PORT=389
 LDAP_BASE_DN="dc=example,dc=com"
@@ -87,13 +93,17 @@ LDAP_GROUP_MEMBER_ATTRIBUTE=memberUid
 LDAP_BIND_USER="cn=admin,dc=example,dc=com"
 LDAP_BIND_PASSWORD="p4$$w0rd"
 LDAP_SEARCH_PAGE_SIZE=1000
+```
 
+### Sample `.env` settings for additional settings
+```env
 ## Additional settings
 CHANGE_THRESHOLD=25
 OPEN_ISSUE_ON_FAILURE=true
 REPO_FOR_ISSUES=github-demo/demo-repo
 ISSUE_ASSIGNEE=githubber
 SYNC_SCHEDULE=0 * * * *
+TEST_MODE=false
 ```
 
 ## Usage Examples
@@ -102,7 +112,7 @@ SYNC_SCHEDULE=0 * * * *
 This example runs the app in a standard Flask environment
 
 ```bash
-$ pipenv run flask run --host=0.0.0.0
+$ pipenv run flask run --host=0.0.0.0 --port=5000
 ```
 
 Or you can run the app with Python directly
