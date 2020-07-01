@@ -8,7 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from flask import Flask
 
-from githubapp import GitHubApp, LDAPClient, CRON_INTERVAL
+from githubapp import GitHubApp, LDAPClient, CRON_INTERVAL, TEST_MODE
 
 app = Flask(__name__)
 github_app = GitHubApp(app)
@@ -61,19 +61,22 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
         attribute='username'
     )
     pprint(compare)
-    try:
-        execute_sync(
-            org=org,
-            team=team,
-            slug=slug,
-            state=compare
-        )
-    except ValueError as e:
-        if strtobool(os.environ['OPEN_ISSUE_ON_FAILURE']):
-            open_issue(client=client, slug=slug, message=e)
-    except AssertionError as e:
-        if strtobool(os.environ['OPEN_ISSUE_ON_FAILURE']):
-            open_issue(client=client, slug=slug, message=e)
+    if not TEST_MODE:
+        try:
+            execute_sync(
+                org=org,
+                team=team,
+                slug=slug,
+                state=compare
+            )
+        except ValueError as e:
+            if strtobool(os.environ['OPEN_ISSUE_ON_FAILURE']):
+                open_issue(client=client, slug=slug, message=e)
+        except AssertionError as e:
+            if strtobool(os.environ['OPEN_ISSUE_ON_FAILURE']):
+                open_issue(client=client, slug=slug, message=e)
+    else:
+        print('Skipping execution due to TEST_MODE...')
 
 
 def ldap_lookup(group=None):
@@ -214,7 +217,7 @@ def sync_all_teams():
             client = gh.app_installation(installation_id=i.id)
             org = client.organization(i.account['login'])
             for team in org.teams():
-                pprint(team.as_json())
+                #pprint(team.as_json())
                 sync_team(
                     client=client,
                     owner=i.account['login'],
