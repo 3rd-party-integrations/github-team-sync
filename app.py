@@ -1,12 +1,14 @@
-from pprint import pprint
-from flask import Flask
-from githubapp import GitHubApp, LDAPClient, CRON_INTERVAL
-from distutils.util import strtobool
+import atexit
 import os
+import time
+from distutils.util import strtobool
+from pprint import pprint
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-import atexit
-import time
+from flask import Flask
+
+from githubapp import GitHubApp, LDAPClient, CRON_INTERVAL
 
 app = Flask(__name__)
 github_app = GitHubApp(app)
@@ -54,8 +56,8 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
         attribute='username'
     )
     compare = compare_members(
-        ldap_group=ldap_members,
-        github_team=team_members,
+        group=ldap_members,
+        team=team_members,
         attribute='username'
     )
     pprint(compare)
@@ -126,22 +128,22 @@ def github_lookup(client=None, owner=None, team_id=None, attribute='username'):
     return team_members
 
 
-def compare_members(ldap_group, github_team, attribute='username'):
+def compare_members(group, team, attribute='username'):
     """
     Compare users in GitHub and LDAP to see which users need to be added or removed
-    :param ldap_group:
-    :param github_team:
+    :param group:
+    :param team:
     :param attribute:
     :return: sync_state
     :rtype: dict
     """
-    ldap_list = [x[attribute] for x in ldap_group]
-    github_list = [x[attribute] for x in github_team]
+    ldap_list = [x[attribute] for x in group]
+    github_list = [x[attribute] for x in team]
     add_users = list(set(ldap_list) - set(github_list))
     remove_users = list(set(github_list) - set(ldap_list))
     sync_state = {
-        'ldap': ldap_group,
-        'github': github_team,
+        'ldap': group,
+        'github': team,
         'action': {
             'add': add_users,
             'remove': remove_users
@@ -163,10 +165,10 @@ def execute_sync(org, team, slug, state):
     if len(state['ldap']) == 0:
         message = "LDAP group returned empty: {}".format(slug)
         raise ValueError(message)
-    elif int(total_changes) > int(os.environ['CHANGE_THRESHOLD']):
+    elif int(total_changes) > int(os.environ.get('CHANGE_THRESHOLD', 25)):
         message = "Skipping sync for {}.<br>".format(slug)
         message += "Total number of changes ({}) would exceed the change threshold ({}).".format(
-            str(total_changes), str(os.environ['CHANGE_THRESHOLD'])
+            str(total_changes), str(os.environ.get('CHANGE_THRESHOLD', 25))
         )
         message += "<br>Please investigate this change and increase your threshold if this is accurate."
         raise AssertionError(message)
@@ -225,4 +227,7 @@ def sync_all_teams():
 sync_all_teams()
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(
+        host=os.environ.get('FLASK_RUN_HOST', '0.0.0.0'),
+        port=os.environ.get('FLASK_RUN_PORT', '5000')
+    )
