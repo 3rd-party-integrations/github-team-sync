@@ -27,7 +27,12 @@ def sync_new_team():
     team_id = github_app.payload['team']['id']
     slug = github_app.payload['team']['slug']
     client = github_app.installation_client
-    sync_team(client=client, owner=owner, team_id=team_id, slug=slug)
+    sync_team(
+        client=client,
+        owner=owner,
+        team_id=team_id,
+        slug=slug
+    )
 
 
 def sync_team(client=None, owner=None, team_id=None, slug=None):
