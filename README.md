@@ -51,16 +51,18 @@ pipenv install
 
 Once you have all of the requirements installed, be sure to edit the `.env` to match your environment.
 
-### Sample `.env` for Active Directory
-
+### Sample `.env` for GitHub App settings
 ```env
 ## GitHub App settings
 WEBHOOK_SECRET=development
 APP_ID=12345
 PRIVATE_KEY_PATH=.ssh/team-sync.pem
 GHE_HOST=github.example.com
+```
 
-## LDAP Settings
+### Sample `.env` for Active Directory
+
+```env
 LDAP_SERVER_HOST=dc1.example.com
 LDAP_SERVER_PORT=389
 LDAP_BASE_DN="DC=example,DC=com"
@@ -74,24 +76,10 @@ LDAP_GROUP_MEMBER_ATTRIBUTE=member
 LDAP_BIND_USER="bind-user@example.com"
 LDAP_BIND_PASSWORD="p4$$w0rd"
 LDAP_SEARCH_PAGE_SIZE=1000
-
-## Additional settings
-CHANGE_THRESHOLD=25
-OPEN_ISSUE_ON_FAILURE=true
-REPO_FOR_ISSUES=github-demo/demo-repo
-ISSUE_ASSIGNEE=githubber
-SYNC_SCHEDULE=0 * * * *
 ```
 
 ### Sample `.env` for OpenLDAP
 ```env
-## GitHub App settings
-WEBHOOK_SECRET=development
-APP_ID=12345
-PRIVATE_KEY_PATH=.ssh/team-sync.pem
-GHE_HOST=github.example.com
-
-## LDAP Settings
 LDAP_SERVER_HOST=dc1.example.com
 LDAP_SERVER_PORT=389
 LDAP_BASE_DN="dc=example,dc=com"
@@ -105,13 +93,17 @@ LDAP_GROUP_MEMBER_ATTRIBUTE=memberUid
 LDAP_BIND_USER="cn=admin,dc=example,dc=com"
 LDAP_BIND_PASSWORD="p4$$w0rd"
 LDAP_SEARCH_PAGE_SIZE=1000
+```
 
+### Sample `.env` settings for additional settings
+```env
 ## Additional settings
 CHANGE_THRESHOLD=25
 OPEN_ISSUE_ON_FAILURE=true
 REPO_FOR_ISSUES=github-demo/demo-repo
 ISSUE_ASSIGNEE=githubber
 SYNC_SCHEDULE=0 * * * *
+TEST_MODE=false
 ```
 
 ## Usage Examples
