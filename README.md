@@ -120,3 +120,8 @@ Or you can run the app with Python directly
 ```bash
 pipenv run python app.py
 ```
+
+## Credits
+This project draws much from:
+- [Flask-GitHubApp](https://github.com/bradshjg/flask-githubapp)
+- [github3.py](https://github.com/sigmavirus24/github3.py)
