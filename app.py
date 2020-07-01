@@ -19,6 +19,7 @@ scheduler = BackgroundScheduler(daemon=True)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown(wait=False))
 
+
 @github_app.on('team.created')
 def sync_new_team():
     """
@@ -39,7 +40,7 @@ def sync_new_team():
 
 def sync_team(client=None, owner=None, team_id=None, slug=None):
     """
-
+    Prepare the team sync
     :param client:
     :param owner:
     :param team_id:
@@ -60,8 +61,10 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
         team=team_members,
         attribute='username'
     )
-    pprint(compare)
-    if not TEST_MODE:
+    if TEST_MODE:
+        print('Skipping execution due to TEST_MODE...')
+        pprint(compare)
+    else:
         try:
             execute_sync(
                 org=org,
@@ -75,8 +78,6 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
         except AssertionError as e:
             if strtobool(os.environ['OPEN_ISSUE_ON_FAILURE']):
                 open_issue(client=client, slug=slug, message=e)
-    else:
-        print('Skipping execution due to TEST_MODE...')
 
 
 def ldap_lookup(group=None):
@@ -190,6 +191,13 @@ def execute_sync(org, team, slug, state):
 
 
 def open_issue(client, slug, message):
+    """
+    Open an issue with the failed sync details
+    :param client: Our installation client
+    :param slug: Team slug
+    :param message: Error message to detail
+    :return:
+    """
     repo_for_issues = os.environ['REPO_FOR_ISSUES']
     owner = repo_for_issues.split('/')[0]
     repository = repo_for_issues.split('/')[1]
@@ -202,10 +210,11 @@ def open_issue(client, slug, message):
         body=str(message)
     )
 
+
 @scheduler.scheduled_job(trigger=CronTrigger.from_crontab(CRON_INTERVAL), id='sync_all_teams')
 def sync_all_teams():
     """
-
+    Lookup teams in a GitHub org and synchronize all teams with LDAP
     :return:
     """
     pprint(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
@@ -217,7 +226,6 @@ def sync_all_teams():
             client = gh.app_installation(installation_id=i.id)
             org = client.organization(i.account['login'])
             for team in org.teams():
-                #pprint(team.as_json())
                 sync_team(
                     client=client,
                     owner=i.account['login'],
@@ -225,11 +233,9 @@ def sync_all_teams():
                     slug=team.slug
                 )
 
-# Sync right when we start
-# For some reason this kicks off twice
-sync_all_teams()
 
 if __name__ == '__main__':
+    sync_all_teams()
     app.run(
         host=os.environ.get('FLASK_RUN_HOST', '0.0.0.0'),
         port=os.environ.get('FLASK_RUN_PORT', '5000')
