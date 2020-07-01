@@ -16,6 +16,8 @@ This utility provides the following functionality:
 | Sync on new team | Yes | Synchronize users when a new team is created |
 | Sync on team edit | No | This event is not processed currently, but can be easily added |
 | Custom team/group maps | No | The team `slug` and group name must match. Custom mapping will be in a future release |
+| Dry run / Test mode | Yes | Run and print the differences, but make no changes |
+| Nested teams/groups | No | Synchronize groups within groups. Presently, if a group is a member of another group it is skipped |
 
 ## Permissions and Events
 This application will need to be able to manage teams in GitHub,
