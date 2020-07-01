@@ -118,7 +118,7 @@ SYNC_SCHEDULE=0 * * * *
 This example runs the app in a standard Flask environment
 
 ```bash
-$ pipenv run flask run --host=0.0.0.0
+$ pipenv run flask run --host=0.0.0.0 --port=5000
 ```
 
 Or you can run the app with Python directly
