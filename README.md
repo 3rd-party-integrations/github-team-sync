@@ -15,7 +15,7 @@ This utility provides the following functionality:
 | Failure notifications | Yes | Presently supports opening a GitHub issue when sync failed. The repo is configurable. |
 | Sync on new team | Yes | Synchronize users when a new team is created |
 | Sync on team edit | No | This event is not processed currently, but can be easily added |
-| Custom team/group maps | No | The team `slug` and group name must match. Custom mapping will be in a future release |
+| Custom team/group maps | Yes | The team `slug` and group name will be matched automatically, unless you define a custom mapping with `syncmap.yml` |
 | Dry run / Test mode | Yes | Run and print the differences, but make no changes |
 | Nested teams/groups | No | Synchronize groups within groups. Presently, if a group is a member of another group it is skipped |
 
@@ -104,6 +104,16 @@ REPO_FOR_ISSUES=github-demo/demo-repo
 ISSUE_ASSIGNEE=githubber
 SYNC_SCHEDULE=0 * * * *
 TEST_MODE=false
+```
+
+### Sample `syncmap.yml` custom mapping file
+```yaml
+---
+mapping:
+  - github: demo-team
+    ldap: ldap super users
+  - github: demo-admin-2
+    ldap: some other group
 ```
 
 ## Usage Examples
