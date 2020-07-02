@@ -42,7 +42,7 @@ This utility provides the following functionality:
 
 3. Once these have been configured, select the `Create GitHub App` button at the bottom of the page to continue
 4. Make a note of the `APP ID` on your newly-created **GitHub App**. You will need to set this as an environment variable when you configure the app.
-5. Generate and download a private key from the new App page, and store it in your deployment environment. You can either do this by saving the contents of the key file as the environment variable `PRIVATE_KEY`, or by saving the file directly in the environment and specifying its path with the environment variable `PRIVATE_KEY_PATH`
+5. Generate and download a private key from the new App page, and store it in your deployment environment. You can either do this by saving the file directly in the environment and specifying its path with the environment variable `PRIVATE_KEY_PATH`
 6. After you have created the **GitHub** App, you will need to install it to the desired **GitHub** Organizations.
     - Select `Install App`
     - Select `All Repositories` or the desired repositories you wish to watch
