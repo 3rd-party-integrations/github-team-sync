@@ -49,8 +49,10 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     """
     org = client.organization(owner)
     team = org.team(team_id)
-    ldap_members = ldap_lookup(group=slug)
-    team_members = github_lookup(
+    custom_map = load_custom_map()
+    ldap_group = custom_map[slug] if slug in custom_map else slug
+    ldap_members = ldap_group_members(group=ldap_group)
+    team_members = github_team_members(
         client=client,
         owner=owner,
         team_id=team_id,
@@ -80,7 +82,7 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
                 open_issue(client=client, slug=slug, message=e)
 
 
-def ldap_lookup(group=None):
+def ldap_group_members(group=None):
     """
     Look up members of a group in LDAP
     :param group: The name of the group to query in LDAP
@@ -93,7 +95,7 @@ def ldap_lookup(group=None):
     return ldap_members
 
 
-def github_team(client=None, owner=None, team_id=None):
+def github_team_info(client=None, owner=None, team_id=None):
     """
     Look up team info in GitHub
     :param client:
@@ -105,7 +107,7 @@ def github_team(client=None, owner=None, team_id=None):
     return org.team(team_id)
 
 
-def github_lookup(client=None, owner=None, team_id=None, attribute='username'):
+def github_team_members(client=None, owner=None, team_id=None, attribute='username'):
     """
     Look up members of a give team in GitHub
     :param client:
@@ -119,7 +121,7 @@ def github_lookup(client=None, owner=None, team_id=None, attribute='username'):
     :rtype: list
     """
     team_members = []
-    team = github_team(client=client, owner=owner, team_id=team_id)
+    team = github_team_info(client=client, owner=owner, team_id=team_id)
     if attribute == 'email':
         for m in team.members():
             user = client.user(m.login)
@@ -209,6 +211,23 @@ def open_issue(client, slug, message):
         title="Team sync failed for @{}/{}".format(owner, slug),
         body=str(message)
     )
+
+
+def load_custom_map(file='syncmap.yml'):
+    """
+    Custom team synchronization
+    :param file:
+    :return:
+    """
+    syncmap = {}
+    if os.path.isfile(file):
+        from yaml import load, Loader
+        with open(file, 'r') as f:
+            data = load(f, Loader=Loader)
+        for d in data['mapping']:
+            syncmap[d['github']] = d['ldap']
+
+    return syncmap
 
 
 @scheduler.scheduled_job(trigger=CronTrigger.from_crontab(CRON_INTERVAL), id='sync_all_teams')

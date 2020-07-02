@@ -1,0 +1,4 @@
+---
+mapping:
+  - github: demo-team
+    ldap: ldap super users
