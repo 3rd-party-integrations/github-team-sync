@@ -1,3 +1,0 @@
-ldap3
-PyGithub
-PyYAML
