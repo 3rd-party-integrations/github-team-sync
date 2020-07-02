@@ -19,9 +19,15 @@ This utility provides the following functionality:
 | Dry run / Test mode | Yes | Run and print the differences, but make no changes |
 | Nested teams/groups | No | Synchronize groups within groups. Presently, if a group is a member of another group it is skipped |
 
-## Permissions and Events
-This application will need to be able to manage teams in GitHub,
-so the following `events` and `permissions` will be required.
+## Creating the GitHub App on your GitHub instance
+1. On your GitHub instance, visit the `settings` page on the Organization that you want to own the **GitHub** App, and navigate to the `GitHub Apps` section.
+    - You can access this page by visiting the following url:
+      `https://<MY_GITHUB_HOSTNAME>/organizations/<MY_ORG_NAME>/settings/apps`
+2. Create a new **GitHub App** with the following settings:
+    - **Webhook URL**: URL of the machine on which this app has been deployed (Example: `http://ip.of.machine:3000`)
+    - **Homepage URL**: URL of the machine on which this app has been deployed (Example: `http://ip.of.machine:3000`)
+    - **Webhook Secret**: The webhook secret that will be or has been defined as an environment variable in your deployment environment as `WEBHOOK_SECRET`
+    - **Permissions and Events**: This application will need to be able to manage teams in GitHub, so the following `events` and `permissions` will be required.
 
 | Category | Attribute | Permission |
 | --- | --- | --- |
@@ -33,6 +39,14 @@ so the following `events` and `permissions` will be required.
 | Event | Required? | Description |
 | --- | --- | --- |
 | `Team` | Optional | Trigger when a new team is `created`, `deleted`, `edited`, `renamed`, etc. |
+
+3. Once these have been configured, select the `Create GitHub App` button at the bottom of the page to continue
+4. Make a note of the `APP ID` on your newly-created **GitHub App**. You will need to set this as an environment variable when you configure the app.
+5. Generate and download a private key from the new App page, and store it in your deployment environment. You can either do this by saving the contents of the key file as the environment variable `PRIVATE_KEY`, or by saving the file directly in the environment and specifying its path with the environment variable `PRIVATE_KEY_PATH`
+6. After you have created the **GitHub** App, you will need to install it to the desired **GitHub** Organizations.
+    - Select `Install App`
+    - Select `All Repositories` or the desired repositories you wish to watch
+
 
 ## Getting Started
 To get started, ensure that you are using **Python 3.4+**. The following additional libraries are required:
