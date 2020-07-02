@@ -14,7 +14,7 @@ This utility provides the following functionality:
 | LDAP SSL | No | SSL or TLS connections. This is a WIP |
 | Failure notifications | Yes | Presently supports opening a GitHub issue when sync failed. The repo is configurable. |
 | Sync on new team | Yes | Synchronize users when a new team is created |
-| Sync on team edit | No | This event is not processed currently, but can be easily added |
+| Sync on team edit | No | This event is not processed currently |
 | Custom team/group maps | Yes | The team `slug` and group name will be matched automatically, unless you define a custom mapping with `syncmap.yml` |
 | Dry run / Test mode | Yes | Run and print the differences, but make no changes |
 | Nested teams/groups | No | Synchronize groups within groups. Presently, if a group is a member of another group it is skipped |
