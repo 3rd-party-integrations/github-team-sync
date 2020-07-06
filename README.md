@@ -22,6 +22,8 @@ This utility provides the following functionality:
 ## Permissions and Events
 This application will need to be able to manage teams in GitHub,
 so the following `events` and `permissions` will be required.
+For more information on how to create a GitHub App, please visit
+https://developer.github.com/apps/building-github-apps/creating-a-github-app/
 
 | Category | Attribute | Permission |
 | --- | --- | --- |
