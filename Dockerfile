@@ -7,8 +7,19 @@ MAINTAINER GitHub Services <services@github.com>
 
 COPY . /opt/github-team-sync
 WORKDIR /opt/github-team-sync
-    
-RUN apk add --no-cache libxml2-dev libxslt-dev pipenv python3-dev make gcc libffi-dev build-base
+
+RUN apk add --no-cache \
+        libxml2-dev \
+        libxslt-dev \
+        python3-dev \
+        make \
+        gcc \
+        libffi-dev \
+        build-base \
+        openssl-dev
+
+RUN pip install --no-cache-dir pipenv
+
 RUN pipenv install
 
 CMD pipenv run flask run
