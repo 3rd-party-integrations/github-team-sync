@@ -27,7 +27,13 @@ This utility provides the following functionality:
     - **Webhook URL**: URL of the machine on which this app has been deployed (Example: `http://ip.of.machine:3000`)
     - **Homepage URL**: URL of the machine on which this app has been deployed (Example: `http://ip.of.machine:3000`)
     - **Webhook Secret**: The webhook secret that will be or has been defined as an environment variable in your deployment environment as `WEBHOOK_SECRET`
-    - **Permissions and Events**: This application will need to be able to manage teams in GitHub, so the following `events` and `permissions` will be required.
+    
+### Permissions and Events
+This application will need to be able to manage teams in GitHub,
+so the following `events` and `permissions` will be required.
+For more information on how to create a GitHub App, please visit
+https://developer.github.com/apps/building-github-apps/creating-a-github-app/
+
 
 | Category | Attribute | Permission |
 | --- | --- | --- |
