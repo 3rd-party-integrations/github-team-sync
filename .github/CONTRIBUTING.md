@@ -35,7 +35,7 @@ Here are a few things you can do that will increase the likelihood of your pull 
 Work in Progress pull requests are also welcome to get feedback early on, or if there is something blocking you.
 
 - Create a branch with a name that identifies the user and nature of the changes (similar to `<username>/<branch-purpose>`)
-- Open a pull request and request a review from a member of the appropriate `@github/services-delivery` and/or `@github/services-devops-engineering` teams
+- Open a pull request and request a review from a member of the appropriate `@github/ps-delivery` and/or `@github/ps-devops-engineering` teams
 
 ## Resources
 - [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)
