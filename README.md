@@ -57,7 +57,7 @@ To get started, ensure that you are using **Python 3.4+**. The following additio
 
 - [ ] Flask
 - [ ] github3.py
-- [ ] python-ldap3
+- [ ] ldap3
 - [ ] APScheduler
 - [ ] python-dotenv
 - [ ] PyYAML
