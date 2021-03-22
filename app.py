@@ -28,9 +28,9 @@ def sync_new_team():
     """
     owner = github_app.payload["organization"]["login"]
     team_id = github_app.payload["team"]["id"]
-    if os.environ['USER_DIRECTORY'].upper() == 'AAD':
+    if os.environ["USER_DIRECTORY"].upper() == "AAD":
         ## Azure APIs don't currently support case insensitive searching
-        slug = github_app.payload["team"]["name"].replace(' ', '-')
+        slug = github_app.payload["team"]["name"].replace(" ", "-")
     else:
         slug = github_app.payload["team"]["slug"]
     client = github_app.installation_client
