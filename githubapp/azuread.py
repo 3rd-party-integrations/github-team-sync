@@ -31,6 +31,7 @@ import os
 import sys  # For simplicity, we'll read config file from 1st CLI param sys.argv[1]
 import json
 import logging
+from pprint import pprint
 
 import requests
 import msal
@@ -95,21 +96,22 @@ class AzureAD:
         member_list = []
         # Calling graph using the access token
         graph_data = requests.get(  # Use token to call downstream service
-            self.AZURE_API_ENDPOINT, headers={"Authorization": f"Bearer {token}"}
+            f"{self.AZURE_API_ENDPOINT}/groups?$filter=startswith(displayName,'{group}')",
+            headers={"Authorization": f"Bearer {token}"}
         ).json()
         # print("Graph API call result: %s" % json.dumps(graph_data, indent=2))
-        groups = json.loads(json.dumps(graph_data, indent=2))
-        for group in groups["value"]:
-            members = requests.get(
-                f'{self.AZURE_API_ENDPOINT}/groups/{group["id"]}/members',
-                headers={"Authorization": f"Bearer {token}"},
-            ).json()
-            for member in members["value"]:
-                member_list.append(member[self.USERNAME_ATTRIBUTE])
+        group_info = json.loads(json.dumps(graph_data, indent=2))["value"][0]
+        members = requests.get(
+            f'{self.AZURE_API_ENDPOINT}/groups/{group_info["id"]}/members',
+            headers={"Authorization": f"Bearer {token}"},
+        ).json()["value"]
+        for member in members:
+            member_list.append(member[self.USERNAME_ATTRIBUTE])
         return member_list
 
 
-if __name__ == "__main__":
-    aad = AzureAD()
-    token = aad.get_access_token()
-    aad.get_group_members(token=token, group="github-demo")
+# if __name__ == "__main__":
+#     aad = AzureAD()
+#     token = aad.get_access_token()
+#     members = aad.get_group_members(token=token, group="GitHub-Demo")
+#     print(members)
