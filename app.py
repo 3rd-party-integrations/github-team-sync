@@ -8,11 +8,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from flask import Flask
 
-from githubapp import GitHubApp, LDAPClient, CRON_INTERVAL, TEST_MODE
+from githubapp import GitHubApp, DirectoryClient, CRON_INTERVAL, TEST_MODE
 
 app = Flask(__name__)
 github_app = GitHubApp(app)
-ldap = LDAPClient()
+directory = DirectoryClient()
 
 # Schedule a full sync
 scheduler = BackgroundScheduler(daemon=True)
@@ -50,8 +50,8 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     org = client.organization(owner)
     team = org.team(team_id)
     custom_map = load_custom_map()
-    ldap_group = custom_map[slug] if slug in custom_map else slug
-    ldap_members = ldap_group_members(group=ldap_group)
+    directory_group = custom_map[slug] if slug in custom_map else slug
+    directory_members = directory_group_members(group=directory_group)
     team_members = github_team_members(
         client=client,
         owner=owner,
@@ -59,7 +59,7 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
         attribute='username'
     )
     compare = compare_members(
-        group=ldap_members,
+        group=directory_members,
         team=team_members,
         attribute='username'
     )
@@ -82,17 +82,17 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
                 open_issue(client=client, slug=slug, message=e)
 
 
-def ldap_group_members(group=None):
+def directory_group_members(group=None):
     """
-    Look up members of a group in LDAP
-    :param group: The name of the group to query in LDAP
+    Look up members of a group in your user directory
+    :param group: The name of the group to query in your directory server
     :type group: str
-    :return: ldap_members
+    :return: group_members
     :rtype: list
     """
-    group_members = ldap.get_group_members(group)
-    ldap_members = [member for member in group_members]
-    return ldap_members
+    members = directory.get_group_members(group)
+    group_members = [member for member in members]
+    return group_members
 
 
 def github_team_info(client=None, owner=None, team_id=None):
@@ -136,19 +136,19 @@ def github_team_members(client=None, owner=None, team_id=None, attribute='userna
 
 def compare_members(group, team, attribute='username'):
     """
-    Compare users in GitHub and LDAP to see which users need to be added or removed
+    Compare users in GitHub and the User Directory to see which users need to be added or removed
     :param group:
     :param team:
     :param attribute:
     :return: sync_state
     :rtype: dict
     """
-    ldap_list = [x[attribute] for x in group]
+    directory_list = [x[attribute] for x in group]
     github_list = [x[attribute] for x in team]
-    add_users = list(set(ldap_list) - set(github_list))
-    remove_users = list(set(github_list) - set(ldap_list))
+    add_users = list(set(directory_list) - set(directory_list))
+    remove_users = list(set(github_list) - set(directory_list))
     sync_state = {
-        'ldap': group,
+        'directory': group,
         'github': team,
         'action': {
             'add': add_users,
@@ -168,8 +168,8 @@ def execute_sync(org, team, slug, state):
     :return:
     """
     total_changes = len(state['action']['remove']) + len(state['action']['add'])
-    if len(state['ldap']) == 0:
-        message = "LDAP group returned empty: {}".format(slug)
+    if len(state['directory']) == 0:
+        message = f"{os.environ.get('USER_DIRECTORY', 'LDAP').upper()} group returned empty: {slug}"
         raise ValueError(message)
     elif int(total_changes) > int(os.environ.get('CHANGE_THRESHOLD', 25)):
         message = "Skipping sync for {}.<br>".format(slug)
@@ -225,7 +225,7 @@ def load_custom_map(file='syncmap.yml'):
         with open(file, 'r') as f:
             data = load(f, Loader=Loader)
         for d in data['mapping']:
-            syncmap[d['github']] = d['ldap']
+            syncmap[d['github']] = d['directory']
 
     return syncmap
 
@@ -233,7 +233,7 @@ def load_custom_map(file='syncmap.yml'):
 @scheduler.scheduled_job(trigger=CronTrigger.from_crontab(CRON_INTERVAL), id='sync_all_teams')
 def sync_all_teams():
     """
-    Lookup teams in a GitHub org and synchronize all teams with LDAP
+    Lookup teams in a GitHub org and synchronize all teams with your user directory
     :return:
     """
     pprint(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
