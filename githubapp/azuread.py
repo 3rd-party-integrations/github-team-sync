@@ -75,12 +75,27 @@ class AzureAD:
             headers={"Authorization": f"Bearer {token}"},
         ).json()["value"]
         for member in members:
-            member_list.append(member[self.USERNAME_ATTRIBUTE])
+            username = self.get_user_info(token=token, user=member['id'])[self.USERNAME_ATTRIBUTE]
+            member_list.append(username)
         return member_list
 
+    def get_user_info(self, token=None, user=None):
+        """
+        Get user info
+        :param token:
+        :param user:
+        :return user_info:
+        :rtype user_info: dict
+        """
+        graph_data = requests.get(  # Use token to call downstream service
+            f"{self.AZURE_API_ENDPOINT}/users/{user}?$select=id,{self.USERNAME_ATTRIBUTE}",
+            headers={"Authorization": f"Bearer {token}"},
+        ).json()
+        user_info = json.loads(json.dumps(graph_data, indent=2))
+        return user_info
 
-# if __name__ == "__main__":
-#     aad = AzureAD()
-#     token = aad.get_access_token()
-#     members = aad.get_group_members(token=token, group="GitHub-Demo")
-#     print(members)
+if __name__ == "__main__":
+    aad = AzureAD()
+    token = aad.get_access_token()
+    members = aad.get_group_members(token=token, group="GitHub-Demo")
+    print(members)
