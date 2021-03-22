@@ -61,6 +61,7 @@ To get started, ensure that you are using **Python 3.4+**. The following additio
 - [ ] APScheduler
 - [ ] python-dotenv
 - [ ] PyYAML
+- [ ] msal
 
 Install the required libraries.
 
@@ -77,6 +78,13 @@ WEBHOOK_SECRET=development
 APP_ID=12345
 PRIVATE_KEY_PATH=.ssh/team-sync.pem
 GHE_HOST=github.example.com
+```
+
+### Sample `.env` for choosing your backend
+```env
+## AzureAD = AAD
+## AD/LDAP = LDAP
+USER_DIRECTORY=LDAP
 ```
 
 ### Sample `.env` for Active Directory
@@ -112,6 +120,16 @@ LDAP_GROUP_MEMBER_ATTRIBUTE=memberUid
 LDAP_BIND_USER="cn=admin,dc=example,dc=com"
 LDAP_BIND_PASSWORD="p4$$w0rd"
 LDAP_SEARCH_PAGE_SIZE=1000
+```
+
+### Sample `.env` for AzureAD
+```env
+AZURE_TENANT_ID="<tenant_id>"
+AZURE_CLIENT_ID="<client_id>"
+AZURE_CLIENT_SECRET="<client_secret>"
+AZURE_APP_SCOPE="default"
+AZURE_API_ENDPOINT="https://graph.microsoft.com/v1.0"
+USERNAME_ATTRIBUTE=userPrincipalName
 ```
 
 ### Sample `.env` settings for additional settings
