@@ -75,7 +75,9 @@ class AzureAD:
             headers={"Authorization": f"Bearer {token}"},
         ).json()["value"]
         for member in members:
-            username = self.get_user_info(token=token, user=member['id'])[self.USERNAME_ATTRIBUTE]
+            username = self.get_user_info(token=token, user=member["id"])[
+                self.USERNAME_ATTRIBUTE
+            ]
             member_list.append(username)
         return member_list
 
@@ -93,6 +95,7 @@ class AzureAD:
         ).json()
         user_info = json.loads(json.dumps(graph_data, indent=2))
         return user_info
+
 
 if __name__ == "__main__":
     aad = AzureAD()
