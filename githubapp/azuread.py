@@ -100,10 +100,3 @@ class AzureAD:
         ).json()
         user_info = json.loads(json.dumps(graph_data, indent=2))
         return user_info
-
-
-if __name__ == "__main__":
-    aad = AzureAD()
-    token = aad.get_access_token()
-    members = aad.get_group_members(token=token, group_name="GitHub-Demo")
-    print(members)
