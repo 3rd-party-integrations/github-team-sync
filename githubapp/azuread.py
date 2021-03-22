@@ -52,6 +52,10 @@ class AzureAD:
 
 
     def get_access_token(self):
+        """
+        Get the access token for this Azure Service Principal
+        :return access_token:
+        """
         app = msal.ConfidentialClientApplication(
             self.AZURE_CLIENT_ID,
             authority=f'https://login.microsoftonline.com/{self.AZURE_TENANT_ID}',
@@ -75,6 +79,12 @@ class AzureAD:
             print(result.get("correlation_id"))  # You may need this when reporting a bug
 
     def get_group_members(self, token=None, group=None):
+        """
+        Get a list of members for a given group
+        :param token:
+        :param group:
+        :return:
+        """
         member_list = []
         # Calling graph using the access token
         graph_data = requests.get(  # Use token to call downstream service
@@ -89,7 +99,8 @@ class AzureAD:
                 headers={'Authorization': f'Bearer {token}'}
             ).json()
             for member in members['value']:
-                print(member[self.USERNAME_ATTRIBUTE])
+                member_list.append(member[self.USERNAME_ATTRIBUTE])
+        return member_list
 
 
 if __name__ == '__main__':
