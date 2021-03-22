@@ -7,6 +7,8 @@ if os.environ.get("USER_DIRECTORY", "LDAP").upper() == "LDAP":
     from .ldap import LDAPClient as DirectoryClient
 elif os.environ.get("USER_DIRECTORY", "LDAP").upper() == "AAD":
     from .azuread import AzureAD as DirectoryClient
+elif os.environ.get("USER_DIRECTORY", "LDAP").upper() == "OKTA":
+    from .okta import Okta as DirectoryClient
 from .version import __version__
 
 __all__ = ["GitHubApp", "DirectoryClient"]

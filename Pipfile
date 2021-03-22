@@ -23,6 +23,8 @@ ldap3 = "*"
 apscheduler = "*"
 python-dotenv = "*"
 msal = "*"
+okta = "*"
+asyncio = "*"
 
 [pipenv]
 allow_prereleases = true
