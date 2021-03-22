@@ -1,13 +1,13 @@
 # GitHub LDAP Team Sync
 This utility is intended to enable synchronization between LDAP/Active Directory and GitHub.
 This is particularly useful for large organizations with many teams that either do not use LDAP for authentication,
-or else do not use the team sync feature for one reason or another. 
+or else do not use the team sync feature for one reason or another.
 It supports both GitHub.com and GitHub Enterprise, but it will need to live in a location that can access your LDAP servers.
 
 ## Features
 This utility provides the following functionality:
 
-| Feature | Supported | Description | 
+| Feature | Supported | Description |
 | --- | --- | --- |
 | Sync Users | Yes | Add or remove users from `Teams` in GitHub to keep in sync with Active Directory groups |
 | Dynamic Config | Yes | Utilize a `settings` file to derive Active Directory and GitHub settings |
@@ -27,7 +27,7 @@ This utility provides the following functionality:
     - **Webhook URL**: URL of the machine on which this app has been deployed (Example: `http://ip.of.machine:3000`)
     - **Homepage URL**: URL of the machine on which this app has been deployed (Example: `http://ip.of.machine:3000`)
     - **Webhook Secret**: The webhook secret that will be or has been defined as an environment variable in your deployment environment as `WEBHOOK_SECRET`
-    - **Permissions and Events**: This application will need to be able to manage teams in GitHub, so the `events` and `permissions` listed below will be required. For more information on how to create a GitHub App, please visit https://developer.github.com/apps/building-github-apps/creating-a-github-app/
+    - **Permissions and Events**: This application will need to be able to manage teams in GitHub, so the `events` and `permissions` listed below will be required. For more information on how to create a GitHub App, please visit [https://developer.github.com/apps/building-github-apps/creating-a-github-app](https://developer.github.com/apps/building-github-apps/creating-a-github-app)
 3. Once these have been configured, select the `Create GitHub App` button at the bottom of the page to continue
 4. Make a note of the `APP ID` on your newly-created **GitHub App**. You will need to set this as an environment variable when you configure the app.
 5. Generate and download a private key from the new App page, and store it in your deployment environment. You can either do this by saving the file directly in the environment and specifying its path with the environment variable `PRIVATE_KEY_PATH`
@@ -41,7 +41,7 @@ This utility provides the following functionality:
 
 | Category | Attribute | Permission |
 | --- | --- | --- |
-| Organization permissions | `Members` | `Read & write` | 
+| Organization permissions | `Members` | `Read & write` |
 | User permissions | `Email addresses` | `Read-only` |
 | Repository permissions | `Issues` | `Read & write` |
 | Repostiroy permissions | `Metadata` | `Read-only` |
@@ -159,7 +159,7 @@ mapping:
 This example runs the app in a standard Flask environment
 
 ```bash
-$ pipenv run flask run --host=0.0.0.0 --port=5000
+pipenv run flask run --host=0.0.0.0 --port=5000
 ```
 
 Or you can run the app with Python directly
