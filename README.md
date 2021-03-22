@@ -62,6 +62,8 @@ To get started, ensure that you are using **Python 3.4+**. The following additio
 - [ ] python-dotenv
 - [ ] PyYAML
 - [ ] msal
+- [ ] asyncio
+- [ ] okta
 
 Install the required libraries.
 
@@ -84,6 +86,7 @@ GHE_HOST=github.example.com
 ```env
 ## AzureAD = AAD
 ## AD/LDAP = LDAP
+## Okta = OKTA
 USER_DIRECTORY=LDAP
 ```
 
@@ -132,6 +135,13 @@ AZURE_API_ENDPOINT="https://graph.microsoft.com/v1.0"
 USERNAME_ATTRIBUTE=userPrincipalName
 ```
 
+### Sample `.env` for Okta
+```env
+OKTA_ORG_URL=https://example.okta.com
+OKTA_ACCESS_TOKEN=asdfghkjliptojkjsj00294759
+USERNAME_ATTRIBUTE=github_username
+```
+
 ### Sample `.env` settings for additional settings
 ```env
 ## Additional settings
@@ -172,3 +182,6 @@ pipenv run python app.py
 This project draws much from:
 - [Flask-GitHubApp](https://github.com/bradshjg/flask-githubapp)
 - [github3.py](https://github.com/sigmavirus24/github3.py)
+- [msal](https://github.com/AzureAD/microsoft-authentication-library-for-python)
+- [okta](https://github.com/okta/okta-sdk-python)
+- [ldap3](https://github.com/cannatag/ldap3)
