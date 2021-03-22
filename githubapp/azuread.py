@@ -95,7 +95,7 @@ class AzureAD:
         # Calling graph using the access token
         graph_data = requests.get(  # Use token to call downstream service
             f"{self.AZURE_API_ENDPOINT}/groups?$filter=startswith(displayName,'{group}')",
-            headers={"Authorization": f"Bearer {token}"}
+            headers={"Authorization": f"Bearer {token}"},
         ).json()
         # print("Graph API call result: %s" % json.dumps(graph_data, indent=2))
         group_info = json.loads(json.dumps(graph_data, indent=2))["value"][0]
