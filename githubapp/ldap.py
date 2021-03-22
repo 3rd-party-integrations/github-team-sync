@@ -71,7 +71,7 @@ class LDAPClient:
                         # print(e)
                     else:
                         try:
-                            member_dn = self.get_user_info(member)
+                            member_dn = self.get_user_info(user=member)
                             # pprint(member_dn)
                             username = str(
                                 member_dn["attributes"][self.LDAP_USER_ATTRIBUTE][0]
@@ -87,23 +87,23 @@ class LDAPClient:
                             print(e)
         return member_list
 
-    def get_user_info(self, member=None):
+    def get_user_info(self, user=None):
         """
         Look up user info from LDAP
-        :param member:
-        :type member:
+        :param user:
+        :type user:
         :return:
         :rtype:
         """
-        if any(attr in member.casefold() for attr in ["uid=", "cn="]):
-            search_base = member
+        if any(attr in user.casefold() for attr in ["uid=", "cn="]):
+            search_base = user
         else:
             search_base = self.LDAP_USER_BASE_DN
         try:
             try:
                 self.conn.search(
                     search_base=search_base,
-                    search_filter=self.LDAP_USER_FILTER.replace("{username}", member),
+                    search_filter=self.LDAP_USER_FILTER.replace("{username}", user),
                     attributes=["*"],
                 )
                 data = json.loads(self.conn.entries[0].entry_to_json())

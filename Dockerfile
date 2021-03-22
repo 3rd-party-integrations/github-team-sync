@@ -16,9 +16,10 @@ RUN apk add --no-cache \
         gcc \
         libffi-dev \
         build-base \
-        openssl-dev
+        openssl-dev \
+        cargo
 
-RUN pip install --no-cache-dir pipenv
+RUN pip install --no-cache-dir --upgrade pipenv
 
 RUN pipenv install
 

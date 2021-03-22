@@ -28,7 +28,11 @@ def sync_new_team():
     """
     owner = github_app.payload["organization"]["login"]
     team_id = github_app.payload["team"]["id"]
-    slug = github_app.payload["team"]["slug"]
+    if os.environ['USER_DIRECTORY'].upper() == 'AAD':
+        ## Azure APIs don't currently support case insensitive searching
+        slug = github_app.payload["team"]["name"].replace(' ', '-')
+    else:
+        slug = github_app.payload["team"]["slug"]
     client = github_app.installation_client
     sync_team(client=client, owner=owner, team_id=team_id, slug=slug)
 
@@ -46,6 +50,7 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     team = org.team(team_id)
     custom_map = load_custom_map()
     directory_group = custom_map[slug] if slug in custom_map else slug
+    print(directory_group)
     directory_members = directory_group_members(group=directory_group)
     team_members = github_team_members(
         client=client, owner=owner, team_id=team_id, attribute="username"
@@ -75,7 +80,7 @@ def directory_group_members(group=None):
     :return: group_members
     :rtype: list
     """
-    members = directory.get_group_members(group)
+    members = directory.get_group_members(group_name=group)
     group_members = [member for member in members]
     return group_members
 
@@ -133,7 +138,7 @@ def compare_members(group, team, attribute="username"):
     """
     directory_list = [x[attribute] for x in group]
     github_list = [x[attribute] for x in team]
-    add_users = list(set(directory_list) - set(directory_list))
+    add_users = list(set(directory_list) - set(github_list))
     remove_users = list(set(github_list) - set(directory_list))
     sync_state = {
         "directory": group,

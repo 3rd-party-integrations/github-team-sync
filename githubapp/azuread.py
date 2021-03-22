@@ -18,7 +18,7 @@ class AzureAD:
         self.AZURE_CLIENT_ID = os.environ["AZURE_CLIENT_ID"]
         self.AZURE_CLIENT_SECRET = os.environ["AZURE_CLIENT_SECRET"]
         self.AZURE_APP_SCOPE = [
-            f"https://graph.microsoft.com/.{x}"
+            f"https://graph.microsoft.com/{x}"
             for x in os.environ["AZURE_APP_SCOPE"].split(" ")
         ]
         self.AZURE_API_ENDPOINT = os.environ["AZURE_API_ENDPOINT"]
@@ -55,17 +55,18 @@ class AzureAD:
                 result.get("correlation_id")
             )  # You may need this when reporting a bug
 
-    def get_group_members(self, token=None, group=None):
+    def get_group_members(self, token=None, group_name=None):
         """
         Get a list of members for a given group
         :param token:
         :param group:
         :return:
         """
+        token = self.get_access_token() if not token else token
         member_list = []
         # Calling graph using the access token
         graph_data = requests.get(  # Use token to call downstream service
-            f"{self.AZURE_API_ENDPOINT}/groups?$filter=startswith(displayName,'{group}')",
+            f"{self.AZURE_API_ENDPOINT}/groups?$filter=startswith(displayName,'{group_name}')",
             headers={"Authorization": f"Bearer {token}"},
         ).json()
         # print("Graph API call result: %s" % json.dumps(graph_data, indent=2))
@@ -75,10 +76,10 @@ class AzureAD:
             headers={"Authorization": f"Bearer {token}"},
         ).json()["value"]
         for member in members:
-            username = self.get_user_info(token=token, user=member["id"])[
-                self.USERNAME_ATTRIBUTE
-            ]
-            member_list.append(username)
+            user_info = self.get_user_info(token=token, user=member["id"])
+            user = {"username": user_info[self.USERNAME_ATTRIBUTE], "email": user_info["mail"]}
+            print(user)
+            member_list.append(user)
         return member_list
 
     def get_user_info(self, token=None, user=None):
@@ -89,8 +90,9 @@ class AzureAD:
         :return user_info:
         :rtype user_info: dict
         """
+        token = self.get_access_token() if not token else token
         graph_data = requests.get(  # Use token to call downstream service
-            f"{self.AZURE_API_ENDPOINT}/users/{user}?$select=id,{self.USERNAME_ATTRIBUTE}",
+            f"{self.AZURE_API_ENDPOINT}/users/{user}?$select=id,mail,{self.USERNAME_ATTRIBUTE}",
             headers={"Authorization": f"Bearer {token}"},
         ).json()
         user_info = json.loads(json.dumps(graph_data, indent=2))
@@ -100,5 +102,5 @@ class AzureAD:
 if __name__ == "__main__":
     aad = AzureAD()
     token = aad.get_access_token()
-    members = aad.get_group_members(token=token, group="GitHub-Demo")
+    members = aad.get_group_members(token=token, group_name="GitHub-Demo")
     print(members)
