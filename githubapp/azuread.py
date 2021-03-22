@@ -81,7 +81,6 @@ class AzureAD:
                 "username": user_info[self.USERNAME_ATTRIBUTE],
                 "email": user_info["mail"],
             }
-            print(user)
             member_list.append(user)
         return member_list
 

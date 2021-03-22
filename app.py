@@ -50,7 +50,6 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     team = org.team(team_id)
     custom_map = load_custom_map()
     directory_group = custom_map[slug] if slug in custom_map else slug
-    print(directory_group)
     directory_members = directory_group_members(group=directory_group)
     team_members = github_team_members(
         client=client, owner=owner, team_id=team_id, attribute="username"
