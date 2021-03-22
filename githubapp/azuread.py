@@ -28,10 +28,8 @@ You can then run this sample with a JSON configuration file:
 """
 
 import os
-import sys  # For simplicity, we'll read config file from 1st CLI param sys.argv[1]
 import json
 import logging
-from pprint import pprint
 
 import requests
 import msal
