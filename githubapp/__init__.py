@@ -9,7 +9,7 @@ elif os.environ.get("USER_DIRECTORY", "LDAP").upper() == "AAD":
     from .azuread import AzureAD as DirectoryClient
 from .version import __version__
 
-__all__ = ['GitHubApp', 'DirectoryClient']
+__all__ = ["GitHubApp", "DirectoryClient"]
 
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
@@ -22,13 +22,13 @@ rootlogger = logging.getLogger(__name__)
 if rootlogger.level == logging.NOTSET:
     rootlogger.setLevel(logging.WARN)
 
-CRON_INTERVAL = os.environ.get('SYNC_SCHEDULE', '0 * * * *')
+CRON_INTERVAL = os.environ.get("SYNC_SCHEDULE", "0 * * * *")
 # CHANGE_THRESHOLD = os.environ.get('CHANGE_THRESHOLD', 25)
 # REPO_FOR_ISSUES = os.environ.get('REPO_FOR_ISSUES')
 # ISSUE_ASSIGNEE = os.environ.get('ISSUE_ASSIGNEE')
 # OPEN_ISSUE_ON_FAILURE = strtobool(os.environ.get('OPEN_ISSUE_ON_FAILURE', 'False'))
 try:
-    TEST_MODE = strtobool(os.environ.get('TEST_MODE', 'False'))
+    TEST_MODE = strtobool(os.environ.get("TEST_MODE", "False"))
 except ValueError as e:
     rootlogger.warn('TEST_MODE should be set to "true" or "false"')
     rootlogger.warn(e)

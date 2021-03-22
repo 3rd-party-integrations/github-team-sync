@@ -22,6 +22,7 @@ pyyaml = "*"
 ldap3 = "*"
 apscheduler = "*"
 python-dotenv = "*"
+msal = "*"
 
 [pipenv]
 allow_prereleases = true

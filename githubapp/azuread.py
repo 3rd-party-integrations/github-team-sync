@@ -41,15 +41,18 @@ import msal
 
 LOG = logging.getLogger(__name__)
 
+
 class AzureAD:
     def __init__(self):
-        self.AZURE_TENANT_ID = os.environ['AZURE_TENANT_ID']
-        self.AZURE_CLIENT_ID = os.environ['AZURE_CLIENT_ID']
-        self.AZURE_CLIENT_SECRET = os.environ['AZURE_CLIENT_SECRET']
-        self.AZURE_APP_SCOPE = [f'https://graph.microsoft.com/.{x}' for x in os.environ['AZURE_APP_SCOPE'].split(" ")]
-        self.AZURE_API_ENDPOINT = os.environ['AZURE_API_ENDPOINT']
-        self.USERNAME_ATTRIBUTE = os.environ['USERNAME_ATTRIBUTE']
-
+        self.AZURE_TENANT_ID = os.environ["AZURE_TENANT_ID"]
+        self.AZURE_CLIENT_ID = os.environ["AZURE_CLIENT_ID"]
+        self.AZURE_CLIENT_SECRET = os.environ["AZURE_CLIENT_SECRET"]
+        self.AZURE_APP_SCOPE = [
+            f"https://graph.microsoft.com/.{x}"
+            for x in os.environ["AZURE_APP_SCOPE"].split(" ")
+        ]
+        self.AZURE_API_ENDPOINT = os.environ["AZURE_API_ENDPOINT"]
+        self.USERNAME_ATTRIBUTE = os.environ["USERNAME_ATTRIBUTE"]
 
     def get_access_token(self):
         """
@@ -58,25 +61,29 @@ class AzureAD:
         """
         app = msal.ConfidentialClientApplication(
             self.AZURE_CLIENT_ID,
-            authority=f'https://login.microsoftonline.com/{self.AZURE_TENANT_ID}',
-            client_credential=self.AZURE_CLIENT_SECRET
+            authority=f"https://login.microsoftonline.com/{self.AZURE_TENANT_ID}",
+            client_credential=self.AZURE_CLIENT_SECRET,
         )
 
         # Lookup the token in cache
         result = app.acquire_token_silent(self.AZURE_APP_SCOPE, account=None)
 
         if not result:
-            logging.info("No suitable token exists in cache. Let's get a new one from AAD.")
+            logging.info(
+                "No suitable token exists in cache. Let's get a new one from AAD."
+            )
             result = app.acquire_token_for_client(scopes=self.AZURE_APP_SCOPE)
 
         if "access_token" in result:
             print("Successfully authenticated!")
-            return result['access_token']
+            return result["access_token"]
 
         else:
             print(result.get("error"))
             print(result.get("error_description"))
-            print(result.get("correlation_id"))  # You may need this when reporting a bug
+            print(
+                result.get("correlation_id")
+            )  # You may need this when reporting a bug
 
     def get_group_members(self, token=None, group=None):
         """
@@ -88,22 +95,21 @@ class AzureAD:
         member_list = []
         # Calling graph using the access token
         graph_data = requests.get(  # Use token to call downstream service
-            self.AZURE_API_ENDPOINT,
-            headers={'Authorization': f'Bearer {token}'}
+            self.AZURE_API_ENDPOINT, headers={"Authorization": f"Bearer {token}"}
         ).json()
         # print("Graph API call result: %s" % json.dumps(graph_data, indent=2))
         groups = json.loads(json.dumps(graph_data, indent=2))
-        for group in groups['value']:
+        for group in groups["value"]:
             members = requests.get(
                 f'{self.AZURE_API_ENDPOINT}/groups/{group["id"]}/members',
-                headers={'Authorization': f'Bearer {token}'}
+                headers={"Authorization": f"Bearer {token}"},
             ).json()
-            for member in members['value']:
+            for member in members["value"]:
                 member_list.append(member[self.USERNAME_ATTRIBUTE])
         return member_list
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     aad = AzureAD()
     token = aad.get_access_token()
-    aad.get_group_members(token=token, group="0aafe564-0044-424c-8a75-e8a59e6a83d5")
+    aad.get_group_members(token=token, group="github-demo")
