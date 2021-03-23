@@ -1,9 +1,8 @@
 FROM python:3-alpine
 
-LABEL version="2.0"
+LABEL version="2.1"
 LABEL description="LDAP Team Sync for GitHub"
-
-MAINTAINER GitHub Services <services@github.com>
+LABEL maintainer="GitHub Services <services@github.com>"
 
 COPY . /opt/github-team-sync
 WORKDIR /opt/github-team-sync
@@ -16,9 +15,10 @@ RUN apk add --no-cache \
         gcc \
         libffi-dev \
         build-base \
-        openssl-dev
+        openssl-dev \
+        cargo
 
-RUN pip install --no-cache-dir pipenv
+RUN pip install --no-cache-dir --upgrade pipenv
 
 RUN pipenv install
 

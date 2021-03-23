@@ -22,9 +22,10 @@ pyyaml = "*"
 ldap3 = "*"
 apscheduler = "*"
 python-dotenv = "*"
+msal = "*"
 
 [pipenv]
 allow_prereleases = true
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"

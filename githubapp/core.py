@@ -10,8 +10,8 @@ from github3 import GitHub, GitHubEnterprise
 
 LOG = logging.getLogger(__name__)
 
-STATUS_FUNC_CALLED = 'HIT'
-STATUS_NO_FUNC_CALLED = 'MISS'
+STATUS_FUNC_CALLED = "HIT"
+STATUS_NO_FUNC_CALLED = "MISS"
 
 
 class GitHubApp(object):
@@ -33,12 +33,12 @@ class GitHubApp(object):
 
     @staticmethod
     def load_env(app):
-        app.config['GITHUBAPP_ID'] = int(os.environ['APP_ID'])
-        app.config['GITHUBAPP_SECRET'] = os.environ['WEBHOOK_SECRET']
-        if 'GHE_HOST' in os.environ:
-            app.config['GITHUBAPP_URL'] = 'https://{}'.format(os.environ['GHE_HOST'])
-        with open(os.environ['PRIVATE_KEY_PATH'], 'rb') as key_file:
-            app.config['GITHUBAPP_KEY'] = key_file.read()
+        app.config["GITHUBAPP_ID"] = int(os.environ["APP_ID"])
+        app.config["GITHUBAPP_SECRET"] = os.environ["WEBHOOK_SECRET"]
+        if "GHE_HOST" in os.environ:
+            app.config["GITHUBAPP_URL"] = "https://{}".format(os.environ["GHE_HOST"])
+        with open(os.environ["PRIVATE_KEY_PATH"], "rb") as key_file:
+            app.config["GITHUBAPP_KEY"] = key_file.read()
 
     def init_app(self, app):
         """
@@ -72,63 +72,67 @@ class GitHubApp(object):
             Default: '/'
         """
         self.load_env(app)
-        required_settings = ['GITHUBAPP_ID', 'GITHUBAPP_KEY', 'GITHUBAPP_SECRET']
+        required_settings = ["GITHUBAPP_ID", "GITHUBAPP_KEY", "GITHUBAPP_SECRET"]
         for setting in required_settings:
             if not app.config.get(setting):
-                raise RuntimeError("Flask-GitHubApp requires the '%s' config var to be set" % setting)
+                raise RuntimeError(
+                    "Flask-GitHubApp requires the '%s' config var to be set" % setting
+                )
 
-        app.add_url_rule(app.config.get('GITHUBAPP_ROUTE', '/'),
-                         view_func=self._flask_view_func,
-                         methods=['POST'])
+        app.add_url_rule(
+            app.config.get("GITHUBAPP_ROUTE", "/"),
+            view_func=self._flask_view_func,
+            methods=["POST"],
+        )
 
     @property
     def id(self):
-        return current_app.config['GITHUBAPP_ID']
+        return current_app.config["GITHUBAPP_ID"]
 
     @property
     def key(self):
-        key = current_app.config['GITHUBAPP_KEY']
-        if hasattr(key, 'encode'):
-            key = key.encode('utf-8')
+        key = current_app.config["GITHUBAPP_KEY"]
+        if hasattr(key, "encode"):
+            key = key.encode("utf-8")
         return key
 
     @property
     def secret(self):
-        secret = current_app.config['GITHUBAPP_SECRET']
-        if hasattr(secret, 'encode'):
-            secret = secret.encode('utf-8')
+        secret = current_app.config["GITHUBAPP_SECRET"]
+        if hasattr(secret, "encode"):
+            secret = secret.encode("utf-8")
         return secret
 
     @property
     def _api_url(self):
-        return current_app.config['GITHUBAPP_URL']
+        return current_app.config["GITHUBAPP_URL"]
 
     @property
     def client(self):
         """Unauthenticated GitHub client"""
-        if current_app.config.get('GITHUBAPP_URL'):
-            return GitHubEnterprise(current_app.config['GITHUBAPP_URL'])
+        if current_app.config.get("GITHUBAPP_URL"):
+            return GitHubEnterprise(current_app.config["GITHUBAPP_URL"])
         return GitHub()
 
     @property
     def payload(self):
         """GitHub hook payload"""
-        if request and request.json and 'installation' in request.json:
+        if request and request.json and "installation" in request.json:
             return request.json
 
-        raise RuntimeError('Payload is only available in the context of a GitHub hook request')
+        raise RuntimeError(
+            "Payload is only available in the context of a GitHub hook request"
+        )
 
     @property
     def installation_client(self):
         """GitHub client authenticated as GitHub app installation"""
         ctx = _app_ctx_stack.top
         if ctx is not None:
-            if not hasattr(ctx, 'githubapp_installation'):
+            if not hasattr(ctx, "githubapp_installation"):
                 client = self.client
                 client.login_as_app_installation(
-                    self.key,
-                    self.id,
-                    self.payload['installation']['id']
+                    self.key, self.id, self.payload["installation"]["id"]
                 )
                 ctx.githubapp_installation = client
             return ctx.githubapp_installation
@@ -138,10 +142,9 @@ class GitHubApp(object):
         """GitHub client authenticated as GitHub app"""
         ctx = _app_ctx_stack.top
         if ctx is not None:
-            if not hasattr(ctx, 'githubapp_app'):
+            if not hasattr(ctx, "githubapp_app"):
                 client = self.client
-                client.login_as_app(self.key,
-                                    self.id)
+                client.login_as_app(self.key, self.id)
                 ctx.githubapp_app = client
             return ctx.githubapp_app
 
@@ -163,15 +166,11 @@ class GitHubApp(object):
         """GitHub client authenticated as GitHub app installation"""
         ctx = _app_ctx_stack.top
         if installation_id is None:
-            raise RuntimeError('Installation ID is not specified.')
+            raise RuntimeError("Installation ID is not specified.")
         if ctx is not None:
-            if not hasattr(ctx, 'githubapp_installation'):
+            if not hasattr(ctx, "githubapp_installation"):
                 client = self.client
-                client.login_as_app_installation(
-                    self.key,
-                    self.id,
-                    installation_id
-                )
+                client.login_as_app_installation(self.key, self.id, installation_id)
                 ctx.githubapp_installation = client
             return ctx.githubapp_installation
 
@@ -211,8 +210,8 @@ class GitHubApp(object):
         functions_to_call = []
         calls = {}
 
-        event = request.headers['X-GitHub-Event']
-        action = request.json.get('action')
+        event = request.headers["X-GitHub-Event"]
+        action = request.json.get("action")
 
         self._verify_webhook()
 
@@ -220,7 +219,7 @@ class GitHubApp(object):
             functions_to_call += self._hook_mappings[event]
 
         if action:
-            event_action = '.'.join([event, action])
+            event_action = ".".join([event, action])
             if event_action in self._hook_mappings:
                 functions_to_call += self._hook_mappings[event_action]
 
@@ -230,22 +229,21 @@ class GitHubApp(object):
             status = STATUS_FUNC_CALLED
         else:
             status = STATUS_NO_FUNC_CALLED
-        return jsonify({'status': status,
-                        'calls': calls})
+        return jsonify({"status": status, "calls": calls})
 
     def _verify_webhook(self):
         if True:
             return
 
-        hub_signature = 'X-HUB-SIGNATURE'
+        hub_signature = "X-HUB-SIGNATURE"
         if hub_signature not in request.headers:
-            LOG.warning('Github Hook Signature not found.')
+            LOG.warning("Github Hook Signature not found.")
             abort(400)
 
-        signature = request.headers[hub_signature].split('=')[1]
+        signature = request.headers[hub_signature].split("=")[1]
 
-        mac = hmac.new(self.secret, msg=request.data, digestmod='sha1')
+        mac = hmac.new(self.secret, msg=request.data, digestmod="sha1")
 
         if not hmac.compare_digest(mac.hexdigest(), signature):
-            LOG.warning('GitHub hook signature verification failed.')
+            LOG.warning("GitHub hook signature verification failed.")
             abort(400)
