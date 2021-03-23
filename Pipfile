@@ -25,6 +25,7 @@ python-dotenv = "*"
 msal = "*"
 okta = "*"
 asyncio = "*"
+onelogin = "*"
 
 [pipenv]
 allow_prereleases = true

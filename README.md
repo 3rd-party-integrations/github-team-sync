@@ -1,8 +1,15 @@
-# GitHub LDAP Team Sync
-This utility is intended to enable synchronization between LDAP/Active Directory and GitHub.
-This is particularly useful for large organizations with many teams that either do not use LDAP for authentication,
-or else do not use the team sync feature for one reason or another.
-It supports both GitHub.com and GitHub Enterprise, but it will need to live in a location that can access your LDAP servers.
+# GitHub Team Sync
+This utility is intended to enable synchronization between GitHub and various LDAP and SAML providers.
+This is particularly useful for large organizations with many teams that either use GitHub Enterprise Cloud, 
+do not use LDAP for authentication, or use a SAML provider other than what is natively supported.
+It supports both GitHub.com, GitHub Enterprise Server (GHES) and GitHub , but it will need to live in a location that can access your LDAP servers.
+
+## Supported user directories
+- LDAP
+- Active Directory
+- Azure AD
+- Okta
+- OneLogin
 
 ## Features
 This utility provides the following functionality:
@@ -64,6 +71,7 @@ To get started, ensure that you are using **Python 3.4+**. The following additio
 - [ ] msal
 - [ ] asyncio
 - [ ] okta
+- [ ] onelogin
 
 Install the required libraries.
 
@@ -87,6 +95,7 @@ GHE_HOST=github.example.com
 ## AzureAD = AAD
 ## AD/LDAP = LDAP
 ## Okta = OKTA
+## OneLogin = ONELOGIN
 USER_DIRECTORY=LDAP
 ```
 
@@ -132,14 +141,21 @@ AZURE_CLIENT_ID="<client_id>"
 AZURE_CLIENT_SECRET="<client_secret>"
 AZURE_APP_SCOPE="default"
 AZURE_API_ENDPOINT="https://graph.microsoft.com/v1.0"
-USERNAME_ATTRIBUTE=userPrincipalName
+AZURE_USERNAME_ATTRIBUTE=userPrincipalName
 ```
 
 ### Sample `.env` for Okta
 ```env
 OKTA_ORG_URL=https://example.okta.com
 OKTA_ACCESS_TOKEN=asdfghkjliptojkjsj00294759
-USERNAME_ATTRIBUTE=github_username
+OKTA_USERNAME_ATTRIBUTE=github_username
+```
+
+### Sample `.env` for OneLogin
+```env
+ONELOGIN_CLIENT_ID='asdafsflkjlk13q33433445wee'
+ONELOGIN_CLIENT_SECRET='ca3a86f982fjjkjjkfkhls'
+REGION=US
 ```
 
 ### Sample `.env` settings for additional settings

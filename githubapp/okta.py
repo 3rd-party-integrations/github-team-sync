@@ -9,7 +9,7 @@ LOG = logging.getLogger(__name__)
 
 class Okta:
     def __init__(self):
-        self.USERNAME_ATTRIBUTE = os.environ.get("USERNAME_ATTRIBUTE", "login")
+        self.USERNAME_ATTRIBUTE = os.environ.get("OKTA_USERNAME_ATTRIBUTE", "login")
         config = {
             "orgUrl": os.environ["OKTA_ORG_URL"],
             "token": os.environ["OKTA_ACCESS_TOKEN"],
