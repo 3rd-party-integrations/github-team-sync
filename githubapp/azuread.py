@@ -22,7 +22,7 @@ class AzureAD:
             for x in os.environ["AZURE_APP_SCOPE"].split(" ")
         ]
         self.AZURE_API_ENDPOINT = os.environ["AZURE_API_ENDPOINT"]
-        self.USERNAME_ATTRIBUTE = os.environ["USERNAME_ATTRIBUTE"]
+        self.USERNAME_ATTRIBUTE = os.environ["AZURE_USERNAME_ATTRIBUTE"]
 
     def get_access_token(self):
         """
