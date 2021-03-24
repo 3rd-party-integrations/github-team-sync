@@ -7,7 +7,11 @@ class OneLogin:
         CLIENT_ID = os.environ["ONELOGIN_CLIENT_ID"]
         CLIENT_SECRET = os.environ["ONELOGIN_CLIENT_SECRET"]
         REGION = os.environ.get("ONELOGIN_REGION", "US").upper()
-        self.client = OneLoginClient(CLIENT_ID, CLIENT_SECRET, REGION)
+        self.client = OneLoginClient(
+            CLIENT_ID,
+            CLIENT_SECRET,
+            REGION
+        )
 
     def get_group_members(self, group_name=None):
         """
