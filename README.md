@@ -52,6 +52,21 @@ This utility provides the following functionality:
 | --- | --- | --- |
 | `Team` | Optional | Trigger when a new team is `created`, `deleted`, `edited`, `renamed`, etc. |
 
+#### Azure AD Permissions
+**Authentication methods**
+- [ ] Username/Password
+- [x] Service Principal
+- [ ] Certificate
+- [ ] Device Auth
+
+This app requires the following Azure permissions:
+
+- `Directory.Read.All`
+- `Group.Read.All`
+- `GroupMember.Read.All`
+- `Organization.Read.All`
+- `User.Read.All`
+
 ## Getting Started
 To get started, ensure that you are using **Python 3.4+**. The following additional libraries are required:
 
