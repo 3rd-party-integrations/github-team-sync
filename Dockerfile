@@ -4,7 +4,7 @@ LABEL version="2.1"
 LABEL description="LDAP Team Sync for GitHub"
 LABEL maintainer="GitHub Services <services@github.com>"
 
-ARG TZ='EST5EDT'
+ARG TZ='UTC'
 
 ENV DEFAULT_TZ ${TZ}
 
