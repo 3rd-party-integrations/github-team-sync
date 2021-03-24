@@ -157,6 +157,7 @@ AZURE_CLIENT_SECRET="<client_secret>"
 AZURE_APP_SCOPE="default"
 AZURE_API_ENDPOINT="https://graph.microsoft.com/v1.0"
 AZURE_USERNAME_ATTRIBUTE=userPrincipalName
+AZURE_USER_IS_UPN=true
 ```
 
 ### Sample `.env` for Okta
