@@ -1,6 +1,6 @@
 # GitHub Team Sync
 This utility is intended to enable synchronization between GitHub and various LDAP and SAML providers.
-This is particularly useful for large organizations with many teams that either use GitHub Enterprise Cloud, 
+This is particularly useful for large organizations with many teams that either use GitHub Enterprise Cloud,
 do not use LDAP for authentication, or use a SAML provider other than what is natively supported.
 It supports both GitHub.com, GitHub Enterprise Server (GHES) and GitHub , but it will need to live in a location that can access your LDAP servers.
 
@@ -157,6 +157,7 @@ AZURE_CLIENT_SECRET="<client_secret>"
 AZURE_APP_SCOPE="default"
 AZURE_API_ENDPOINT="https://graph.microsoft.com/v1.0"
 AZURE_USERNAME_ATTRIBUTE=userPrincipalName
+AZURE_USER_IS_UPN=true
 ```
 
 ### Sample `.env` for Okta

@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-
+from distutils.util import strtobool
 import requests
 import msal
 
@@ -21,8 +21,13 @@ class AzureAD:
             f"https://graph.microsoft.com/{x}"
             for x in os.environ["AZURE_APP_SCOPE"].split(" ")
         ]
-        self.AZURE_API_ENDPOINT = os.environ["AZURE_API_ENDPOINT"]
-        self.USERNAME_ATTRIBUTE = os.environ["AZURE_USERNAME_ATTRIBUTE"]
+        self.AZURE_API_ENDPOINT = os.environ.get(
+            "AZURE_API_ENDPOINT", "https://graph.microsoft.com/v1.0"
+        )
+        self.USERNAME_ATTRIBUTE = os.environ.get(
+            "AZURE_USERNAME_ATTRIBUTE", "userPrincipalName"
+        )
+        self.AZURE_USER_IS_UPN = strtobool(os.environ.get("AZURE_USER_IS_UPN", "False"))
 
     def get_access_token(self):
         """
@@ -77,10 +82,16 @@ class AzureAD:
         ).json()["value"]
         for member in members:
             user_info = self.get_user_info(token=token, user=member["id"])
-            user = {
-                "username": user_info[self.USERNAME_ATTRIBUTE],
-                "email": user_info["mail"],
-            }
+            if self.AZURE_USER_IS_UPN:
+                user = {
+                    "username": user_info[self.USERNAME_ATTRIBUTE].split("@")[0],
+                    "email": user_info["mail"],
+                }
+            else:
+                user = {
+                    "username": user_info[self.USERNAME_ATTRIBUTE],
+                    "email": user_info["mail"],
+                }
             member_list.append(user)
         return member_list
 
