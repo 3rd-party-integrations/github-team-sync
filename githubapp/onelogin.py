@@ -4,9 +4,9 @@ import os
 
 class OneLogin:
     def __init__(self):
-        CLIENT_ID = os.environ['ONELOGIN_CLIENT_ID']
-        CLIENT_SECRET = os.environ['ONELOGIN_CLIENT_SECRET']
-        REGION = os.environ.get('ONELOGIN_REGION', 'US').upper()
+        CLIENT_ID = os.environ["ONELOGIN_CLIENT_ID"]
+        CLIENT_SECRET = os.environ["ONELOGIN_CLIENT_SECRET"]
+        REGION = os.environ.get("ONELOGIN_REGION", "US").upper()
         self.client = OneLoginClient(
             CLIENT_ID,
             CLIENT_SECRET,
@@ -21,10 +21,9 @@ class OneLogin:
         :return:
         """
         member_list = []
-        role = self.client.get_roles(query_parameters={'name': group_name})
-        users = self.client.get_users(query_parameters={'role_id': role[0].id})
+        role = self.client.get_roles(query_parameters={"name": group_name})
+        users = self.client.get_users(query_parameters={"role_id": role[0].id})
         for user in users:
             member_list.append({"username": user.username, "email": user.email})
 
         return member_list
-
