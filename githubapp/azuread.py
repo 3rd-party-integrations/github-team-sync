@@ -50,7 +50,7 @@ class AzureAD:
             result = app.acquire_token_for_client(scopes=self.AZURE_APP_SCOPE)
 
         if "access_token" in result:
-            #print("Successfully authenticated!")
+            # print("Successfully authenticated!")
             return result["access_token"]
 
         else:
