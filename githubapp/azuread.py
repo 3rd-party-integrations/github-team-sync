@@ -50,7 +50,7 @@ class AzureAD:
             result = app.acquire_token_for_client(scopes=self.AZURE_APP_SCOPE)
 
         if "access_token" in result:
-            print("Successfully authenticated!")
+            #print("Successfully authenticated!")
             return result["access_token"]
 
         else:
@@ -64,7 +64,7 @@ class AzureAD:
         """
         Get a list of members for a given group
         :param token:
-        :param group:
+        :param group_name:
         :return:
         """
         token = self.get_access_token() if not token else token
