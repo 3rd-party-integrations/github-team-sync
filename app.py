@@ -49,8 +49,12 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     org = client.organization(owner)
     team = org.team(team_id)
     custom_map = load_custom_map()
-    directory_group = custom_map[slug] if slug in custom_map else slug
-    directory_members = directory_group_members(group=directory_group)
+    try:
+        directory_group = custom_map[slug] if slug in custom_map else slug
+        directory_members = directory_group_members(group=directory_group)
+    except Exception as e:
+        directory_members = []
+        print(e)
     team_members = github_team_members(
         client=client, owner=owner, team_id=team_id, attribute="username"
     )
@@ -79,8 +83,12 @@ def directory_group_members(group=None):
     :return: group_members
     :rtype: list
     """
-    members = directory.get_group_members(group_name=group)
-    group_members = [member for member in members]
+    try:
+        members = directory.get_group_members(group_name=group)
+        group_members = [member for member in members]
+    except Exception as e:
+        group_members = []
+        print(e)
     return group_members
 
 
@@ -220,6 +228,18 @@ def load_custom_map(file="syncmap.yml"):
     return syncmap
 
 
+def get_app_installations():
+    """
+    Get a list of installations for this app
+    :return:
+    """
+    with app.app_context() as ctx:
+        c = ctx.push()
+        gh = GitHubApp(c)
+        installations = gh.app_client.app_installations
+    return installations
+
+
 @scheduler.scheduled_job(
     trigger=CronTrigger.from_crontab(CRON_INTERVAL), id="sync_all_teams"
 )
@@ -228,26 +248,34 @@ def sync_all_teams():
     Lookup teams in a GitHub org and synchronize all teams with your user directory
     :return:
     """
-    pprint(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
-    with app.app_context() as ctx:
-        c = ctx.push()
-        gh = GitHubApp(c)
-        installations = gh.app_client.app_installations
-        for i in installations():
+    print(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
+    installations = get_app_installations()
+    for i in installations():
+        print("==============================================")
+        print(f"Processing Organization: {i.account['login']}")
+        try:
+            gh = GitHubApp(app.app_context().push())
             client = gh.app_installation(installation_id=i.id)
             org = client.organization(i.account["login"])
             for team in org.teams():
-                sync_team(
-                    client=client,
-                    owner=i.account["login"],
-                    team_id=team.id,
-                    slug=team.slug,
-                )
+                try:
+                    sync_team(
+                        client=client, owner=org.login, team_id=team.id, slug=team.slug,
+                    )
+                except Exception as e:
+                    print(f"Organization: {org.login}")
+                    print(f"Unable to sync team: {team.slug}")
+                    print(f"DEBUG: {e}")
+        except Exception as e:
+            print(f"DEBUG: {e}")
 
+
+sync_all_teams()
 
 if __name__ == "__main__":
     sync_all_teams()
     app.run(
         host=os.environ.get("FLASK_RUN_HOST", "0.0.0.0"),
         port=os.environ.get("FLASK_RUN_PORT", "5000"),
+        use_reloader=False,
     )
