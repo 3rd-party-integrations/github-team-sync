@@ -46,6 +46,8 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     :param slug:
     :return:
     """
+    print("-------------------------------")
+    print(f"Processing Team: {slug}")
     org = client.organization(owner)
     team = org.team(team_id)
     custom_map = load_custom_map()
@@ -251,8 +253,9 @@ def sync_all_teams():
     print(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
     installations = get_app_installations()
     for i in installations():
-        print("==============================================")
-        print(f"Processing Organization: {i.account['login']}")
+        print("========================================================")
+        print(f"## Processing Organization: {i.account['login']}")
+        print("========================================================")
         try:
             gh = GitHubApp(app.app_context().push())
             client = gh.app_installation(installation_id=i.id)
