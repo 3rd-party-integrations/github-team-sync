@@ -75,11 +75,14 @@ class AzureAD:
             headers={"Authorization": f"Bearer {token}"},
         ).json()
         # print("Graph API call result: %s" % json.dumps(graph_data, indent=2))
-        group_info = json.loads(json.dumps(graph_data, indent=2))["value"][0]
-        members = requests.get(
-            f'{self.AZURE_API_ENDPOINT}/groups/{group_info["id"]}/members',
-            headers={"Authorization": f"Bearer {token}"},
-        ).json()["value"]
+        try:
+            group_info = json.loads(json.dumps(graph_data, indent=2))["value"][0]
+            members = requests.get(
+                f'{self.AZURE_API_ENDPOINT}/groups/{group_info["id"]}/members',
+                headers={"Authorization": f"Bearer {token}"},
+            ).json()["value"]
+        except IndexError as e:
+            members = []
         for member in members:
             user_info = self.get_user_info(token=token, user=member["id"])
             if self.AZURE_USER_IS_UPN:

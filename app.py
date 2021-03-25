@@ -1,8 +1,8 @@
 import atexit
 import os
 import time
+import json
 from distutils.util import strtobool
-from pprint import pprint
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -63,7 +63,7 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     )
     if TEST_MODE:
         print("Skipping execution due to TEST_MODE...")
-        pprint(compare)
+        print(json.dumps(compare, indent=2))
     else:
         try:
             execute_sync(org=org, team=team, slug=slug, state=compare)
@@ -179,13 +179,13 @@ def execute_sync(org, team, slug, state):
         for user in state["action"]["add"]:
             # Validate that user is in org
             if org.is_member(user):
-                pprint(f"Adding {user} to {slug}")
+                print(f"Adding {user} to {slug}")
                 team.add_or_update_membership(user)
             else:
-                pprint(f"Skipping {user} as they are not part of the org")
+                print(f"Skipping {user} as they are not part of the org")
 
         for user in state["action"]["remove"]:
-            pprint(f"Removing {user} from {slug}")
+            print(f"Removing {user} from {slug}")
             team.revoke_membership(user)
 
 
