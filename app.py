@@ -2,6 +2,7 @@ import atexit
 import os
 import time
 import json
+import github3
 from distutils.util import strtobool
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -13,6 +14,7 @@ from githubapp import GitHubApp, DirectoryClient, CRON_INTERVAL, TEST_MODE
 app = Flask(__name__)
 github_app = GitHubApp(app)
 directory = DirectoryClient()
+addUserAsMember = os.environ.get("ADD_MEMBER", False)
 
 # Schedule a full sync
 scheduler = BackgroundScheduler(daemon=True)
@@ -180,9 +182,13 @@ def execute_sync(org, team, slug, state):
     else:
         for user in state["action"]["add"]:
             # Validate that user is in org
-            if org.is_member(user):
-                print(f"Adding {user} to {slug}")
-                team.add_or_update_membership(user)
+            if org.is_member(user) or addUserAsMember:
+                try:
+                  print(f"Adding {user} to {slug}")
+                  team.add_or_update_membership(user)
+                except github3.exceptions.NotFoundError:
+                  print(f"User: {user} not found")
+                  pass
             else:
                 print(f"Skipping {user} as they are not part of the org")
 
