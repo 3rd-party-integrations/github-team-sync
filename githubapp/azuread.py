@@ -27,7 +27,8 @@ class AzureAD:
         self.USERNAME_ATTRIBUTE = os.environ.get(
             "AZURE_USERNAME_ATTRIBUTE", "userPrincipalName"
         )
-        self.AZURE_USER_IS_UPN = strtobool(os.environ.get("AZURE_USER_IS_UPN", "False"))
+        self.AZURE_USER_IS_UPN = strtobool(
+            os.environ.get("AZURE_USER_IS_UPN", "False"))
 
     def get_access_token(self):
         """
@@ -71,14 +72,15 @@ class AzureAD:
         member_list = []
         # Calling graph using the access token
         # url encode the group name
-        group_name=requests.utils.quote(group_name)
+        group_name = requests.utils.quote(group_name)
         graph_data = requests.get(  # Use token to call downstream service
             f"{self.AZURE_API_ENDPOINT}/groups?$filter=startswith(displayName,'{group_name}')",
             headers={"Authorization": f"Bearer {token}"},
         ).json()
         # print("Graph API call result: %s" % json.dumps(graph_data, indent=2))
         try:
-            group_info = json.loads(json.dumps(graph_data, indent=2))["value"][0]
+            group_info = json.loads(json.dumps(
+                graph_data, indent=2))["value"][0]
             members = requests.get(
                 f'{self.AZURE_API_ENDPOINT}/groups/{group_info["id"]}/members',
                 headers={"Authorization": f"Bearer {token}"},
