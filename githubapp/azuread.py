@@ -70,6 +70,8 @@ class AzureAD:
         token = self.get_access_token() if not token else token
         member_list = []
         # Calling graph using the access token
+        # url encode the group name
+        group_name=requests.utils.quote(group_name)
         graph_data = requests.get(  # Use token to call downstream service
             f"{self.AZURE_API_ENDPOINT}/groups?$filter=startswith(displayName,'{group_name}')",
             headers={"Authorization": f"Bearer {token}"},
