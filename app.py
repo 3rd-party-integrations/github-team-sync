@@ -287,6 +287,7 @@ def sync_all_teams():
             finally:
                 ctx.pop()
 
+
 sync_all_teams()
 
 if __name__ == "__main__":
