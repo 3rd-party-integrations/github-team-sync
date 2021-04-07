@@ -132,8 +132,7 @@ def github_team_members(client=None, owner=None, team_id=None, attribute="userna
             )
     else:
         for member in team.members():
-            team_members.append(
-                {"username": str(member).casefold(), "email": ""})
+            team_members.append({"username": str(member).casefold(), "email": ""})
     return team_members
 
 
@@ -167,8 +166,7 @@ def execute_sync(org, team, slug, state):
     :param state:
     :return:
     """
-    total_changes = len(state["action"]["remove"]) + \
-        len(state["action"]["add"])
+    total_changes = len(state["action"]["remove"]) + len(state["action"]["add"])
     if len(state["directory"]) == 0:
         message = f"{os.environ.get('USER_DIRECTORY', 'LDAP').upper()} group returned empty: {slug}"
         raise ValueError(message)
@@ -269,7 +267,10 @@ def sync_all_teams():
                 for team in org.teams():
                     try:
                         sync_team(
-                            client=client, owner=org.login, team_id=team.id, slug=team.slug,
+                            client=client,
+                            owner=org.login,
+                            team_id=team.id,
+                            slug=team.slug,
                         )
                     except Exception as e:
                         print(f"Organization: {org.login}")
