@@ -2,6 +2,7 @@ import atexit
 import os
 import time
 import json
+import github3
 from distutils.util import strtobool
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -13,6 +14,7 @@ from githubapp import GitHubApp, DirectoryClient, CRON_INTERVAL, TEST_MODE
 app = Flask(__name__)
 github_app = GitHubApp(app)
 directory = DirectoryClient()
+addUserAsMember = os.environ.get("ADD_MEMBER", False)
 
 # Schedule a full sync
 scheduler = BackgroundScheduler(daemon=True)
@@ -29,7 +31,7 @@ def sync_new_team():
     owner = github_app.payload["organization"]["login"]
     team_id = github_app.payload["team"]["id"]
     if os.environ["USER_DIRECTORY"].upper() == "AAD":
-        ## Azure APIs don't currently support case insensitive searching
+        # Azure APIs don't currently support case insensitive searching
         slug = github_app.payload["team"]["name"].replace(" ", "-")
     else:
         slug = github_app.payload["team"]["slug"]
@@ -180,9 +182,13 @@ def execute_sync(org, team, slug, state):
     else:
         for user in state["action"]["add"]:
             # Validate that user is in org
-            if org.is_member(user):
-                print(f"Adding {user} to {slug}")
-                team.add_or_update_membership(user)
+            if org.is_member(user) or addUserAsMember:
+                try:
+                    print(f"Adding {user} to {slug}")
+                    team.add_or_update_membership(user)
+                except github3.exceptions.NotFoundError:
+                    print(f"User: {user} not found")
+                    pass
             else:
                 print(f"Skipping {user} as they are not part of the org")
 
@@ -263,7 +269,10 @@ def sync_all_teams():
             for team in org.teams():
                 try:
                     sync_team(
-                        client=client, owner=org.login, team_id=team.id, slug=team.slug,
+                        client=client,
+                        owner=org.login,
+                        team_id=team.id,
+                        slug=team.slug,
                     )
                 except Exception as e:
                     print(f"Organization: {org.login}")
