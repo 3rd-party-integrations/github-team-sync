@@ -236,9 +236,12 @@ def get_app_installations():
     :return:
     """
     with app.app_context() as ctx:
-        c = ctx.push()
-        gh = GitHubApp(c)
-        installations = gh.app_client.app_installations
+        try:
+          c = ctx.push()
+          gh = GitHubApp(c)
+          installations = gh.app_client.app_installations
+        finally:
+          ctx.pop()
     return installations
 
 
@@ -256,21 +259,24 @@ def sync_all_teams():
         print("========================================================")
         print(f"## Processing Organization: {i.account['login']}")
         print("========================================================")
-        try:
-            gh = GitHubApp(app.app_context().push())
-            client = gh.app_installation(installation_id=i.id)
-            org = client.organization(i.account["login"])
-            for team in org.teams():
-                try:
-                    sync_team(
-                        client=client, owner=org.login, team_id=team.id, slug=team.slug,
-                    )
-                except Exception as e:
-                    print(f"Organization: {org.login}")
-                    print(f"Unable to sync team: {team.slug}")
-                    print(f"DEBUG: {e}")
-        except Exception as e:
-            print(f"DEBUG: {e}")
+        with app.app_context() as ctx:
+            try:
+                gh = GitHubApp(ctx.push())
+                client = gh.app_installation(installation_id=i.id)
+                org = client.organization(i.account["login"])
+                for team in org.teams():
+                    try:
+                        sync_team(
+                            client=client, owner=org.login, team_id=team.id, slug=team.slug,
+                        )
+                    except Exception as e:
+                        print(f"Organization: {org.login}")
+                        print(f"Unable to sync team: {team.slug}")
+                        print(f"DEBUG: {e}")
+            except Exception as e:
+                print(f"DEBUG: {e}")
+            finally:
+                ctx.pop()
 
 
 sync_all_teams()
