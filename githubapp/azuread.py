@@ -27,8 +27,7 @@ class AzureAD:
         self.USERNAME_ATTRIBUTE = os.environ.get(
             "AZURE_USERNAME_ATTRIBUTE", "userPrincipalName"
         )
-        self.AZURE_USER_IS_UPN = strtobool(
-            os.environ.get("AZURE_USER_IS_UPN", "False"))
+        self.AZURE_USER_IS_UPN = strtobool(os.environ.get("AZURE_USER_IS_UPN", "False"))
 
     def get_access_token(self):
         """
@@ -79,8 +78,7 @@ class AzureAD:
         ).json()
         # print("Graph API call result: %s" % json.dumps(graph_data, indent=2))
         try:
-            group_info = json.loads(json.dumps(
-                graph_data, indent=2))["value"][0]
+            group_info = json.loads(json.dumps(graph_data, indent=2))["value"][0]
             members = requests.get(
                 f'{self.AZURE_API_ENDPOINT}/groups/{group_info["id"]}/members',
                 headers={"Authorization": f"Bearer {token}"},
