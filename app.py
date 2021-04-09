@@ -31,7 +31,7 @@ def sync_new_team():
     owner = github_app.payload["organization"]["login"]
     team_id = github_app.payload["team"]["id"]
     if os.environ["USER_DIRECTORY"].upper() == "AAD":
-        ## Azure APIs don't currently support case insensitive searching
+        # Azure APIs don't currently support case insensitive searching
         slug = github_app.payload["team"]["name"].replace(" ", "-")
     else:
         slug = github_app.payload["team"]["slug"]
@@ -184,11 +184,11 @@ def execute_sync(org, team, slug, state):
             # Validate that user is in org
             if org.is_member(user) or addUserAsMember:
                 try:
-                  print(f"Adding {user} to {slug}")
-                  team.add_or_update_membership(user)
+                    print(f"Adding {user} to {slug}")
+                    team.add_or_update_membership(user)
                 except github3.exceptions.NotFoundError:
-                  print(f"User: {user} not found")
-                  pass
+                    print(f"User: {user} not found")
+                    pass
             else:
                 print(f"Skipping {user} as they are not part of the org")
 
@@ -243,11 +243,11 @@ def get_app_installations():
     """
     with app.app_context() as ctx:
         try:
-          c = ctx.push()
-          gh = GitHubApp(c)
-          installations = gh.app_client.app_installations
+            c = ctx.push()
+            gh = GitHubApp(c)
+            installations = gh.app_client.app_installations
         finally:
-          ctx.pop()
+            ctx.pop()
     return installations
 
 
@@ -273,13 +273,15 @@ def sync_all_teams():
                 for team in org.teams():
                     try:
                         sync_team(
-                            client=client, owner=org.login, team_id=team.id, slug=team.slug,
+                            client=client,
+                            owner=org.login,
+                            team_id=team.id,
+                            slug=team.slug,
                         )
                     except Exception as e:
                         print(f"Organization: {org.login}")
                         print(f"Unable to sync team: {team.slug}")
                         print(f"DEBUG: {e}")
-                clean_up_orgs(org)
             except Exception as e:
                 print(f"DEBUG: {e}")
             finally:
