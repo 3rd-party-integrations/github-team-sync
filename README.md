@@ -190,9 +190,9 @@ TEST_MODE=false
 ---
 mapping:
   - github: demo-team
-    ldap: ldap super users
+    directory: ldap super users
   - github: demo-admin-2
-    ldap: some other group
+    directory: some other group
 ```
 
 ## Usage Examples

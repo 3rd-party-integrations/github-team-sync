@@ -1,6 +1,6 @@
 ---
 mapping:
   - github: demo-team
-    ldap: ldap super users
+    directory: ldap super users
   - github: demo-team-2
-    ldap: another-group
+    directory: another-group
