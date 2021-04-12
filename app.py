@@ -9,12 +9,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from flask import Flask
 
-from githubapp import GitHubApp, DirectoryClient, CRON_INTERVAL, TEST_MODE
+from githubapp import GitHubApp, DirectoryClient, CRON_INTERVAL, TEST_MODE, ADD_MEMBER
 
 app = Flask(__name__)
 github_app = GitHubApp(app)
 directory = DirectoryClient()
-addUserAsMember = os.getenv('ADD_MEMBER', 'False') == 'True'
 
 # Schedule a full sync
 scheduler = BackgroundScheduler(daemon=True)
@@ -182,7 +181,7 @@ def execute_sync(org, team, slug, state):
     else:
         for user in state["action"]["add"]:
             # Validate that user is in org
-            if org.is_member(user) or addUserAsMember:
+            if org.is_member(user) or ADD_MEMBER:
                 try:
                     print(f"Adding {user} to {slug}")
                     team.add_or_update_membership(user)
