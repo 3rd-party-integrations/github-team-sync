@@ -14,7 +14,7 @@ from githubapp import GitHubApp, DirectoryClient, CRON_INTERVAL, TEST_MODE
 app = Flask(__name__)
 github_app = GitHubApp(app)
 directory = DirectoryClient()
-addUserAsMember = os.environ.get("ADD_MEMBER", False)
+addUserAsMember = os.getenv('ADD_MEMBER', 'False') == 'True'
 
 # Schedule a full sync
 scheduler = BackgroundScheduler(daemon=True)
