@@ -38,4 +38,4 @@ except ValueError as e:
     rootlogger.warn(e)
     TEST_MODE = False
 # Check if should add member to organization
-TEST_MODE = strtobool(os.environ.get("ADD_MEMBER", "False"))
+ADD_MEMBER = strtobool(os.environ.get("ADD_MEMBER", "False"))
