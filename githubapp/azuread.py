@@ -79,26 +79,53 @@ class AzureAD:
         # print("Graph API call result: %s" % json.dumps(graph_data, indent=2))
         try:
             group_info = json.loads(json.dumps(graph_data, indent=2))["value"][0]
-            members = requests.get(
-                f'{self.AZURE_API_ENDPOINT}/groups/{group_info["id"]}/members',
-                headers={"Authorization": f"Bearer {token}"},
-            ).json()["value"]
+            members = self.get_group_members_pages(
+                token, f'{self.AZURE_API_ENDPOINT}/groups/{group_info["id"]}/members'
+            )
         except IndexError as e:
             members = []
         for member in members:
-            user_info = self.get_user_info(token=token, user=member["id"])
-            if self.AZURE_USER_IS_UPN:
-                user = {
-                    "username": user_info[self.USERNAME_ATTRIBUTE].split("@")[0],
-                    "email": user_info["mail"],
-                }
+            if member["@odata.type"] == "#microsoft.graph.group":
+                print("Nested group: ", member["displayName"])
             else:
-                user = {
-                    "username": user_info[self.USERNAME_ATTRIBUTE],
-                    "email": user_info["mail"],
-                }
-            member_list.append(user)
+                user_info = self.get_user_info(token=token, user=member["id"])
+                if self.AZURE_USER_IS_UPN:
+                    user = {
+                        "username": user_info[self.USERNAME_ATTRIBUTE].split("@")[0],
+                        "email": user_info["mail"],
+                    }
+                else:
+                    user = {
+                        "username": user_info[self.USERNAME_ATTRIBUTE],
+                        "email": user_info["mail"],
+                    }
+                member_list.append(user)
         return member_list
+
+    def get_group_members_pages(self, token=None, url=None):
+        """
+        Get group members
+        :param token:
+        :param url:
+        :return members:
+        :rtype members: dict
+        """
+        members_data = requests.get(url, headers={"Authorization": f"Bearer {token}"})
+        if members_data.ok != True:
+            print(
+                f"[GetMembers]: Error getting members data error code {members_data.status_code}"
+            )
+            return []
+
+        members_data_content = members_data.json()
+        members = members_data_content["value"]
+        if "@odata.nextLink" in members_data_content:
+            members.extend(
+                self.get_group_members_pages(
+                    token, members_data_content["@odata.nextLink"]
+                )
+            )
+        return members
 
     def get_user_info(self, token=None, user=None):
         """
