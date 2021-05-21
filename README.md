@@ -48,10 +48,10 @@ This utility provides the following functionality:
 
 | Category | Attribute | Permission |
 | --- | --- | --- |
+| Repository permissions | `Issues` | `Read & write` |
+| Repositroy permissions | `Metadata` | `Read-only` |
 | Organization permissions | `Members` | `Read & write` |
 | User permissions | `Email addresses` | `Read-only` |
-| Repository permissions | `Issues` | `Read & write` |
-| Repostiroy permissions | `Metadata` | `Read-only` |
 
 #### Events
 
