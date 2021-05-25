@@ -66,7 +66,7 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
         directory_members = []
         print(e)
     team_members = github_team_members(
-        client=client, owner=owner, team_id=team_id, attribute=COMPARE_ATTRIBUTE
+        client=client, owner=owner, team_id=team_id, attribute=USER_SYNC_ATTRIBUTE
     )
     compare = compare_members(
         group=directory_members, team=team_members, attribute=COMPARE_ATTRIBUTE
