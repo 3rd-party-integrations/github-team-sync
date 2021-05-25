@@ -69,7 +69,7 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
         client=client, owner=owner, team_id=team_id, attribute=USER_SYNC_ATTRIBUTE
     )
     compare = compare_members(
-        group=directory_members, team=team_members, attribute=COMPARE_ATTRIBUTE
+        group=directory_members, team=team_members, attribute=USER_SYNC_ATTRIBUTE
     )
     if TEST_MODE:
         print("Skipping execution due to TEST_MODE...")
