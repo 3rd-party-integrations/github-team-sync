@@ -39,4 +39,4 @@ except ValueError as e:
     TEST_MODE = False
 # Check if should add member to organization
 ADD_MEMBER = strtobool(os.environ.get("ADD_MEMBER", "False"))
-COMPARE_ATTRIBUTE = os.environ.get("COMPARE_ATTRIBUTE", "username").lower()
+USER_SYNC_ATTRIBUTE = os.environ.get("USER_SYNC_ATTRIBUTE", "username").lower()
