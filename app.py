@@ -15,7 +15,7 @@ from githubapp import (
     CRON_INTERVAL,
     TEST_MODE,
     ADD_MEMBER,
-    COMPARE_ATTRIBUTE,
+    USER_SYNC_ATTRIBUTE,
 )
 
 app = Flask(__name__)
