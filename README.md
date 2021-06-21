@@ -112,6 +112,10 @@ GHE_HOST=github.example.com
 ## Okta = OKTA
 ## OneLogin = ONELOGIN
 USER_DIRECTORY=LDAP
+
+## Sync users on username or email attribute
+USER_SYNC_ATTRIBUTE=username
+
 ```
 
 ### Sample `.env` for Active Directory
@@ -183,6 +187,9 @@ REPO_FOR_ISSUES=github-demo/demo-repo
 ISSUE_ASSIGNEE=githubber
 SYNC_SCHEDULE=0 * * * *
 TEST_MODE=false
+
+### Automatically add users missing from the organization
+ADD_MEMBER=false 
 ```
 
 ### Sample `syncmap.yml` custom mapping file
