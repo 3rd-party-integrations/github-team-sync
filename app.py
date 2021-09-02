@@ -20,7 +20,6 @@ from githubapp import (
 
 app = Flask(__name__)
 github_app = GitHubApp(app)
-directory = DirectoryClient()
 
 # Schedule a full sync
 scheduler = BackgroundScheduler(daemon=True)
@@ -94,6 +93,7 @@ def directory_group_members(group=None):
     :rtype: list
     """
     try:
+        directory = DirectoryClient()
         members = directory.get_group_members(group_name=group)
         group_members = [member for member in members]
     except Exception as e:
