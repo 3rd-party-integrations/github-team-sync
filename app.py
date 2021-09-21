@@ -16,6 +16,7 @@ from githubapp import (
     TEST_MODE,
     ADD_MEMBER,
     USER_SYNC_ATTRIBUTE,
+    SYNCMAP_ONLY,
 )
 
 app = Flask(__name__)
@@ -60,6 +61,9 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     custom_map = load_custom_map()
     try:
         directory_group = custom_map[slug] if slug in custom_map else slug
+        if SYNCMAP_ONLY and slug not in custom_map:
+            print("skipping team {0} - not in sync map".format(slug))
+            return
         directory_members = directory_group_members(group=directory_group)
     except Exception as e:
         directory_members = []
