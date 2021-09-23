@@ -61,9 +61,6 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     custom_map = load_custom_map()
     try:
         directory_group = custom_map[slug] if slug in custom_map else slug
-        if SYNCMAP_ONLY and slug not in custom_map:
-            print("skipping team {0} - not in sync map".format(slug))
-            return
         directory_members = directory_group_members(group=directory_group)
     except Exception as e:
         directory_members = []
@@ -271,6 +268,7 @@ def sync_all_teams():
     """
     print(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
     installations = get_app_installations()
+    custom_map = load_custom_map()
     for i in installations():
         print("========================================================")
         print(f"## Processing Organization: {i.account['login']}")
@@ -282,6 +280,9 @@ def sync_all_teams():
                 org = client.organization(i.account["login"])
                 for team in org.teams():
                     try:
+                        if SYNCMAP_ONLY and team.slug not in custom_map:
+                            print(f"skipping team {team.slug} - not in sync map")
+                            continue
                         sync_team(
                             client=client,
                             owner=org.login,
