@@ -40,3 +40,4 @@ except ValueError as e:
 # Check if should add member to organization
 ADD_MEMBER = strtobool(os.environ.get("ADD_MEMBER", "False"))
 USER_SYNC_ATTRIBUTE = os.environ.get("USER_SYNC_ATTRIBUTE", "username").lower()
+SYNCMAP_ONLY = strtobool(os.environ.get("SYNCMAP_ONLY", "False"))
