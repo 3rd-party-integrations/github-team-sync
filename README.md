@@ -222,7 +222,7 @@ pipenv run python app.py
 
 ## Support
 
-This is free and open-source software issued without official support from GitHub Support.
+⚠️ This is free and open-source software that is supported by the open source community, and is not included as part of GitHub's official platform support.
 
 ## Credits
 This project draws much from:
