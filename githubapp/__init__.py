@@ -28,8 +28,8 @@ if rootlogger.level == logging.NOTSET:
 
 CRON_INTERVAL = os.environ.get("SYNC_SCHEDULE", "0 * * * *")
 CHANGE_THRESHOLD = os.environ.get('CHANGE_THRESHOLD', 25)
-REPO_FOR_ISSUES = os.environ.get('REPO_FOR_ISSUES')
-ISSUE_ASSIGNEE = os.environ.get('ISSUE_ASSIGNEE')
+REPO_FOR_ISSUES = os.environ.get('REPO_FOR_ISSUES', '')
+ISSUE_ASSIGNEE = os.environ.get('ISSUE_ASSIGNEE', '')
 OPEN_ISSUE_ON_FAILURE = strtobool(os.environ.get('OPEN_ISSUE_ON_FAILURE', 'False'))
 
 try:
