@@ -220,6 +220,10 @@ Or you can run the app with Python directly
 pipenv run python app.py
 ```
 
+## Support
+
+⚠️ This is free and open-source software that is supported by the open source community, and is not included as part of GitHub's official platform support.
+
 ## Credits
 This project draws much from:
 - [Flask-GitHubApp](https://github.com/bradshjg/flask-githubapp)
