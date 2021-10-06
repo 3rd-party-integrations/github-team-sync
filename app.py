@@ -4,6 +4,9 @@ import time
 import json
 import github3
 from distutils.util import strtobool
+import threading
+import sys
+import traceback
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -56,33 +59,38 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     """
     print("-------------------------------")
     print(f"Processing Team: {slug}")
-    org = client.organization(owner)
-    team = org.team(team_id)
-    custom_map = load_custom_map()
+
     try:
-        directory_group = custom_map[slug] if slug in custom_map else slug
-        directory_members = directory_group_members(group=directory_group)
-    except Exception as e:
-        directory_members = []
-        print(e)
-    team_members = github_team_members(
-        client=client, owner=owner, team_id=team_id, attribute=USER_SYNC_ATTRIBUTE
-    )
-    compare = compare_members(
-        group=directory_members, team=team_members, attribute=USER_SYNC_ATTRIBUTE
-    )
-    if TEST_MODE:
-        print("Skipping execution due to TEST_MODE...")
-        print(json.dumps(compare, indent=2))
-    else:
+        org = client.organization(owner)
+        team = org.team(team_id)
+        custom_map = load_custom_map()
         try:
-            execute_sync(org=org, team=team, slug=slug, state=compare)
-        except ValueError as e:
-            if strtobool(os.environ["OPEN_ISSUE_ON_FAILURE"]):
-                open_issue(client=client, slug=slug, message=e)
-        except AssertionError as e:
-            if strtobool(os.environ["OPEN_ISSUE_ON_FAILURE"]):
-                open_issue(client=client, slug=slug, message=e)
+            directory_group = custom_map[slug] if slug in custom_map else slug
+            directory_members = directory_group_members(group=directory_group)
+        except Exception as e:
+            directory_members = []
+            print(e)
+        team_members = github_team_members(
+            client=client, owner=owner, team_id=team_id, attribute=USER_SYNC_ATTRIBUTE
+        )
+        compare = compare_members(
+            group=directory_members, team=team_members, attribute=USER_SYNC_ATTRIBUTE
+        )
+        if TEST_MODE:
+            print("Skipping execution due to TEST_MODE...")
+            print(json.dumps(compare, indent=2))
+        else:
+            try:
+                execute_sync(org=org, team=team, slug=slug, state=compare)
+            except ValueError as e:
+                if strtobool(os.environ["OPEN_ISSUE_ON_FAILURE"]):
+                    open_issue(client=client, slug=slug, message=e)
+            except AssertionError as e:
+                if strtobool(os.environ["OPEN_ISSUE_ON_FAILURE"]):
+                    open_issue(client=client, slug=slug, message=e)
+    except Exception:
+        traceback.print_exc(file=sys.stderr)
+        raise
 
 
 def directory_group_members(group=None):
@@ -299,10 +307,10 @@ def sync_all_teams():
                 ctx.pop()
 
 
-sync_all_teams()
+thread = threading.Thread(target=sync_all_teams)
+thread.start()
 
 if __name__ == "__main__":
-    sync_all_teams()
     app.run(
         host=os.environ.get("FLASK_RUN_HOST", "0.0.0.0"),
         port=os.environ.get("FLASK_RUN_PORT", "5000"),
