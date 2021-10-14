@@ -7,6 +7,7 @@ from distutils.util import strtobool
 import threading
 import sys
 import traceback
+from concurrent.futures import ThreadPoolExecutor
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -274,37 +275,49 @@ def sync_all_teams():
     Lookup teams in a GitHub org and synchronize all teams with your user directory
     :return:
     """
+
     print(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
+
     installations = get_app_installations()
     custom_map = load_custom_map()
-    for i in installations():
-        print("========================================================")
-        print(f"## Processing Organization: {i.account['login']}")
-        print("========================================================")
-        with app.app_context() as ctx:
-            try:
-                gh = GitHubApp(ctx.push())
-                client = gh.app_installation(installation_id=i.id)
-                org = client.organization(i.account["login"])
-                for team in org.teams():
-                    try:
-                        if SYNCMAP_ONLY and team.slug not in custom_map:
-                            print(f"skipping team {team.slug} - not in sync map")
-                            continue
-                        sync_team(
-                            client=client,
-                            owner=org.login,
-                            team_id=team.id,
-                            slug=team.slug,
+    futures = []
+    with ThreadPoolExecutor(max_workers=10) as exe:
+        for i in installations():
+            print("========================================================")
+            print(f"## Processing Organization: {i.account['login']}")
+            print("========================================================")
+            with app.app_context() as ctx:
+                try:
+                    gh = GitHubApp(ctx.push())
+                    client = gh.app_installation(installation_id=i.id)
+                    org = client.organization(i.account["login"])
+                    for team in org.teams():
+                        futures.append(
+                            exe.submit(sync_team_helper, team, custom_map, client, org)
                         )
-                    except Exception as e:
-                        print(f"Organization: {org.login}")
-                        print(f"Unable to sync team: {team.slug}")
-                        print(f"DEBUG: {e}")
-            except Exception as e:
-                print(f"DEBUG: {e}")
-            finally:
-                ctx.pop()
+                except Exception as e:
+                    print(f"DEBUG: {e}")
+                finally:
+                    ctx.pop()
+    for future in futures:
+        future.result()
+
+
+def sync_team_helper(team, custom_map, client, org):
+    try:
+        if SYNCMAP_ONLY and team.slug not in custom_map:
+            print(f"skipping team {team.slug} - not in sync map")
+            return
+        sync_team(
+            client=client,
+            owner=org.login,
+            team_id=team.id,
+            slug=team.slug,
+        )
+    except Exception as e:
+        print(f"Organization: {org.login}")
+        print(f"Unable to sync team: {team.slug}")
+        print(f"DEBUG: {e}")
 
 
 thread = threading.Thread(target=sync_all_teams)
