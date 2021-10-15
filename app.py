@@ -70,7 +70,8 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
             directory_members = directory_group_members(group=directory_group)
         except Exception as e:
             directory_members = []
-            print(e)
+            traceback.print_exc(file=sys.stderr)
+
         team_members = github_team_members(
             client=client, owner=owner, team_id=team_id, attribute=USER_SYNC_ATTRIBUTE
         )
@@ -108,7 +109,7 @@ def directory_group_members(group=None):
         group_members = [member for member in members]
     except Exception as e:
         group_members = []
-        print(e)
+        traceback.print_exc(file=sys.stderr)
     return group_members
 
 
