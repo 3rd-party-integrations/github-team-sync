@@ -63,7 +63,7 @@ class Okta:
             try:
                 member_list.append(
                     {
-                        "username": user.profile.github_username,
+                        "username": getattr(user.profile, self.USERNAME_ATTRIBUTE),
                         "email": user.profile.email,
                     }
                 )
