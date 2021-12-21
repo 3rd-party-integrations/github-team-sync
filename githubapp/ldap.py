@@ -4,6 +4,7 @@ import sys
 import json
 import logging
 from ldap3 import Server, Connection, ALL
+import ldap3
 from pprint import pprint
 
 LOG = logging.getLogger(__name__)
@@ -57,7 +58,8 @@ class LDAPClient:
         member_list = []
         entries = self.conn.extend.standard.paged_search(
             search_base=self.LDAP_BASE_DN,
-            search_filter=self.LDAP_GROUP_FILTER.replace("{group_name}", group_name),
+            search_filter=self.LDAP_GROUP_FILTER.replace(
+                "{group_name}", group_name),
             attributes=[self.LDAP_GROUP_MEMBER_ATTRIBUTE],
             paged_size=self.LDAP_PAGE_SIZE,
         )
@@ -88,7 +90,8 @@ class LDAPClient:
                                         self.LDAP_USER_MAIL_ATTRIBUTE
                                     ][0]
                                 ).casefold()
-                                user_info = {"username": username, "email": email}
+                                user_info = {
+                                    "username": username, "email": email}
                                 member_list.append(user_info)
                         except Exception as e:
                             traceback.print_exc(file=sys.stderr)
@@ -110,7 +113,8 @@ class LDAPClient:
             try:
                 self.conn.search(
                     search_base=search_base,
-                    search_filter=self.LDAP_USER_FILTER.replace("{username}", user),
+                    search_filter=self.LDAP_USER_FILTER.replace(
+                        "{username}", ldap3.utils.conv.escape_filter_chars(user)),
                     attributes=["*"],
                 )
                 if len(self.conn.entries) > 0:
