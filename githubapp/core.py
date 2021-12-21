@@ -36,8 +36,7 @@ class GitHubApp(object):
         app.config["GITHUBAPP_ID"] = int(os.environ["APP_ID"])
         app.config["GITHUBAPP_SECRET"] = os.environ["WEBHOOK_SECRET"]
         if "GHE_HOST" in os.environ:
-            app.config["GITHUBAPP_URL"] = "https://{}".format(
-                    os.environ["GHE_HOST"])
+            app.config["GITHUBAPP_URL"] = "https://{}".format(os.environ["GHE_HOST"])
             app.config["IGNORE_SSL"] = os.environ.get("IGNORE_SSL", False)
         with open(os.environ["PRIVATE_KEY_PATH"], "rb") as key_file:
             app.config["GITHUBAPP_KEY"] = key_file.read()
@@ -74,19 +73,18 @@ class GitHubApp(object):
             Default: '/'
         """
         self.load_env(app)
-        required_settings = ["GITHUBAPP_ID",
-                "GITHUBAPP_KEY", "GITHUBAPP_SECRET"]
+        required_settings = ["GITHUBAPP_ID", "GITHUBAPP_KEY", "GITHUBAPP_SECRET"]
         for setting in required_settings:
             if not app.config.get(setting):
                 raise RuntimeError(
-                        "Flask-GitHubApp requires the '%s' config var to be set" % setting
-                        )
+                    "Flask-GitHubApp requires the '%s' config var to be set" % setting
+                )
 
         app.add_url_rule(
-                app.config.get("GITHUBAPP_ROUTE", "/"),
-                view_func=self._flask_view_func,
-                methods=["POST"],
-                )
+            app.config.get("GITHUBAPP_ROUTE", "/"),
+            view_func=self._flask_view_func,
+            methods=["POST"],
+        )
 
     @property
     def id(self):
@@ -114,7 +112,10 @@ class GitHubApp(object):
     def client(self):
         """Unauthenticated GitHub client"""
         if current_app.config.get("GITHUBAPP_URL"):
-            return GitHubEnterprise(current_app.config["GITHUBAPP_URL"], verify=current_app.config["IGNORE_SSL"])
+            return GitHubEnterprise(
+                current_app.config["GITHUBAPP_URL"],
+                verify=current_app.config["IGNORE_SSL"],
+            )
         return GitHub()
 
     @property
@@ -124,8 +125,8 @@ class GitHubApp(object):
             return request.json
 
         raise RuntimeError(
-                "Payload is only available in the context of a GitHub hook request"
-                )
+            "Payload is only available in the context of a GitHub hook request"
+        )
 
     @property
     def installation_client(self):
@@ -135,8 +136,8 @@ class GitHubApp(object):
             if not hasattr(ctx, "githubapp_installation"):
                 client = self.client
                 client.login_as_app_installation(
-                        self.key, self.id, self.payload["installation"]["id"]
-                        )
+                    self.key, self.id, self.payload["installation"]["id"]
+                )
                 ctx.githubapp_installation = client
             return ctx.githubapp_installation
 
@@ -173,8 +174,7 @@ class GitHubApp(object):
         if ctx is not None:
             if not hasattr(ctx, "githubapp_installation"):
                 client = self.client
-                client.login_as_app_installation(
-                        self.key, self.id, installation_id)
+                client.login_as_app_installation(self.key, self.id, installation_id)
                 ctx.githubapp_installation = client
             return ctx.githubapp_installation
 
