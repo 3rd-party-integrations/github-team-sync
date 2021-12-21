@@ -19,8 +19,8 @@ class LDAPClient:
         self.LDAP_USER_BASE_DN = os.environ["LDAP_USER_BASE_DN"]
         self.LDAP_USER_ATTRIBUTE = os.environ["LDAP_USER_ATTRIBUTE"]
         self.LDAP_USER_FILTER = os.environ["LDAP_USER_FILTER"].replace(
-                "{ldap_user_attribute}", self.LDAP_USER_ATTRIBUTE
-                )
+            "{ldap_user_attribute}", self.LDAP_USER_ATTRIBUTE
+        )
         self.LDAP_USER_MAIL_ATTRIBUTE = os.environ["LDAP_USER_MAIL_ATTRIBUTE"]
         self.LDAP_GROUP_BASE_DN = os.environ["LDAP_GROUP_BASE_DN"]
         self.LDAP_GROUP_FILTER = os.environ["LDAP_GROUP_FILTER"]
@@ -40,12 +40,12 @@ class LDAPClient:
         else:
             raise Exception("LDAP credentials have not been specified")
         self.conn = Connection(
-                self.LDAP_SERVER_HOST,
-                user=self.LDAP_BIND_USER,
-                password=self.LDAP_BIND_PASSWORD,
-                auto_bind=True,
-                auto_range=True,
-                )
+            self.LDAP_SERVER_HOST,
+            user=self.LDAP_BIND_USER,
+            password=self.LDAP_BIND_PASSWORD,
+            auto_bind=True,
+            auto_range=True,
+        )
 
     def get_group_members(self, group_name):
         """
@@ -57,41 +57,39 @@ class LDAPClient:
         """
         member_list = []
         entries = self.conn.extend.standard.paged_search(
-                search_base=self.LDAP_BASE_DN,
-                search_filter=self.LDAP_GROUP_FILTER.replace(
-                    "{group_name}", group_name),
-                attributes=[self.LDAP_GROUP_MEMBER_ATTRIBUTE],
-                paged_size=self.LDAP_PAGE_SIZE,
-                )
+            search_base=self.LDAP_BASE_DN,
+            search_filter=self.LDAP_GROUP_FILTER.replace("{group_name}", group_name),
+            attributes=[self.LDAP_GROUP_MEMBER_ATTRIBUTE],
+            paged_size=self.LDAP_PAGE_SIZE,
+        )
         for entry in entries:
             if entry["type"] == "searchResEntry":
                 for member in entry["attributes"][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
                     if self.LDAP_GROUP_BASE_DN in member:
                         pass
                     # print("Nested groups are not yet supported.")
-                        # print("This feature is currently under development.")
-                        # print("{} was not processed.".format(member))
-                        # print("Unable to look up '{}'".format(member))
-                        # print(e)
+                    # print("This feature is currently under development.")
+                    # print("{} was not processed.".format(member))
+                    # print("Unable to look up '{}'".format(member))
+                    # print(e)
                     else:
                         try:
                             member_dn = self.get_user_info(user=member)
                             # pprint(member_dn)
                             if (
-                                    member_dn
-                                    and member_dn["attributes"]
-                                    and member_dn["attributes"][self.LDAP_USER_ATTRIBUTE]
-                                    ):
+                                member_dn
+                                and member_dn["attributes"]
+                                and member_dn["attributes"][self.LDAP_USER_ATTRIBUTE]
+                            ):
                                 username = str(
-                                        member_dn["attributes"][self.LDAP_USER_ATTRIBUTE][0]
-                                        ).casefold()
+                                    member_dn["attributes"][self.LDAP_USER_ATTRIBUTE][0]
+                                ).casefold()
                                 email = str(
-                                        member_dn["attributes"][
-                                            self.LDAP_USER_MAIL_ATTRIBUTE
-                                            ][0]
-                                        ).casefold()
-                                user_info = {
-                                        "username": username, "email": email}
+                                    member_dn["attributes"][
+                                        self.LDAP_USER_MAIL_ATTRIBUTE
+                                    ][0]
+                                ).casefold()
+                                user_info = {"username": username, "email": email}
                                 member_list.append(user_info)
                         except Exception as e:
                             traceback.print_exc(file=sys.stderr)
@@ -112,11 +110,12 @@ class LDAPClient:
         try:
             try:
                 self.conn.search(
-                        search_base=search_base,
-                        search_filter=self.LDAP_USER_FILTER.replace(
-                            "{username}", ldap3.utils.conv.escape_filter_chars(user)),
-                        attributes=["*"],
-                        )
+                    search_base=search_base,
+                    search_filter=self.LDAP_USER_FILTER.replace(
+                        "{username}", ldap3.utils.conv.escape_filter_chars(user)
+                    ),
+                    attributes=["*"],
+                )
                 if len(self.conn.entries) > 0:
                     data = json.loads(self.conn.entries[0].entry_to_json())
                     return data
