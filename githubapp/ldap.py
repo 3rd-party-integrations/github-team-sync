@@ -66,11 +66,11 @@ class LDAPClient:
                 for member in entry["attributes"][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
                     if self.LDAP_GROUP_BASE_DN in member:
                         pass
-                        # print("Nested groups are not yet supported.")
-                        # print("This feature is currently under development.")
-                        # print("{} was not processed.".format(member))
-                        # print("Unable to look up '{}'".format(member))
-                        # print(e)
+                    # print("Nested groups are not yet supported.")
+                    # print("This feature is currently under development.")
+                    # print("{} was not processed.".format(member))
+                    # print("Unable to look up '{}'".format(member))
+                    # print(e)
                     else:
                         try:
                             member_dn = self.get_user_info(user=member)
@@ -83,11 +83,16 @@ class LDAPClient:
                                 username = str(
                                     member_dn["attributes"][self.LDAP_USER_ATTRIBUTE][0]
                                 ).casefold()
-                                email = str(
-                                    member_dn["attributes"][
-                                        self.LDAP_USER_MAIL_ATTRIBUTE
-                                    ][0]
-                                ).casefold()
+                                if member_dn["attributes"][
+                                    self.LDAP_USER_MAIL_ATTRIBUTE
+                                ]:
+                                    email = str(
+                                        member_dn["attributes"][
+                                            self.LDAP_USER_MAIL_ATTRIBUTE
+                                        ][0]
+                                    ).casefold()
+                                else:
+                                    email = None
                                 user_info = {"username": username, "email": email}
                                 member_list.append(user_info)
                         except Exception as e:
