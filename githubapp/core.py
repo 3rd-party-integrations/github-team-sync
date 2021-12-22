@@ -38,8 +38,8 @@ class GitHubApp(object):
         app.config["GITHUBAPP_SECRET"] = os.environ["WEBHOOK_SECRET"]
         if "GHE_HOST" in os.environ:
             app.config["GITHUBAPP_URL"] = "https://{}".format(os.environ["GHE_HOST"])
-            app.config["IGNORE_SSL"] = bool(
-                distutils.util.strtobool(os.environ.get("IGNORE_SSL", "false"))
+            app.config["VERIFY_SSL"] = bool(
+                distutils.util.strtobool(os.environ.get("VERIFY_SSL", "false"))
             )
         with open(os.environ["PRIVATE_KEY_PATH"], "rb") as key_file:
             app.config["GITHUBAPP_KEY"] = key_file.read()
@@ -117,7 +117,7 @@ class GitHubApp(object):
         if current_app.config.get("GITHUBAPP_URL"):
             return GitHubEnterprise(
                 current_app.config["GITHUBAPP_URL"],
-                verify=current_app.config["IGNORE_SSL"],
+                verify=current_app.config["VERIFY_SSL"],
             )
         return GitHub()
 
