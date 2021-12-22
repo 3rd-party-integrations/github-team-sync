@@ -4,7 +4,7 @@ Flask extension for rapid GitHub app development
 import os.path
 import hmac
 import logging
-import distuils
+import distutils
 
 from flask import abort, current_app, jsonify, request, _app_ctx_stack
 from github3 import GitHub, GitHubEnterprise
