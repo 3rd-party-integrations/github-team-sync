@@ -38,6 +38,8 @@ class LDAPClient:
             self.LDAP_BIND_PASSWORD = os.environ["LDAP_BIND_PASSWORD"]
         else:
             raise Exception("LDAP credentials have not been specified")
+
+        self.USER_SYNC_ATTRIBUTE = os.environ["USER_SYNC_ATTRIBUTE"]
         self.conn = Connection(
             self.LDAP_SERVER_HOST,
             user=self.LDAP_BIND_USER,
@@ -83,9 +85,18 @@ class LDAPClient:
                                 username = str(
                                     member_dn["attributes"][self.LDAP_USER_ATTRIBUTE][0]
                                 ).casefold()
-                                if member_dn["attributes"][
+                                if (
+                                    self.USER_SYNC_ATTRIBUTE == "mail"
+                                    and self.LDAP_USER_MAIL_ATTRIBUTE
+                                    not in member_dn["attributes"]
+                                ):
+                                    raise Exception(
+                                        f"{self.USER_SYNC_ATTRIBUTE} not found"
+                                    )
+                                elif (
                                     self.LDAP_USER_MAIL_ATTRIBUTE
-                                ]:
+                                    in member_dn["attributes"]
+                                ):
                                     email = str(
                                         member_dn["attributes"][
                                             self.LDAP_USER_MAIL_ATTRIBUTE
@@ -93,6 +104,7 @@ class LDAPClient:
                                     ).casefold()
                                 else:
                                     email = None
+
                                 user_info = {"username": username, "email": email}
                                 member_list.append(user_info)
                         except Exception as e:
