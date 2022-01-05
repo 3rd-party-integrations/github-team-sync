@@ -112,7 +112,7 @@ class LDAPClient:
                 self.conn.search(
                     search_base=search_base,
                     search_filter=self.LDAP_USER_FILTER.replace(
-                        "{username}", ldap3.utils.conv.escape_filter_chars(user)
+                        "{username}", escape_filter_chars(user)
                     ),
                     attributes=["*"],
                 )
