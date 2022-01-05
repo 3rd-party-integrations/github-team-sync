@@ -4,6 +4,7 @@ import sys
 import json
 import logging
 from ldap3 import Server, Connection, ALL
+from ldap3.utils.conv import escape_filter_chars
 from pprint import pprint
 
 LOG = logging.getLogger(__name__)
@@ -127,7 +128,9 @@ class LDAPClient:
             try:
                 self.conn.search(
                     search_base=search_base,
-                    search_filter=self.LDAP_USER_FILTER.replace("{username}", user),
+                    search_filter=self.LDAP_USER_FILTER.replace(
+                        "{username}", escape_filter_chars(user)
+                    ),
                     attributes=["*"],
                 )
                 if len(self.conn.entries) > 0:

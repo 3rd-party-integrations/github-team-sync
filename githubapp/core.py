@@ -4,6 +4,7 @@ Flask extension for rapid GitHub app development
 import os.path
 import hmac
 import logging
+import distutils
 
 from flask import abort, current_app, jsonify, request, _app_ctx_stack
 from github3 import GitHub, GitHubEnterprise
@@ -37,6 +38,9 @@ class GitHubApp(object):
         app.config["GITHUBAPP_SECRET"] = os.environ["WEBHOOK_SECRET"]
         if "GHE_HOST" in os.environ:
             app.config["GITHUBAPP_URL"] = "https://{}".format(os.environ["GHE_HOST"])
+            app.config["VERIFY_SSL"] = bool(
+                distutils.util.strtobool(os.environ.get("VERIFY_SSL", "false"))
+            )
         with open(os.environ["PRIVATE_KEY_PATH"], "rb") as key_file:
             app.config["GITHUBAPP_KEY"] = key_file.read()
 
@@ -111,7 +115,10 @@ class GitHubApp(object):
     def client(self):
         """Unauthenticated GitHub client"""
         if current_app.config.get("GITHUBAPP_URL"):
-            return GitHubEnterprise(current_app.config["GITHUBAPP_URL"])
+            return GitHubEnterprise(
+                current_app.config["GITHUBAPP_URL"],
+                verify=current_app.config["VERIFY_SSL"],
+            )
         return GitHub()
 
     @property
