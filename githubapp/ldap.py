@@ -4,6 +4,7 @@ import sys
 import json
 import logging
 from ldap3 import Server, Connection, ALL
+from ldap3.utils.conv import escape_filter_chars
 from pprint import pprint
 
 LOG = logging.getLogger(__name__)
@@ -66,11 +67,11 @@ class LDAPClient:
                 for member in entry["attributes"][self.LDAP_GROUP_MEMBER_ATTRIBUTE]:
                     if self.LDAP_GROUP_BASE_DN in member:
                         pass
-                        # print("Nested groups are not yet supported.")
-                        # print("This feature is currently under development.")
-                        # print("{} was not processed.".format(member))
-                        # print("Unable to look up '{}'".format(member))
-                        # print(e)
+                    # print("Nested groups are not yet supported.")
+                    # print("This feature is currently under development.")
+                    # print("{} was not processed.".format(member))
+                    # print("Unable to look up '{}'".format(member))
+                    # print(e)
                     else:
                         try:
                             member_dn = self.get_user_info(user=member)
@@ -110,7 +111,9 @@ class LDAPClient:
             try:
                 self.conn.search(
                     search_base=search_base,
-                    search_filter=self.LDAP_USER_FILTER.replace("{username}", user),
+                    search_filter=self.LDAP_USER_FILTER.replace(
+                        "{username}", escape_filter_chars(user)
+                    ),
                     attributes=["*"],
                 )
                 if len(self.conn.entries) > 0:
