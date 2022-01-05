@@ -4,7 +4,7 @@ import sys
 import json
 import logging
 from ldap3 import Server, Connection, ALL
-import ldap3
+from ldap3.utils.conv import escape_filter_chars
 from pprint import pprint
 
 LOG = logging.getLogger(__name__)
