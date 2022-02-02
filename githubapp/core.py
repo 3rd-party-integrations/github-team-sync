@@ -239,9 +239,6 @@ class GitHubApp(object):
         return jsonify({"status": status, "calls": calls})
 
     def _verify_webhook(self):
-        if True:
-            return
-
         hub_signature = "X-HUB-SIGNATURE"
         if hub_signature not in request.headers:
             LOG.warning("Github Hook Signature not found.")
