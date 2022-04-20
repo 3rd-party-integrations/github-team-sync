@@ -168,8 +168,16 @@ AZURE_USER_IS_UPN=true
 ### Sample `.env` for Okta
 ```env
 OKTA_ORG_URL=https://example.okta.com
-OKTA_ACCESS_TOKEN=asdfghkjliptojkjsj00294759
 OKTA_USERNAME_ATTRIBUTE=github_username
+
+# token login
+OKTA_ACCESS_TOKEN=asdfghkjliptojkjsj00294759
+
+# OAuth login
+OKTA_AUTH_METHOD=oauth
+OKTA_CLIENT_ID=abcdefghijkl
+OKTA_SCOPES=okta.users.read
+OKTA_PRIVATE_KEY='{"kty": "RSA", ...}'
 ```
 
 ### Sample `.env` for OneLogin
