@@ -176,7 +176,7 @@ OKTA_ACCESS_TOKEN=asdfghkjliptojkjsj00294759
 # OAuth login
 OKTA_AUTH_METHOD=oauth
 OKTA_CLIENT_ID=abcdefghijkl
-OKTA_SCOPES=okta.users.read
+OKTA_SCOPES='okta.users.read okta.groups.read'
 OKTA_PRIVATE_KEY='{"kty": "RSA", ...}'
 ```
 

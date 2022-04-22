@@ -15,7 +15,7 @@ class Okta:
         if auth_method == "oauth":
             config["authorizationMode"] = "PrivateKey"
             config["clientId"] = os.environ["OKTA_CLIENT_ID"]
-            config["scopes"] = os.environ["OKTA_SCOPES"]
+            config["scopes"] = os.environ["OKTA_SCOPES"].split(' ')
             config["privateKey"] = os.environ["OKTA_PRIVATE_KEY"]
         else:
             config["token"] = os.environ["OKTA_ACCESS_TOKEN"]
