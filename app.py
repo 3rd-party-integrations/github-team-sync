@@ -79,17 +79,16 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
             group=directory_members, team=team_members, attribute=USER_SYNC_ATTRIBUTE
         )
         if TEST_MODE:
-            print("Skipping execution due to TEST_MODE...")
+            print(f"TEST_MODE: Pending changes for team {team.slug}:")
             print(json.dumps(compare, indent=2))
         else:
             try:
                 execute_sync(org=org, team=team, slug=slug, state=compare)
-            except ValueError as e:
+            except (AssertionError, ValueError) as e:
                 if strtobool(os.environ["OPEN_ISSUE_ON_FAILURE"]):
                     open_issue(client=client, slug=slug, message=e)
-            except AssertionError as e:
-                if strtobool(os.environ["OPEN_ISSUE_ON_FAILURE"]):
-                    open_issue(client=client, slug=slug, message=e)
+                raise Exception(f"Team {team.slug} sync failed: {e}")
+        print(f"Processing Team Successful: {team.slug}")
     except Exception:
         traceback.print_exc(file=sys.stderr)
         raise
@@ -282,8 +281,10 @@ def sync_all_teams():
     installations = get_app_installations()
     custom_map = load_custom_map()
     futures = []
+    install_count = 0
     with ThreadPoolExecutor(max_workers=10) as exe:
         for i in installations():
+            install_count += 1
             print("========================================================")
             print(f"## Processing Organization: {i.account['login']}")
             print("========================================================")
@@ -300,11 +301,15 @@ def sync_all_teams():
                     print(f"DEBUG: {e}")
                 finally:
                     ctx.pop()
+    if not install_count:
+        raise Exception(f"No installation defined for APP_ID {os.getenv('APP_ID')}")
     for future in futures:
         future.result()
+    print(f'Syncing all teams successful: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
 
 
 def sync_team_helper(team, custom_map, client, org):
+    print(f"Organization: {org.login}")
     try:
         if SYNCMAP_ONLY and team.slug not in custom_map:
             print(f"skipping team {team.slug} - not in sync map")
