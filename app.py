@@ -64,7 +64,7 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     try:
         org = client.organization(owner)
         team = org.team(team_id)
-        custom_map = load_custom_map()
+        custom_map, ignore_users = load_custom_map()
         try:
             directory_group = custom_map[slug] if slug in custom_map else slug
             directory_members = directory_group_members(group=directory_group)
@@ -73,7 +73,8 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
             traceback.print_exc(file=sys.stderr)
 
         team_members = github_team_members(
-            client=client, owner=owner, team_id=team_id, attribute=USER_SYNC_ATTRIBUTE
+            client=client, owner=owner, team_id=team_id,
+            attribute=USER_SYNC_ATTRIBUTE, ignore_users=ignore_users
         )
         compare = compare_members(
             group=directory_members, team=team_members, attribute=USER_SYNC_ATTRIBUTE
@@ -124,9 +125,9 @@ def github_team_info(client=None, owner=None, team_id=None):
     return org.team(team_id)
 
 
-def github_team_members(client=None, owner=None, team_id=None, attribute="username"):
+def github_team_members(client=None, owner=None, team_id=None, attribute="username", ignore_users=[]):
     """
-    Look up members of a give team in GitHub
+    Look up members of a given team in GitHub
     :param client:
     :param owner:
     :param team_id:
@@ -151,7 +152,7 @@ def github_team_members(client=None, owner=None, team_id=None, attribute="userna
     else:
         for member in team.members():
             team_members.append({"username": str(member), "email": ""})
-    return team_members
+    return [m for m in team_members if m["username"] not in ignore_users]
 
 
 def compare_members(group, team, attribute="username"):
@@ -241,6 +242,7 @@ def load_custom_map(file="syncmap.yml"):
     :return:
     """
     syncmap = {}
+    ignore_users = []
     if os.path.isfile(file):
         from yaml import load, Loader
 
@@ -249,7 +251,9 @@ def load_custom_map(file="syncmap.yml"):
         for d in data["mapping"]:
             syncmap[d["github"]] = d["directory"]
 
-    return syncmap
+        ignore_users = data.get('ignore_users', [])
+
+    return (syncmap, ignore_users)
 
 
 def get_app_installations():
@@ -279,7 +283,7 @@ def sync_all_teams():
     print(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
 
     installations = get_app_installations()
-    custom_map = load_custom_map()
+    custom_map, _ = load_custom_map()
     futures = []
     install_count = 0
     with ThreadPoolExecutor(max_workers=10) as exe:
