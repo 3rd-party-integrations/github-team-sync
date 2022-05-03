@@ -144,13 +144,13 @@ def github_team_members(client=None, owner=None, team_id=None, attribute="userna
             user = client.user(m.login)
             team_members.append(
                 {
-                    "username": str(user.login).casefold(),
-                    "email": str(user.email).casefold(),
+                    "username": str(user.login),
+                    "email": str(user.email),
                 }
             )
     else:
         for member in team.members():
-            team_members.append({"username": str(member).casefold(), "email": ""})
+            team_members.append({"username": str(member), "email": ""})
     return team_members
 
 
@@ -163,8 +163,8 @@ def compare_members(group, team, attribute="username"):
     :return: sync_state
     :rtype: dict
     """
-    directory_list = [x[attribute] for x in group]
-    github_list = [x[attribute] for x in team]
+    directory_list = [x[attribute].casefold() for x in group]
+    github_list = [x[attribute].casefold() for x in team]
     add_users = list(set(directory_list) - set(github_list))
     remove_users = list(set(github_list) - set(directory_list))
     sync_state = {
