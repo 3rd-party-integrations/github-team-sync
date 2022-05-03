@@ -73,5 +73,9 @@ class Okta:
                     }
                 )
             except AttributeError as e:
-                print(f"{user.links['self']['href']}: {e}")
+                if user.links:
+                    user_info = user.links['self']['href']
+                else:
+                    user_info = user
+                print(f"User {user_info}: {e}")
         return member_list
