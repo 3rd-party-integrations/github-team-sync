@@ -300,11 +300,13 @@ def sync_all_teams():
                     org = client.organization(i.account["login"])
                     if REMOVE_ORG_MEMBERS_WITHOUT_TEAM:
                         org_members = [member for member in org.members()]
-                        team_members = [member for team in org.teams() for member in team.members()]
+                        team_members = [
+                            member for team in org.teams() for member in team.members()
+                        ]
                         remove_members = list(set(org_members) - set(team_members))
                         for member in remove_members:
                             print(f"Removing {member}")
-                            org.remove_membership(str(member))
+                            # org.remove_membership(str(member))
                     for team in org.teams():
                         futures.append(
                             exe.submit(sync_team_helper, team, custom_map, client, org)
