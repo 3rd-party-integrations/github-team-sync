@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         
       - name: Install python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: '3.9'
 
@@ -28,6 +28,10 @@ jobs:
           pipenv run black . --check --diff
 
       - name: Check-in updated code
-        uses: EndBug/add-and-commit@v5
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          committer_name: GitHub Actions
+          committer_email: actions@github.com
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
