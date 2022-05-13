@@ -1,0 +1,33 @@
+name: Code Formatting
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ci:
+    runs-on: 'ubuntu-latest'
+    name: PR Formatter
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        
+      - name: Install python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Setup Python Dependencies
+        run: |
+            sudo apt-get -y install python3-pip
+            sudo pip3 install pipenv
+            pipenv install --dev
+      - name: Format the code
+        run: |
+          pipenv run black . --check --diff
+
+      - name: Check-in updated code
+        uses: EndBug/add-and-commit@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
