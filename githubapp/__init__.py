@@ -40,6 +40,8 @@ except ValueError as e:
     TEST_MODE = False
 # Check if should add member to organization
 ADD_MEMBER = strtobool(os.environ.get("ADD_MEMBER", "False"))
-REMOVE_ORG_MEMBERS_WITHOUT_TEAM = strtobool(os.environ.get("REMOVE_ORG_MEMBERS_WITHOUT_TEAM", "False"))
+REMOVE_ORG_MEMBERS_WITHOUT_TEAM = strtobool(
+    os.environ.get("REMOVE_ORG_MEMBERS_WITHOUT_TEAM", "False")
+)
 USER_SYNC_ATTRIBUTE = os.environ.get("USER_SYNC_ATTRIBUTE", "username").lower()
 SYNCMAP_ONLY = strtobool(os.environ.get("SYNCMAP_ONLY", "False"))
