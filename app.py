@@ -74,8 +74,11 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
             traceback.print_exc(file=sys.stderr)
 
         team_members = github_team_members(
-            client=client, owner=owner, team_id=team_id,
-            attribute=USER_SYNC_ATTRIBUTE, ignore_users=ignore_users
+            client=client,
+            owner=owner,
+            team_id=team_id,
+            attribute=USER_SYNC_ATTRIBUTE,
+            ignore_users=ignore_users,
         )
         compare = compare_members(
             group=directory_members, team=team_members, attribute=USER_SYNC_ATTRIBUTE
@@ -126,7 +129,9 @@ def github_team_info(client=None, owner=None, team_id=None):
     return org.team(team_id)
 
 
-def github_team_members(client=None, owner=None, team_id=None, attribute="username", ignore_users=[]):
+def github_team_members(
+    client=None, owner=None, team_id=None, attribute="username", ignore_users=[]
+):
     """
     Look up members of a given team in GitHub
     :param client:
@@ -252,7 +257,7 @@ def load_custom_map(file="syncmap.yml"):
         for d in data["mapping"]:
             syncmap[d["github"]] = d["directory"]
 
-        ignore_users = data.get('ignore_users', [])
+        ignore_users = data.get("ignore_users", [])
 
     return (syncmap, ignore_users)
 
