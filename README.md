@@ -199,7 +199,9 @@ TEST_MODE=false
 SYNCMAP_ONLY=false
 
 ### Automatically add users missing from the organization
-ADD_MEMBER=false 
+ADD_MEMBER=false
+## Automatically remove users from the organisation that are not part of a team
+REMOVE_ORG_MEMBERS_WITHOUT_TEAM=false
 ```
 
 ### Sample `syncmap.yml` custom mapping file
