@@ -89,16 +89,15 @@ class AzureAD:
                 print("Nested group: ", member["displayName"])
             else:
                 user_info = self.get_user_info(token=token, user=member["id"])
+                username = user_info[self.USERNAME_ATTRIBUTE]
+                if self.USERNAME_ATTRIBUTE.startswith("extensionAttribute"):
+                    username = user_info["onPremisesExtensionAttributes"][self.USERNAME_ATTRIBUTE]
                 if self.AZURE_USER_IS_UPN:
-                    user = {
-                        "username": user_info[self.USERNAME_ATTRIBUTE].split("@")[0],
-                        "email": user_info["mail"],
-                    }
-                else:
-                    user = {
-                        "username": user_info[self.USERNAME_ATTRIBUTE],
-                        "email": user_info["mail"],
-                    }
+                    username = username.split("@")[0]
+                user = {
+                    "username": username,
+                    "email": user_info["mail"],
+                }
                 member_list.append(user)
         return member_list
 
@@ -136,8 +135,11 @@ class AzureAD:
         :rtype user_info: dict
         """
         token = self.get_access_token() if not token else token
+        attribute = self.USERNAME_ATTRIBUTE
+        if self.USERNAME_ATTRIBUTE.startswith("extensionAttribute"):
+            attribute = "onPremisesExtensionAttributes"
         graph_data = requests.get(  # Use token to call downstream service
-            f"{self.AZURE_API_ENDPOINT}/users/{user}?$select=id,mail,{self.USERNAME_ATTRIBUTE}",
+            f"{self.AZURE_API_ENDPOINT}/users/{user}?$select=id,mail,{attribute}",
             headers={"Authorization": f"Bearer {token}"},
         ).json()
         user_info = json.loads(json.dumps(graph_data, indent=2))
