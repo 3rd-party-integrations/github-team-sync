@@ -28,7 +28,9 @@ class AzureAD:
             "AZURE_USERNAME_ATTRIBUTE", "userPrincipalName"
         )
         self.AZURE_USER_IS_UPN = strtobool(os.environ.get("AZURE_USER_IS_UPN", "False"))
-        self.AZURE_USE_TRANSITIVE_GROUP_MEMBERS = strtobool(os.environ.get("AZURE_USE_TRANSITIVE_GROUP_MEMBERS", "False"))
+        self.AZURE_USE_TRANSITIVE_GROUP_MEMBERS = strtobool(
+            os.environ.get("AZURE_USE_TRANSITIVE_GROUP_MEMBERS", "False")
+        )
 
     def get_access_token(self):
         """
@@ -80,9 +82,14 @@ class AzureAD:
         # print("Graph API call result: %s" % json.dumps(graph_data, indent=2))
         try:
             group_info = json.loads(json.dumps(graph_data, indent=2))["value"][0]
-            members_endpoint = "transitiveMembers" if self.AZURE_USE_TRANSITIVE_GROUP_MEMBERS else "members"
+            members_endpoint = (
+                "transitiveMembers"
+                if self.AZURE_USE_TRANSITIVE_GROUP_MEMBERS
+                else "members"
+            )
             members = self.get_group_members_pages(
-                token, f'{self.AZURE_API_ENDPOINT}/groups/{group_info["id"]}/{members_endpoint}'
+                token,
+                f'{self.AZURE_API_ENDPOINT}/groups/{group_info["id"]}/{members_endpoint}',
             )
         except IndexError as e:
             members = []
@@ -93,7 +100,9 @@ class AzureAD:
                 user_info = self.get_user_info(token=token, user=member["id"])
                 username = user_info[self.USERNAME_ATTRIBUTE]
                 if self.USERNAME_ATTRIBUTE.startswith("extensionAttribute"):
-                    username = user_info["onPremisesExtensionAttributes"][self.USERNAME_ATTRIBUTE]
+                    username = user_info["onPremisesExtensionAttributes"][
+                        self.USERNAME_ATTRIBUTE
+                    ]
                 if self.AZURE_USER_IS_UPN:
                     username = username.split("@")[0]
                 user = {
