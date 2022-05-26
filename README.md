@@ -161,8 +161,11 @@ AZURE_CLIENT_ID="<client_id>"
 AZURE_CLIENT_SECRET="<client_secret>"
 AZURE_APP_SCOPE="default"
 AZURE_API_ENDPOINT="https://graph.microsoft.com/v1.0"
+# can also be an extensionAttribute
 AZURE_USERNAME_ATTRIBUTE=userPrincipalName
 AZURE_USER_IS_UPN=true
+# use transitive members of a group instead of direct members
+AZURE_USE_TRANSITIVE_GROUP_MEMBERS=false
 ```
 
 ### Sample `.env` for Okta
