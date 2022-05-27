@@ -334,7 +334,8 @@ def remove_org_members_without_team(installations):
                 remove_members = list(set(org_members) - set(team_members))
                 for member in remove_members:
                     print(f"Removing {member}")
-                    org.remove_membership(str(member))
+                    if not TEST_MODE:
+                        org.remove_membership(str(member))
             except Exception as e:
                 print(f"DEBUG: {e}")
             finally:
