@@ -69,10 +69,7 @@ This utility provides the following functionality:
 
 This app requires the following Azure permissions:
 
-- `Directory.Read.All`
-- `Group.Read.All`
 - `GroupMember.Read.All`
-- `Organization.Read.All`
 - `User.Read.All`
 
 ## Getting Started
