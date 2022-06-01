@@ -102,6 +102,8 @@ class AzureAD:
                     username = user_info["onPremisesExtensionAttributes"][
                         self.USERNAME_ATTRIBUTE
                     ]
+                    if username is None:
+                        continue
                 else:
                     username = user_info[self.USERNAME_ATTRIBUTE]
                 if self.AZURE_USER_IS_UPN:
