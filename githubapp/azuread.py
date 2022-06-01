@@ -98,11 +98,12 @@ class AzureAD:
                 print("Nested group: ", member["displayName"])
             else:
                 user_info = self.get_user_info(token=token, user=member["id"])
-                username = user_info[self.USERNAME_ATTRIBUTE]
                 if self.USERNAME_ATTRIBUTE.startswith("extensionAttribute"):
                     username = user_info["onPremisesExtensionAttributes"][
                         self.USERNAME_ATTRIBUTE
                     ]
+                else:
+                    username = user_info[self.USERNAME_ATTRIBUTE]
                 if self.AZURE_USER_IS_UPN:
                     username = username.split("@")[0]
                 user = {
