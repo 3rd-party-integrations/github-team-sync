@@ -1,6 +1,6 @@
 FROM python:3.9-alpine
 
-LABEL version="2.1"
+LABEL version="2.7"
 LABEL description="LDAP Team Sync for GitHub"
 LABEL maintainer="GitHub Services <services@github.com>"
 
