@@ -4,6 +4,9 @@ mapping:
     directory: ldap super users
   - github: demo-team-2
     directory: another-group
+  - github: demo-team-org
+    org: demo-org
+    directory: avengers group
 
 ignore_users:
   - userA
