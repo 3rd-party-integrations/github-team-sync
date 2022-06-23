@@ -210,10 +210,11 @@ REMOVE_ORG_MEMBERS_WITHOUT_TEAM=false
 mapping:
   - github: demo-team
     directory: ldap super users
+    org: my github org
   - github: demo-admin-2
     directory: some other group
 ```
-Custom map is using slugs which are lowercase.
+Custom map is using slugs which are lowercase. If you don't specify organization name, it will synchronize all teams with same name in any organization. 
 
 ## Usage Examples
 
