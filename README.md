@@ -73,7 +73,7 @@ This app requires the following Azure permissions:
 - `User.Read.All`
 
 ## Getting Started
-To get started, ensure that you are using **Python 3.4+**. The following additional libraries are required:
+To get started, ensure that you are using **Python 3.9** (or update your `Pipfile` to the version you're running, 3.4+). The following additional libraries are required:
 
 - [ ] Flask
 - [ ] github3.py
