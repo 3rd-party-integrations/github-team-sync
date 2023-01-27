@@ -2,7 +2,7 @@
 This utility is intended to enable synchronization between GitHub and various LDAP and SAML providers.
 This is particularly useful for large organizations with many teams that either use GitHub Enterprise Cloud,
 do not use LDAP for authentication, or use a SAML provider other than what is natively supported.
-It supports both GitHub.com, GitHub Enterprise Server (GHES) and GitHub , but it will need to live in a location that can access your LDAP servers.
+It supports both GitHub.com, GitHub Enterprise Server (GHES) and GitHub, but it will need to live in a location that can access your LDAP servers.
 
 ## Supported user directories
 - LDAP
@@ -25,19 +25,19 @@ This utility provides the following functionality:
 | Custom team/group maps | Yes | The team `slug` and group name will be matched automatically, unless you define a custom mapping with `syncmap.yml` |
 | Force custom map | Yes | Sync only team defined in `syncmap.yml` |
 | Dry run / Test mode | Yes | Run and print the differences, but make no changes |
-| Nested teams/groups | No | Synchronize groups within groups. Presently, if a group is a member of another group it is skipped |
+| Nested teams/groups | No | Synchronize groups within groups. Presently, if a group is a member of another group, it is skipped |
 
 ## Creating the GitHub App on your GitHub instance
-1. On your GitHub instance, visit the `settings` page on the Organization that you want to own the **GitHub** App, and navigate to the `GitHub Apps` section.
+1. On your GitHub instance, visit the `settings` page on the organization that you want to own the **GitHub** App, and navigate to the `GitHub Apps` section.
     - You can access this page by visiting the following url:
       `https://<MY_GITHUB_HOSTNAME>/organizations/<MY_ORG_NAME>/settings/apps`
 2. Create a new **GitHub App** with the following settings:
     - **Webhook URL**: URL of the machine on which this app has been deployed (Example: `http://ip.of.machine:3000`)
     - **Homepage URL**: URL of the machine on which this app has been deployed (Example: `http://ip.of.machine:3000`)
     - **Webhook Secret**: The webhook secret that will be or has been defined as an environment variable in your deployment environment as `WEBHOOK_SECRET`
-    - **Permissions and Events**: This application will need to be able to manage teams in GitHub, so the `events` and `permissions` listed below will be required. For more information on how to create a GitHub App, please visit [https://developer.github.com/apps/building-github-apps/creating-a-github-app](https://developer.github.com/apps/building-github-apps/creating-a-github-app)
+    - **Permissions and Events**: This application will need to be able to manage teams on GitHub, so the `events` and `permissions` listed below will be required. For more information on how to create a GitHub App, please visit [https://developer.github.com/apps/building-github-apps/creating-a-github-app](https://developer.github.com/apps/building-github-apps/creating-a-github-app)
 3. Once these have been configured, select the `Create GitHub App` button at the bottom of the page to continue
-4. Make a note of the `APP ID` on your newly-created **GitHub App**. You will need to set this as an environment variable when you configure the app.
+4. Make a note of the `APP ID` on your newly-created **GitHub App**. You will need to set this as an environment variable when configuring the app.
 5. Generate and download a private key from the new App page, and store it in your deployment environment. You can either do this by saving the file directly in the environment and specifying its path with the environment variable `PRIVATE_KEY_PATH`
 6. After you have created the **GitHub** App, you will need to install it to the desired **GitHub** Organizations.
     - Select `Install App`
@@ -50,7 +50,7 @@ This utility provides the following functionality:
 | Category | Attribute | Permission |
 | --- | --- | --- |
 | Repository permissions | `Issues` | `Read & write` |
-| Repositroy permissions | `Metadata` | `Read-only` |
+| Repository permissions | `Metadata` | `Read-only` |
 | Organization permissions | `Members` | `Read & write` |
 | User permissions | `Email addresses` | `Read-only` |
 
@@ -200,7 +200,7 @@ SYNCMAP_ONLY=false
 
 ### Automatically add users missing from the organization
 ADD_MEMBER=false
-## Automatically remove users from the organisation that are not part of a team
+## Automatically remove users from the organization that are not part of a team
 REMOVE_ORG_MEMBERS_WITHOUT_TEAM=false
 ```
 
@@ -214,18 +214,19 @@ mapping:
   - github: demo-admin-2
     directory: some other group
 ```
-Custom map is using slugs which are lowercase. If you don't specify organization name, it will synchronize all teams with same name in any organization. 
+
+The custom map uses slugs that are lowercase. If you don't specify organization name, it will synchronize all teams with same name in any organization. 
 
 ## Usage Examples
 
 ### Start the application from Pipenv
-This example runs the app in a standard Flask environment
+This example runs the app in a standard Flask environment.
 
 ```bash
 pipenv run flask run --host=0.0.0.0 --port=5000
 ```
 
-Or you can run the app with Python directly
+Or you can run the app with Python directly.
 
 ```bash
 pipenv run python app.py
@@ -233,7 +234,7 @@ pipenv run python app.py
 
 ## Support
 
-⚠️ This is free and open-source software that is supported by the open source community, and is not included as part of GitHub's official platform support.
+⚠️ This is free and open-source software that is supported by the open-source community, and is not included as part of GitHub's official platform support.
 
 ## Credits
 This project draws much from:
