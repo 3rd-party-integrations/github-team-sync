@@ -26,16 +26,27 @@ def printUsers():
     while request is not None:
         users = request.execute()
         for u in users.get('users', []):
+          if not u['suspended'] and not u['archived']:
             githubUsername = u.get('customSchemas', {}).get("GithubUsername", {}).get("GithubUsername")
             if githubUsername:
                 print(f"{u['primaryEmail']}: {githubUsername}")
         request = service.list_next(request, users)
+
+def printGroups():
+    service = create_service().groups()
+    request = service.list(customer="my_customer")
+    while request is not None:
+        groups = request.execute()
+        for g in groups.get('groups', []):
+            print(g["name"])
+        request = service.list_next(request, groups)
 
 def main():
     """Shows basic usage of the Admin SDK Directory API.
     Prints the emails and names of the first 10 users in the domain.
     """
     printUsers()
+    printGroups()
 
 if __name__ == '__main__':
     main()
