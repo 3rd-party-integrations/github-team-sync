@@ -3,6 +3,7 @@ import traceback
 import sys
 import json
 import logging
+import ssl
 from ldap3 import Server, Connection, Tls, ALL
 from ldap3.utils.conv import escape_filter_chars
 from pprint import pprint
@@ -41,8 +42,32 @@ class LDAPClient:
             raise Exception("LDAP credentials have not been specified")
 
         self.USER_SYNC_ATTRIBUTE = os.environ["USER_SYNC_ATTRIBUTE"]
-        self.tls = Tls(local_private_key_file = 'key.pem', local_certificate_file = 'cert.pem', validate = ssl.CERT_REQUIRED, version = ssl.PROTOCOL_TLSv1, ca_certs_file = 'cacert.b64')
-        self.srv = Server(host = self.LDAP_SERVER_HOST, port = self.LDAP_SERVER_HOST, use_ssl = True, tls = self.tls)
+
+        if "LDAP_USE_SSL" in os.environ and bool(os.environ["LDAP_USE_SSL"]):
+            self.LDAP_USE_SSL = True
+            self.LDAP_SSL_PRIVATE_KEY = os.environ.get('LDAP_SSL_PRIVATE_KEY')
+            self.LDAP_SSL_CERTIFICATE = os.environ.get('LDAP_SSL_CERTIFICATE')
+            try:
+                self.LDAP_SSL_VALIDATE = ssl.VerifyMode[os.environ.get('LDAP_SSL_VALIDATE', 'CERT_REQUIRED')]
+            except KeyError:
+                raise Exception(f"LDAP_SSL_VALIDATE valid options are {ssl.VerifyMode._member_names_}")
+            try:
+                self.LDAP_SSL_VERSION = ssl._SSLMethod[os.environ.get('LDAP_SSL_VERSION', 'PROTOCOL_TLS')]
+            except KeyError:
+                raise Exception(f"LDAP_SSL_VERSION valid options are {ssl._SSLMethod._member_names_}")
+            self.LDAP_SSL_CA_CERTS = os.environ.get('LDAP_SSL_CA_CERTS')
+            self.tls = Tls(
+                local_private_key_file = self.LDAP_SSL_PRIVATE_KEY, 
+                local_certificate_file = self.LDAP_SSL_CERTIFICATE,
+                validate = self.LDAP_SSL_VALIDATE,
+                version = self.LDAP_SSL_VERSION,
+                ca_certs_file = self.LDAP_SSL_CA_CERTS
+            )
+        else:
+            self.tls = None
+            self.LDAP_USE_SSL = False
+
+        self.srv = Server(host = self.LDAP_SERVER_HOST, port = self.LDAP_SERVER_HOST, use_ssl = self.USE_SSL, tls = self.tls)
         self.conn = Connection(
             self.srv,
             user=self.LDAP_BIND_USER,
