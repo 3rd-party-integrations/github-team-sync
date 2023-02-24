@@ -42,9 +42,9 @@ class LDAPClient:
             raise Exception("LDAP credentials have not been specified")
 
         self.USER_SYNC_ATTRIBUTE = os.environ["USER_SYNC_ATTRIBUTE"]
-
-        if "LDAP_USE_SSL" in os.environ and bool(os.environ["LDAP_USE_SSL"]):
-            self.LDAP_USE_SSL = True
+        
+        self.LDAP_USE_SSL = bool(os.environ("LDAP_USE_SSL", False))
+        if self.LDAP_USE_SSL:
             self.LDAP_SSL_PRIVATE_KEY = os.environ.get('LDAP_SSL_PRIVATE_KEY')
             self.LDAP_SSL_CERTIFICATE = os.environ.get('LDAP_SSL_CERTIFICATE')
             try:
@@ -65,7 +65,6 @@ class LDAPClient:
             )
         else:
             self.tls = None
-            self.LDAP_USE_SSL = False
 
         self.srv = Server(host = self.LDAP_SERVER_HOST, port = self.LDAP_SERVER_HOST, use_ssl = self.USE_SSL, tls = self.tls)
         self.conn = Connection(
