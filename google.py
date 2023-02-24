@@ -20,10 +20,7 @@ def create_service():
 
   return service
 
-def main():
-    """Shows basic usage of the Admin SDK Directory API.
-    Prints the emails and names of the first 10 users in the domain.
-    """
+def printUsers():
     service = create_service().users()
     request = service.list(customer="my_customer", viewType="admin_view", projection="custom", customFieldMask="GithubUsername")
     while request is not None:
@@ -33,6 +30,12 @@ def main():
             if githubUsername:
                 print(f"{u['primaryEmail']}: {githubUsername}")
         request = service.list_next(request, users)
+
+def main():
+    """Shows basic usage of the Admin SDK Directory API.
+    Prints the emails and names of the first 10 users in the domain.
+    """
+    printUsers()
 
 if __name__ == '__main__':
     main()
