@@ -26,6 +26,8 @@ msal = "*"
 okta = "*"
 asyncio = "*"
 onelogin = "*"
+google-api-python-client = "*"
+google-auth-oauthlib = "*"
 
 [pipenv]
 allow_prereleases = true
