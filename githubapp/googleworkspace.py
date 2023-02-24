@@ -16,7 +16,7 @@ SCOPES = [
 ]
 
 
-class GOOGLE_WORKSPACEClient:
+class GoogleWorkspaceClient:
     def __init__(self):
         # Read settings from the config file and store them as constants
         self.GOOGLE_WORKSPACE_SA_CREDS_FILE = os.environ["GOOGLE_WORKSPACE_SA_CREDS_FILE"]
@@ -44,90 +44,32 @@ class GOOGLE_WORKSPACEClient:
         :return member_list: List of members found in this GOOGLE_WORKSPACE group
         :rtype member_list: list
         """
-        # member_list = []
-        # entries = self.conn.extend.standard.paged_search(
-        #     search_base=self.GOOGLE_WORKSPACE_BASE_DN,
-        #     search_filter=self.GOOGLE_WORKSPACE_GROUP_FILTER.replace(
-        #         "{group_name}", group_name),
-        #     attributes=[self.GOOGLE_WORKSPACE_GROUP_MEMBER_ATTRIBUTE],
-        #     paged_size=self.GOOGLE_WORKSPACE_PAGE_SIZE,
-        # )
-        # for entry in entries:
-        #     if entry["type"] == "searchResEntry":
-        #         for member in entry["attributes"][self.GOOGLE_WORKSPACE_GROUP_MEMBER_ATTRIBUTE]:
-        #             if self.GOOGLE_WORKSPACE_GROUP_BASE_DN in member:
-        #                 pass
-        #             # print("Nested groups are not yet supported.")
-        #             # print("This feature is currently under development.")
-        #             # print("{} was not processed.".format(member))
-        #             # print("Unable to look up '{}'".format(member))
-        #             # print(e)
-        #             else:
-        #                 try:
-        #                     member_dn = self.get_user_info(user=member)
-        #                     # pprint(member_dn)
-        #                     if (
-        #                         member_dn
-        #                         and member_dn["attributes"]
-        #                         and member_dn["attributes"][self.GOOGLE_WORKSPACE_USER_ATTRIBUTE]
-        #                     ):
-        #                         username = str(
-        #                             member_dn["attributes"][self.GOOGLE_WORKSPACE_USER_ATTRIBUTE][0]
-        #                         ).casefold()
-        #                         if (
-        #                             self.USER_SYNC_ATTRIBUTE == "mail"
-        #                             and self.GOOGLE_WORKSPACE_USER_MAIL_ATTRIBUTE
-        #                             not in member_dn["attributes"]
-        #                         ):
-        #                             raise Exception(
-        #                                 f"{self.USER_SYNC_ATTRIBUTE} not found"
-        #                             )
-        #                         elif (
-        #                             self.GOOGLE_WORKSPACE_USER_MAIL_ATTRIBUTE
-        #                             in member_dn["attributes"]
-        #                         ):
-        #                             email = str(
-        #                                 member_dn["attributes"][
-        #                                     self.GOOGLE_WORKSPACE_USER_MAIL_ATTRIBUTE
-        #                                 ][0]
-        #                             ).casefold()
-        #                         else:
-        #                             email = None
+        member_list = []
 
-        #                         user_info = {
-        #                             "username": username, "email": email}
-        #                         member_list.append(user_info)
-        #                 except Exception as e:
-        #                     traceback.print_exc(file=sys.stderr)
-        # return member_list
-        return []
+        request = self.service.list(groupKey=group_name)
+        while request is not None:
+            members = request.execute()
+            for m in members.get('members', []):
+                user_info = self.get_user_info(m['id'])
+                if user_info.get("email") or user_info.get("email"):
+                    member_list.append(user_info)
+            request = self.service.list_next(request, members)
+        return member_list
 
-    def get_user_info(self, user=None):
+    def get_user_info(self, id):
         """
-        Look up user info from GOOGLE_WORKSPACE
+        Look up user info from Google Workspace
         :param user:
         :type user:
         :return:
         :rtype:
         """
-        return []
-        # if any(attr in user.casefold() for attr in ["uid=", "cn="]):
-        #     search_base = user
-        # else:
-        #     search_base = self.GOOGLE_WORKSPACE_USER_BASE_DN
-        # try:
-        #     try:
-        #         self.conn.search(
-        #             search_base=search_base,
-        #             search_filter=self.GOOGLE_WORKSPACE_USER_FILTER.replace(
-        #                 "{username}", escape_filter_chars(user)
-        #             ),
-        #             attributes=["*"],
-        #         )
-        #         if len(self.conn.entries) > 0:
-        #             data = json.loads(self.conn.entries[0].entry_to_json())
-        #             return data
-        #     except Exception as e:
-        #         traceback.print_exc(file=sys.stderr)
-        # except Exception as e:
-        #     traceback.print_exc(file=sys.stderr)
+
+        if self.USER_SYNC_ATTRIBUTE == 'username':
+            user = self.service.users().get(userKey=id, projection="custom", customFieldMask=self.GOOGLE_WORKSPACE_USERNAME_СUSTOM_SCHEMA_NAME).execute()
+            return {"username": user.get('customSchemas', {}).get(self.GOOGLE_WORKSPACE_USERNAME_СUSTOM_SCHEMA_NAME, {}).get(self.GOOGLE_WORKSPACE_USERNAME_FIELD), "email": None}
+        elif self.USER_SYNC_ATTRIBUTE == 'email':
+            user = self.service.users().get(userKey=id).execute()
+            return {"username": None, "email": user[self.GOOGLE_WORKSPACE_USER_MAIL_ATTRIBUTE]}
+        else:
+            return {"username": None, "email": None}

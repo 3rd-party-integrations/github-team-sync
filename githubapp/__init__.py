@@ -12,7 +12,7 @@ elif os.environ.get("USER_DIRECTORY", "LDAP").upper() == "OKTA":
 elif os.environ.get("USER_DIRECTORY", "LDAP").upper() == "ONELOGIN":
     from .onelogin import OneLogin as DirectoryClient
 elif os.environ.get("USER_DIRECTORY", "LDAP").upper() == "GOOGLE_WORKSPACE":
-    from .googleworkspace import GoogleWorkspace as DirectoryClient
+    from .googleworkspace import GoogleWorkspaceClient as DirectoryClient
 from .version import __version__
 
 __all__ = ["GitHubApp", "DirectoryClient"]
