@@ -3,7 +3,7 @@ import traceback
 import sys
 import json
 import logging
-from ldap3 import Server, Connection, ALL
+from ldap3 import Server, Connection, Tls, ALL
 from ldap3.utils.conv import escape_filter_chars
 from pprint import pprint
 
@@ -41,8 +41,10 @@ class LDAPClient:
             raise Exception("LDAP credentials have not been specified")
 
         self.USER_SYNC_ATTRIBUTE = os.environ["USER_SYNC_ATTRIBUTE"]
+        self.tls = Tls(local_private_key_file = 'key.pem', local_certificate_file = 'cert.pem', validate = ssl.CERT_REQUIRED, version = ssl.PROTOCOL_TLSv1, ca_certs_file = 'cacert.b64')
+        self.srv = Server(host = self.LDAP_SERVER_HOST, port = self.LDAP_SERVER_HOST, use_ssl = True, tls = self.tls)
         self.conn = Connection(
-            self.LDAP_SERVER_HOST,
+            self.srv,
             user=self.LDAP_BIND_USER,
             password=self.LDAP_BIND_PASSWORD,
             auto_bind=True,
