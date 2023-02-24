@@ -38,8 +38,18 @@ def printGroups():
     while request is not None:
         groups = request.execute()
         for g in groups.get('groups', []):
-            print(g["name"])
+          print(f"\n{g['name']:}")
+          printMembers(g['id'])
         request = service.list_next(request, groups)
+
+def printMembers(group_id):
+    service = create_service().members()
+    request = service.list(groupKey=group_id)
+    while request is not None:
+        members = request.execute()
+        for g in members.get('members', []):
+            print(g["email"])
+        request = service.list_next(request, members)
 
 def main():
     """Shows basic usage of the Admin SDK Directory API.
