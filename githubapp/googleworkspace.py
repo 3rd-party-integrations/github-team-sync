@@ -67,9 +67,10 @@ class GoogleWorkspaceClient:
 
         if self.USER_SYNC_ATTRIBUTE == 'username':
             user = self.service.users().get(userKey=id, projection="custom", customFieldMask=self.GOOGLE_WORKSPACE_USERNAME_СUSTOM_SCHEMA_NAME).execute()
-            return {"username": user.get('customSchemas', {}).get(self.GOOGLE_WORKSPACE_USERNAME_СUSTOM_SCHEMA_NAME, {}).get(self.GOOGLE_WORKSPACE_USERNAME_FIELD), "email": None}
+            if not user['suspended'] and not user['archived']:
+                return {"username": user.get('customSchemas', {}).get(self.GOOGLE_WORKSPACE_USERNAME_СUSTOM_SCHEMA_NAME, {}).get(self.GOOGLE_WORKSPACE_USERNAME_FIELD), "email": None}
         elif self.USER_SYNC_ATTRIBUTE == 'email':
             user = self.service.users().get(userKey=id).execute()
-            return {"username": None, "email": user[self.GOOGLE_WORKSPACE_USER_MAIL_ATTRIBUTE]}
-        else:
-            return {"username": None, "email": None}
+            if not user['suspended'] and not user['archived']:
+                return {"username": None, "email": user[self.GOOGLE_WORKSPACE_USER_MAIL_ATTRIBUTE]}
+        return {"username": None, "email": None}
