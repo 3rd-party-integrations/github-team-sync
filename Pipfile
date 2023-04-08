@@ -26,6 +26,10 @@ msal = "*"
 okta = "*"
 asyncio = "*"
 onelogin = "*"
+certifi = "*"
+setuptools = "*"
+cryptography = "*"
+werkzeug = "*"
 
 [pipenv]
 allow_prereleases = true
