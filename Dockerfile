@@ -26,8 +26,10 @@ RUN apk add --no-cache \
 # Fix the warning where no timezone is specified
 RUN cp /usr/share/zoneinfo/${DEFAULT_TZ} /etc/localtime
 
+# GitHub SSH Key
+RUN mkdir -p .ssh \
+  && cp poc-github-team-sync.2023-05-22.private-key.pem .ssh/poc-github-team-sync.pem
+
 RUN pip install --no-cache-dir --upgrade pipenv
-
 RUN pipenv install
-
 CMD pipenv run flask run

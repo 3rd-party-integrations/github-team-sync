@@ -1,0 +1,135 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: github-team-sync
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: github-team-sync
+  namespace: github-team-sync
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: github-team-sync
+  namespace: github-team-sync
+  labels:
+    app: github-team-sync
+    service: github-team-sync
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      service: github-team-sync
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: github-team-sync
+        service: github-team-sync
+    spec:
+      containers:
+        - name: github-team-sync
+          image: 542442216259.dkr.ecr.eu-west-1.amazonaws.com/poc-github-team-sync:v2
+          imagePullPolicy: IfNotPresent
+          envFrom:
+          - secretRef:
+              name: github-team-sync
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+          ports:
+            - name: web
+              containerPort: 5000
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 30
+      serviceAccountName: github-team-sync
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: github-team-sync
+  namespace: github-team-sync
+spec:
+  selector:
+    service: github-team-sync
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: github-team-sync
+  namespace: github-team-sync
+spec:
+  minReplicas: 1
+  maxReplicas: 10
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: github-team-sync
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: github-team-sync
+  namespace: github-team-sync
+  labels:
+    app.kubernetes.io/name: github-team-sync
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  tls:
+    - hosts:
+      - github-team-sync.shared-stg.fih.io
+  rules:
+    - host: github-team-sync.shared-stg.fih.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: github-team-sync
+                port:
+                  number: 80

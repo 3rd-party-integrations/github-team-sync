@@ -26,10 +26,7 @@ msal = "*"
 okta = "*"
 asyncio = "*"
 onelogin = "*"
-certifi = "*"
-setuptools = "*"
-cryptography = "*"
-werkzeug = "*"
+waitress = "*"
 
 [pipenv]
 allow_prereleases = false

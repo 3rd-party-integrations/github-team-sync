@@ -1,5 +1,4 @@
 import atexit
-from operator import truediv
 import os
 import time
 import json
@@ -68,7 +67,7 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
         team = org.team(team_id)
         custom_map, ignore_users = load_custom_map()
         try:
-            directory_group = get_directory_from_slug(slug, custom_map, org)
+            directory_group = custom_map[slug] if slug in custom_map else slug
             directory_members = directory_group_members(group=directory_group)
         except Exception as e:
             directory_members = []
@@ -256,10 +255,7 @@ def load_custom_map(file="syncmap.yml"):
         with open(file, "r") as f:
             data = load(f, Loader=Loader)
         for d in data["mapping"]:
-            if "org" in d:
-                syncmap[(d["org"], d["github"])] = d["directory"]
-            else:
-                syncmap[d["github"]] = d["directory"]
+            syncmap[d["github"]] = d["directory"]
 
         ignore_users = data.get("ignore_users", [])
 
@@ -349,7 +345,7 @@ def remove_org_members_without_team(installations):
 def sync_team_helper(team, custom_map, client, org):
     print(f"Organization: {org.login}")
     try:
-        if SYNCMAP_ONLY and not is_team_in_map(team.slug, custom_map, org):
+        if SYNCMAP_ONLY and team.slug not in custom_map:
             print(f"skipping team {team.slug} - not in sync map")
             return
         sync_team(
@@ -362,24 +358,6 @@ def sync_team_helper(team, custom_map, client, org):
         print(f"Organization: {org.login}")
         print(f"Unable to sync team: {team.slug}")
         print(f"DEBUG: {e}")
-
-
-def is_team_in_map(slug, custom_map, org):
-    key_with_org = (org.login, slug)
-    key_without_org = slug
-    if key_with_org in custom_map or key_without_org in custom_map:
-        return True
-    else:
-        return False
-
-
-def get_directory_from_slug(slug, custom_map, org):
-    if not is_team_in_map(slug, custom_map, org):
-        return slug
-    elif (org.login, slug) in custom_map:
-        return custom_map[(org.login, slug)]
-    elif slug in custom_map:
-        return custom_map[slug]
 
 
 thread = threading.Thread(target=sync_all_teams)
