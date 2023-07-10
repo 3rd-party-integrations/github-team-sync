@@ -372,6 +372,7 @@ def is_team_in_map(slug, custom_map, org):
     else:
         return False
 
+
 def get_directory_from_slug(slug, custom_map, org):
     if not is_team_in_map(slug, custom_map, org):
         return slug
@@ -379,7 +380,6 @@ def get_directory_from_slug(slug, custom_map, org):
         return custom_map[(org.login, slug)]
     elif slug in custom_map:
         return custom_map[slug]
-        
 
 
 thread = threading.Thread(target=sync_all_teams)
