@@ -70,6 +70,8 @@ class Okta:
                 username = getattr(user.profile, self.USERNAME_ATTRIBUTE)
                 username = username.split("@")[0]
                 username = re.sub("[^0-9a-zA-Z-]+", "-", username)
+                if "EMU_SHORTCODE" in os.environ:
+                    username = username + "_" + os.environ["EMU_SHORTCODE"]
                 member_list.append(
                     {
                         "username": username,
