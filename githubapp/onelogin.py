@@ -20,6 +20,10 @@ class OneLogin:
         role = self.client.get_roles(query_parameters={"name": group_name})
         users = self.client.get_users(query_parameters={"role_id": role[0].id})
         for user in users:
-            member_list.append({"username": user.username, "email": user.email})
+            if "EMU_SHORTCODE" in os.environ:
+                username = user.username + "_" + os.environ["EMU_SHORTCODE"]
+            else:
+                username = user.username
+            member_list.append({"username": username, "email": user.email})
 
         return member_list
