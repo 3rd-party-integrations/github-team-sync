@@ -381,12 +381,15 @@ def get_directory_from_slug(slug, custom_map, org):
     elif slug in custom_map:
         return custom_map[slug]
 
-
-thread = threading.Thread(target=sync_all_teams)
-thread.start()
+if "FLASK_APP" in os.environ:
+    thread = threading.Thread(target=sync_all_teams)
+    thread.start()
 
 if __name__ == "__main__":
-    app.run(
-        host=os.environ.get("FLASK_RUN_HOST", "0.0.0.0"),
-        port=os.environ.get("FLASK_RUN_PORT", "5000"),
-    )
+    if "FLASK_APP" in os.environ:
+        app.run(
+            host=os.environ.get("FLASK_RUN_HOST", "0.0.0.0"),
+            port=os.environ.get("FLASK_RUN_PORT", "5000"),
+        )
+    else:
+        sync_all_teams()
