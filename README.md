@@ -197,6 +197,7 @@ ISSUE_ASSIGNEE=githubber
 SYNC_SCHEDULE=0 * * * *
 TEST_MODE=false
 SYNCMAP_ONLY=false
+EMU_SHORTCODE=volcano
 
 ### Automatically add users missing from the organization
 ADD_MEMBER=false
