@@ -69,7 +69,7 @@ class Okta:
             try:
                 username = getattr(user.profile, self.USERNAME_ATTRIBUTE)
                 username = username.split("@")[0]
-                username = re.sub('[^0-9a-zA-Z-]+', '-', username)
+                username = re.sub("[^0-9a-zA-Z-]+", "-", username)
                 member_list.append(
                     {
                         "username": username,
