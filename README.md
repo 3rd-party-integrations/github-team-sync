@@ -205,6 +205,22 @@ ADD_MEMBER=false
 REMOVE_ORG_MEMBERS_WITHOUT_TEAM=false
 ```
 
+### Sample `.env` setting for flask app
+```env
+####################
+## Flask Settings ##
+####################
+## Default: app, comment out to run once as a script
+FLASK_APP=app
+## Default: production
+FLASK_ENV=development
+## Default: 5000
+FLASK_RUN_PORT=5000
+## Default: 127.0.0.1
+FLASK_RUN_HOST=0.0.0.0
+
+```
+
 ### Sample `syncmap.yml` custom mapping file
 ```yaml
 ---
