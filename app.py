@@ -381,6 +381,7 @@ def get_directory_from_slug(slug, custom_map, org):
     elif slug in custom_map:
         return custom_map[slug]
 
+
 if "FLASK_APP" in os.environ:
     thread = threading.Thread(target=sync_all_teams)
     thread.start()

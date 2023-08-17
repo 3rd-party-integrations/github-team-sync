@@ -106,7 +106,9 @@ class LDAPClient:
                                 else:
                                     email = None
                                 if "EMU_SHORTCODE" in os.environ:
-                                    username = username + "_" + os.environ["EMU_SHORTCODE"]
+                                    username = (
+                                        username + "_" + os.environ["EMU_SHORTCODE"]
+                                    )
                                 user_info = {"username": username, "email": email}
                                 member_list.append(user_info)
                         except Exception as e:
