@@ -18,7 +18,7 @@ This utility provides the following functionality:
 | --- | --- | --- |
 | Sync Users | Yes | Add or remove users from `Teams` in GitHub to keep in sync with Active Directory groups |
 | Dynamic Config | Yes | Utilize a `settings` file to derive Active Directory and GitHub settings |
-| LDAP SSL | No | SSL or TLS connections. This is a WIP |
+| LDAP SSL | Yes | SSL or TLS connections. |
 | Failure notifications | Yes | Presently supports opening a GitHub issue when sync failed. The repo is configurable. |
 | Sync on new team | Yes | Synchronize users when a new team is created |
 | Sync on team edit | No | This event is not processed currently |
