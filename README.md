@@ -197,11 +197,28 @@ ISSUE_ASSIGNEE=githubber
 SYNC_SCHEDULE=0 * * * *
 TEST_MODE=false
 SYNCMAP_ONLY=false
+EMU_SHORTCODE=volcano
 
 ### Automatically add users missing from the organization
 ADD_MEMBER=false
 ## Automatically remove users from the organization that are not part of a team
 REMOVE_ORG_MEMBERS_WITHOUT_TEAM=false
+```
+
+### Sample `.env` setting for flask app
+```env
+####################
+## Flask Settings ##
+####################
+## Default: app, comment out to run once as a script
+FLASK_APP=app
+## Default: production
+FLASK_ENV=development
+## Default: 5000
+FLASK_RUN_PORT=5000
+## Default: 127.0.0.1
+FLASK_RUN_HOST=0.0.0.0
+
 ```
 
 ### Sample `syncmap.yml` custom mapping file
