@@ -26,10 +26,13 @@ msal = "*"
 okta = "*"
 asyncio = "*"
 onelogin = "*"
+google-api-python-client = "*"
+google-auth-oauthlib = "*"
 certifi = "*"
 setuptools = "*"
 cryptography = "*"
 werkzeug = "*"
+importlib-metadata = "*"
 
 [pipenv]
 allow_prereleases = false
