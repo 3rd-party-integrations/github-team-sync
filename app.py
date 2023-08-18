@@ -70,7 +70,9 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
         try:
             directory_group = get_directory_from_slug(slug, custom_map, org)
             # If we're filtering on group prefix, skip if the group doesn't match
-            if group_prefix.length() > 0 and not directory_group.startswith(tuple(group_prefix)):
+            if group_prefix.length() > 0 and not directory_group.startswith(
+                tuple(group_prefix)
+            ):
                 print(f"skipping team {team.slug} - not in group prefix")
                 return
             directory_members = directory_group_members(group=directory_group)
@@ -313,7 +315,14 @@ def sync_all_teams():
                     org = client.organization(i.account["login"])
                     for team in org.teams():
                         futures.append(
-                            exe.submit(sync_team_helper, team, custom_map, client, org, group_prefix)
+                            exe.submit(
+                                sync_team_helper,
+                                team,
+                                custom_map,
+                                client,
+                                org,
+                                group_prefix,
+                            )
                         )
                 except Exception as e:
                     print(f"DEBUG: {e}")
