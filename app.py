@@ -315,13 +315,7 @@ def sync_all_teams():
                     org = client.organization(i.account["login"])
                     for team in org.teams():
                         futures.append(
-                            exe.submit(
-                                sync_team_helper,
-                                team,
-                                custom_map,
-                                client,
-                                org,
-                            )
+                            exe.submit(sync_team_helper, team, custom_map, client, org)
                         )
                 except Exception as e:
                     print(f"DEBUG: {e}")
