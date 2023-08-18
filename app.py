@@ -299,7 +299,7 @@ def sync_all_teams():
     print(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
 
     installations = get_app_installations()
-    custom_map, group_prefix, _ = load_custom_map()
+    custom_map, _ = load_custom_map()
     futures = []
     install_count = 0
     with ThreadPoolExecutor(max_workers=10) as exe:
@@ -321,7 +321,6 @@ def sync_all_teams():
                                 custom_map,
                                 client,
                                 org,
-                                group_prefix,
                             )
                         )
                 except Exception as e:
