@@ -16,7 +16,7 @@ tox = "*"
 tox-gh-actions = "*"
 
 [packages]
-"github3.py" = "*"
+ghapi = "*"
 flask = "*"
 pyyaml = "*"
 ldap3 = "*"
