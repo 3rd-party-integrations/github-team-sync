@@ -8,6 +8,11 @@ mapping:
     org: demo-org
     directory: avengers group
 
+# Only sync groups with matching prefixes
+#group_prefix:
+#  - TEST-
+#  - DEMO-
+
 ignore_users:
   - userA
   - userB
