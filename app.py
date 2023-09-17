@@ -66,9 +66,15 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
     try:
         org = client.organization(owner)
         team = org.team(team_id)
-        custom_map, ignore_users = load_custom_map()
+        custom_map, group_prefix, ignore_users = load_custom_map()
         try:
             directory_group = get_directory_from_slug(slug, custom_map, org)
+            # If we're filtering on group prefix, skip if the group doesn't match
+            if group_prefix.length() > 0 and not directory_group.startswith(
+                tuple(group_prefix)
+            ):
+                print(f"skipping team {team.slug} - not in group prefix")
+                return
             directory_members = directory_group_members(group=directory_group)
         except Exception as e:
             directory_members = []
@@ -260,10 +266,10 @@ def load_custom_map(file="syncmap.yml"):
                 syncmap[(d["org"], d["github"])] = d["directory"]
             else:
                 syncmap[d["github"]] = d["directory"]
-
+        group_prefix = data.get("group_prefix", [])
         ignore_users = data.get("ignore_users", [])
 
-    return (syncmap, ignore_users)
+    return (syncmap, group_prefix, ignore_users)
 
 
 def get_app_installations():

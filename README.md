@@ -10,6 +10,7 @@ It supports both GitHub.com, GitHub Enterprise Server (GHES) and GitHub, but it 
 - Azure AD
 - Okta
 - OneLogin
+- Google Workspace
 
 ## Features
 This utility provides the following functionality:
