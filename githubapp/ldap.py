@@ -74,7 +74,7 @@ class LDAPClient:
             self.tls = None
         if "LDAP_SERVER_PORT" in os.environ:
             self.LDAP_SERVER_PORT = os.environ["LDAP_SERVER_PORT"]
-        else
+        else:
             if self.LDAP_USE_SSL:
                 self.LDAP_SERVER_PORT = 636
             else:
