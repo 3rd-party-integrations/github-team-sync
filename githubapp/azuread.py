@@ -107,7 +107,11 @@ class AzureAD:
                 else:
                     username = user_info[self.USERNAME_ATTRIBUTE]
                 if self.AZURE_USER_IS_UPN:
-                    username = username.split("@")[0]
+                    if r"\\" in username:
+                        username = username.split(r"\\")[1]
+                    username = username.split("@")[0].split("#")[0].split("_")[0]
+                    username = username.translate(str.maketrans("._!#^~", '------'))
+                    username = username.lower()
                 if "EMU_SHORTCODE" in os.environ:
                     username = username + "_" + os.environ["EMU_SHORTCODE"]
                 user = {
