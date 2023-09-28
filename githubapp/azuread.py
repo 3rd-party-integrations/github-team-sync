@@ -110,7 +110,7 @@ class AzureAD:
                     if r"\\" in username:
                         username = username.split(r"\\")[1]
                     username = username.split("@")[0].split("#")[0].split("_")[0]
-                    username = username.translate(str.maketrans("._!#^~", '------'))
+                    username = username.translate(str.maketrans("._!#^~", "------"))
                     username = username.lower()
                 if "EMU_SHORTCODE" in os.environ:
                     username = username + "_" + os.environ["EMU_SHORTCODE"]
