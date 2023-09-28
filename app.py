@@ -70,7 +70,7 @@ def sync_team(client=None, owner=None, team_id=None, slug=None):
         try:
             directory_group = get_directory_from_slug(slug, custom_map, org)
             # If we're filtering on group prefix, skip if the group doesn't match
-            if group_prefix.length() > 0 and not directory_group.startswith(
+            if len(group_prefix) > 0 and not directory_group.startswith(
                 tuple(group_prefix)
             ):
                 print(f"skipping team {team.slug} - not in group prefix")
