@@ -92,7 +92,7 @@ class GitHubApp(object):
         app.add_url_rule("/health_check", endpoint="health_check")
         @app.endpoint("health_check")
         def health_check():
-            return 'Web server is running.', 200
+            return "Web server is running.", 200
 
     @property
     def id(self):
