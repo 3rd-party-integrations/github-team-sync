@@ -299,7 +299,7 @@ def sync_all_teams():
     print(f'Syncing all teams: {time.strftime("%A, %d. %B %Y %I:%M:%S %p")}')
 
     installations = get_app_installations()
-    custom_map, _ = load_custom_map()
+    custom_map, _, _ = load_custom_map()
     futures = []
     install_count = 0
     with ThreadPoolExecutor(max_workers=10) as exe:
