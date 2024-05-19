@@ -13,6 +13,8 @@ elif os.environ.get("USER_DIRECTORY", "LDAP").upper() == "ONELOGIN":
     from .onelogin import OneLogin as DirectoryClient
 elif os.environ.get("USER_DIRECTORY", "LDAP").upper() == "GOOGLE_WORKSPACE":
     from .googleworkspace import GoogleWorkspaceClient as DirectoryClient
+elif os.environ.get("USER_DIRECTORY", "LDAP").upper() == "KEYCLOAK":
+    from .keycloak import Keycloak as DirectoryClient
 from .version import __version__
 
 __all__ = ["GitHubApp", "DirectoryClient"]
