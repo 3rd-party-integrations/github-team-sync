@@ -68,7 +68,7 @@ class Keycloak:
             # list is smaller than the provided page size
             page_start = 1
             page_size = 100
-            members = None
+            members = []
             group_members = client.get_group_members(
                 group_id=group_id,
                 query={"first": page_start, "max": page_size}
