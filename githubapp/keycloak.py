@@ -51,6 +51,7 @@ class Keycloak:
             :return: The group's UUID in Keycloak
             """
             group = client.get_groups(query={"search": group_name})
+            group = client.get_groups(query={"search": group_name, "briefRepresentation": "true", "exact": "true"})
             return group[0]["id"]
 
         def get_members(client: KeycloakAdmin = None, group_id: str = None):
