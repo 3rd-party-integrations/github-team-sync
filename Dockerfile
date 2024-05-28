@@ -8,9 +8,6 @@ ARG TZ='UTC'
 
 ENV DEFAULT_TZ ${TZ}
 
-COPY . /opt/github-team-sync
-WORKDIR /opt/github-team-sync
-
 RUN apk add --no-cache \
         libxml2-dev \
         libxslt-dev \
@@ -25,6 +22,9 @@ RUN apk add --no-cache \
 
 # Fix the warning where no timezone is specified
 RUN cp /usr/share/zoneinfo/${DEFAULT_TZ} /etc/localtime
+
+COPY . /opt/github-team-sync
+WORKDIR /opt/github-team-sync
 
 RUN pip install --no-cache-dir --upgrade pipenv
 
