@@ -23,11 +23,13 @@ RUN apk add --no-cache \
 # Fix the warning where no timezone is specified
 RUN cp /usr/share/zoneinfo/${DEFAULT_TZ} /etc/localtime
 
-COPY . /opt/github-team-sync
-WORKDIR /opt/github-team-sync
-
 RUN pip install --no-cache-dir --upgrade pipenv
 
+WORKDIR /opt/github-team-sync
+COPY Pipfile Pipfile.lock .
+
 RUN pipenv install
+
+COPY . /opt/github-team-sync
 
 CMD pipenv run flask run
