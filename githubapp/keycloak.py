@@ -33,7 +33,7 @@ class Keycloak:
             username=os.environ["KEYCLOAK_USERNAME"],
             password=os.environ["KEYCLOAK_PASSWORD"],
             realm_name=os.environ["KEYCLOAK_REALM"],
-            user_realm_name=os.environ.get["KEYCLOAK_ADMIN_REALM"]
+            user_realm_name=os.environ["KEYCLOAK_ADMIN_REALM"]
         )
 
     def get_group_members(self, group_name: str = None):
