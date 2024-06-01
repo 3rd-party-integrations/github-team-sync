@@ -20,6 +20,9 @@ class Keycloak:
         if not os.environ.get("KEYCLOAK_PASSWORD", None):
             raise Exception("KEYCLOAK_PASSWORD not defined")
 
+        if not os.environ.get("KEYCLOAK_REALM"):
+            os.environ["KEYCLOAK_REALM"] = "master"
+        
         if not os.environ.get("KEYCLOAK_ADMIN_REALM"):
             os.environ["KEYCLOAK_ADMIN_REALM"] = os.environ.get("KEYCLOAK_REALM")
 
@@ -29,8 +32,8 @@ class Keycloak:
             server_url=os.environ["KEYCLOAK_SERVER_URL"],
             username=os.environ["KEYCLOAK_USERNAME"],
             password=os.environ["KEYCLOAK_PASSWORD"],
-            realm_name=os.environ.get("KEYCLOAK_REALM", "master"),
-            user_realm_name=os.environ.get("KEYCLOAK_ADMIN_REALM", "master")
+            realm_name=os.environ["KEYCLOAK_REALM"],
+            user_realm_name=os.environ.get["KEYCLOAK_ADMIN_REALM"]
         )
 
     def get_group_members(self, group_name: str = None):
