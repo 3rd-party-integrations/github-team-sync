@@ -76,7 +76,7 @@ class Keycloak:
             # The response doesn't contain any info on the next page either
             # Therefore, we'll need to iterate over the pages until the returned
             # list is smaller than the provided page size
-            page_start = 1
+            page_start = 0
             page_size = 100
             members = []
             group_members = client.get_group_members(
