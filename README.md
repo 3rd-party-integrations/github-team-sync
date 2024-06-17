@@ -11,6 +11,7 @@ It supports both GitHub.com, GitHub Enterprise Server (GHES) and GitHub, but it 
 - Okta
 - OneLogin
 - Google Workspace
+- Keycloak
 
 ## Features
 This utility provides the following functionality:
@@ -73,6 +74,10 @@ This app requires the following Azure permissions:
 - `GroupMember.Read.All`
 - `User.Read.All`
 
+#### Keycloak Permissions
+If you have `ADMIN_FINE_GRAINED_AUTHZ` enabled, you only need the following permission for the user realm:
+- `view-users`
+
 ## Getting Started
 To get started, ensure that you are using **Python 3.9** (or update your `Pipfile` to the version you're running, 3.4+). The following additional libraries are required:
 
@@ -86,6 +91,7 @@ To get started, ensure that you are using **Python 3.9** (or update your `Pipfil
 - [ ] asyncio
 - [ ] okta
 - [ ] onelogin
+- [ ] python-keycloak
 
 Install the required libraries.
 
@@ -179,6 +185,15 @@ OKTA_AUTH_METHOD=oauth
 OKTA_CLIENT_ID=abcdefghijkl
 OKTA_SCOPES='okta.users.read okta.groups.read'
 OKTA_PRIVATE_KEY='{"kty": "RSA", ...}'
+```
+
+### Sample `.env` for Keycloak
+```env
+KEYCLOAK_USERNAME=api-account
+KEYCLOAK_PASSWORD=ExamplePassword
+KEYCLOAK_REALM=ExampleCorp
+KEYCLOAK_ADMIN_REALM=master
+KEYCLOAK_USE_GITHUB_IDP=true
 ```
 
 ### Sample `.env` for OneLogin
