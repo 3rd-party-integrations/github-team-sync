@@ -8,18 +8,6 @@ ARG TZ='UTC'
 
 ENV DEFAULT_TZ=${TZ}
 
-RUN apk add --no-cache \
-        libxml2-dev \
-        libxslt-dev \
-        python3-dev \
-        make \
-        gcc \
-        libffi-dev \
-        build-base \
-        openssl-dev \
-        cargo \
-        tzdata
-
 # Fix the warning where no timezone is specified
 RUN cp /usr/share/zoneinfo/${DEFAULT_TZ} /etc/localtime
 
