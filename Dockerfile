@@ -6,7 +6,7 @@ LABEL maintainer="GitHub Services <services@github.com>"
 
 ARG TZ='UTC'
 
-ENV DEFAULT_TZ ${TZ}
+ENV DEFAULT_TZ=${TZ}
 
 RUN apk add --no-cache \
         libxml2-dev \
@@ -32,4 +32,4 @@ RUN pipenv install
 
 COPY . /opt/github-team-sync
 
-CMD pipenv run flask run
+CMD ["pipenv", "run", "flask", "run"]
