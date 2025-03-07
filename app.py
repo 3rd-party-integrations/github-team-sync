@@ -261,11 +261,14 @@ def load_custom_map(file="syncmap.yml"):
 
         with open(file, "r") as f:
             data = load(f, Loader=Loader)
-        for d in data["mapping"]:
-            if "org" in d:
-                syncmap[(d["org"], d["github"])] = d["directory"]
-            else:
-                syncmap[d["github"]] = d["directory"]
+        if "mapping" in data:
+            for d in data["mapping"]:
+                if "org" in d:
+                    syncmap[(d["org"], d["github"])] = d["directory"]
+                else:
+                    syncmap[d["github"]] = d["directory"]
+        else:
+            syncmap = {}
         group_prefix = data.get("group_prefix", [])
         ignore_users = data.get("ignore_users", [])
 
