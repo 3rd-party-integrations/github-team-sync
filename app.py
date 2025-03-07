@@ -256,6 +256,7 @@ def load_custom_map(file="syncmap.yml"):
     """
     syncmap = {}
     ignore_users = []
+    group_prefix = []
     if os.path.isfile(file):
         from yaml import load, Loader
 
