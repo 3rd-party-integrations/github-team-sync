@@ -78,6 +78,14 @@ This app requires the following Azure permissions:
 If you have `ADMIN_FINE_GRAINED_AUTHZ` enabled, you only need the following permission for the user realm:
 - `view-users`
 
+#### Google Workspace Permissions
+You must delegate domain-wide authority to the service account with the following scopes:
+- `https://www.googleapis.com/auth/admin.directory.group.readonly`
+- `https://www.googleapis.com/auth/admin.directory.group.member.readonly`
+- `https://www.googleapis.com/auth/admin.directory.user.readonly`
+
+You must provide a Google Workspace Admin account for the service account to impersonate.
+
 ## Getting Started
 To get started, ensure that you are using **Python 3.9** (or update your `Pipfile` to the version you're running, 3.4+). The following additional libraries are required:
 
@@ -116,6 +124,7 @@ GHE_HOST=github.example.com
 ## AD/LDAP = LDAP
 ## Okta = OKTA
 ## OneLogin = ONELOGIN
+## Google Workspace = GOOGLE_WORKSPACE
 USER_DIRECTORY=LDAP
 
 ## Sync users on username or email attribute
@@ -201,6 +210,14 @@ KEYCLOAK_USE_GITHUB_IDP=true
 ONELOGIN_CLIENT_ID='asdafsflkjlk13q33433445wee'
 ONELOGIN_CLIENT_SECRET='ca3a86f982fjjkjjkfkhls'
 REGION=US
+```
+
+### Sample `.env` for Google Workspace
+```env
+GOOGLE_WORKSPACE_SA_CREDS_FILE=googleAuth.json
+GOOGLE_WORKSPACE_ADMIN_EMAIL=admin@example.com
+GOOGLE_WORKSPACE_USERNAME_CUSTOM_SCHEMA_NAME=schema-name
+GOOGLE_WORKSPACE_USERNAME_FIELD=field-name
 ```
 
 ### Sample `.env` settings for additional settings
