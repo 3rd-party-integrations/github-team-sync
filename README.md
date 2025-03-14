@@ -84,7 +84,7 @@ You must delegate domain-wide authority to the service account with the followin
 - `https://www.googleapis.com/auth/admin.directory.group.member.readonly`
 - `https://www.googleapis.com/auth/admin.directory.user.readonly`
 
-You must provide a Google Workspace Admin account for the service account to impersonate.
+You must provide a Google Workspace account for the service account to impersonate with API permissions greater or equal to the scopes above.
 
 ## Getting Started
 To get started, ensure that you are using **Python 3.9** (or update your `Pipfile` to the version you're running, 3.4+). The following additional libraries are required:
