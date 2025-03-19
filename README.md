@@ -11,6 +11,7 @@ It supports both GitHub.com, GitHub Enterprise Server (GHES) and GitHub, but it 
 - Okta
 - OneLogin
 - Google Workspace
+- Keycloak
 
 ## Features
 This utility provides the following functionality:
@@ -73,6 +74,19 @@ This app requires the following Azure permissions:
 - `GroupMember.Read.All`
 - `User.Read.All`
 
+#### Keycloak Permissions
+If you have `ADMIN_FINE_GRAINED_AUTHZ` enabled, you only need the following permission for the user realm:
+- `view-users`
+
+#### Google Workspace Permissions
+You must delegate domain-wide authority to the service account with the following scopes:
+- `https://www.googleapis.com/auth/admin.directory.group.readonly`
+- `https://www.googleapis.com/auth/admin.directory.group.member.readonly`
+- `https://www.googleapis.com/auth/admin.directory.user.readonly`
+
+You must provide a Google Workspace Admin account for the service account to impersonate.
+It must have Admin API permissions greater or equal to the scopes listed above.
+
 ## Getting Started
 To get started, ensure that you are using **Python 3.9** (or update your `Pipfile` to the version you're running, 3.4+). The following additional libraries are required:
 
@@ -86,6 +100,7 @@ To get started, ensure that you are using **Python 3.9** (or update your `Pipfil
 - [ ] asyncio
 - [ ] okta
 - [ ] onelogin
+- [ ] python-keycloak
 
 Install the required libraries.
 
@@ -110,6 +125,7 @@ GHE_HOST=github.example.com
 ## AD/LDAP = LDAP
 ## Okta = OKTA
 ## OneLogin = ONELOGIN
+## Google Workspace = GOOGLE_WORKSPACE
 USER_DIRECTORY=LDAP
 
 ## Sync users on username or email attribute
@@ -181,11 +197,28 @@ OKTA_SCOPES='okta.users.read okta.groups.read'
 OKTA_PRIVATE_KEY='{"kty": "RSA", ...}'
 ```
 
+### Sample `.env` for Keycloak
+```env
+KEYCLOAK_USERNAME=api-account
+KEYCLOAK_PASSWORD=ExamplePassword
+KEYCLOAK_REALM=ExampleCorp
+KEYCLOAK_ADMIN_REALM=master
+KEYCLOAK_USE_GITHUB_IDP=true
+```
+
 ### Sample `.env` for OneLogin
 ```env
 ONELOGIN_CLIENT_ID='asdafsflkjlk13q33433445wee'
 ONELOGIN_CLIENT_SECRET='ca3a86f982fjjkjjkfkhls'
 REGION=US
+```
+
+### Sample `.env` for Google Workspace
+```env
+GOOGLE_WORKSPACE_SA_CREDS_FILE=googleAuth.json
+GOOGLE_WORKSPACE_ADMIN_EMAIL=admin@example.com
+GOOGLE_WORKSPACE_USERNAME_CUSTOM_SCHEMA_NAME=schema-name
+GOOGLE_WORKSPACE_USERNAME_FIELD=field-name
 ```
 
 ### Sample `.env` settings for additional settings
