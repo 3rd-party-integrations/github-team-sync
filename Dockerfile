@@ -6,28 +6,18 @@ LABEL maintainer="GitHub Services <services@github.com>"
 
 ARG TZ='UTC'
 
-ENV DEFAULT_TZ ${TZ}
-
-COPY . /opt/github-team-sync
-WORKDIR /opt/github-team-sync
-
-RUN apk add --no-cache \
-        libxml2-dev \
-        libxslt-dev \
-        python3-dev \
-        make \
-        gcc \
-        libffi-dev \
-        build-base \
-        openssl-dev \
-        cargo \
-        tzdata
+ENV DEFAULT_TZ=${TZ}
 
 # Fix the warning where no timezone is specified
 RUN cp /usr/share/zoneinfo/${DEFAULT_TZ} /etc/localtime
 
 RUN pip install --no-cache-dir --upgrade pipenv
 
+WORKDIR /opt/github-team-sync
+COPY Pipfile Pipfile.lock .
+
 RUN pipenv install
 
-CMD pipenv run flask run
+COPY . /opt/github-team-sync
+
+CMD ["pipenv", "run", "flask", "run"]

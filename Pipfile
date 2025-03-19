@@ -33,6 +33,7 @@ setuptools = "*"
 cryptography = "*"
 werkzeug = "*"
 importlib-metadata = "*"
+python-keycloak = "*"
 
 [pipenv]
 allow_prereleases = false
