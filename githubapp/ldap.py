@@ -15,7 +15,6 @@ class LDAPClient:
     def __init__(self):
         # Read settings from the config file and store them as constants
         self.LDAP_SERVER_HOST = os.environ["LDAP_SERVER_HOST"]
-        self.LDAP_SERVER_PORT = os.environ["LDAP_SERVER_PORT"]
         self.LDAP_BASE_DN = os.environ["LDAP_BASE_DN"]
         self.LDAP_USER_BASE_DN = os.environ["LDAP_USER_BASE_DN"]
         self.LDAP_USER_ATTRIBUTE = os.environ["LDAP_USER_ATTRIBUTE"]
@@ -73,10 +72,17 @@ class LDAPClient:
             )
         else:
             self.tls = None
+        if "LDAP_SERVER_PORT" in os.environ:
+            self.LDAP_SERVER_PORT = os.environ["LDAP_SERVER_PORT"]
+        else:
+            if self.LDAP_USE_SSL:
+                self.LDAP_SERVER_PORT = 636
+            else:
+                self.LDAP_SERVER_PORT = 389
 
         self.srv = Server(
             host=self.LDAP_SERVER_HOST,
-            port=self.LDAP_SERVER_HOST,
+            port=self.LDAP_SERVER_PORT,
             use_ssl=self.USE_SSL,
             tls=self.tls,
         )
