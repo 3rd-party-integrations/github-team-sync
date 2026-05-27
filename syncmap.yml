@@ -1,0 +1,11 @@
+mapping:
+- org: zeptonow
+  github: zeptonow
+  directory:
+ignore_groups:
+allow_groups:
+ignore_users:
+  - devops@zeptonow.com
+  - devops
+  - ds-user
+  - de-user

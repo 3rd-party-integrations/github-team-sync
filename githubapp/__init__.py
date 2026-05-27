@@ -1,6 +1,6 @@
 import os
 from distutils.util import strtobool
-
+import json
 from .core import GitHubApp
 
 if os.environ.get("USER_DIRECTORY", "LDAP").upper() == "LDAP":
@@ -35,13 +35,13 @@ CHANGE_THRESHOLD = os.environ.get("CHANGE_THRESHOLD", 25)
 REPO_FOR_ISSUES = os.environ.get("REPO_FOR_ISSUES", "")
 ISSUE_ASSIGNEE = os.environ.get("ISSUE_ASSIGNEE", "")
 OPEN_ISSUE_ON_FAILURE = strtobool(os.environ.get("OPEN_ISSUE_ON_FAILURE", "False"))
-
+SSO_EMAIL_DOMAIN = os.environ.get("SSO_EMAIL_DOMAIN", "zeptonow.com")
 try:
-    TEST_MODE = strtobool(os.environ.get("TEST_MODE", "False"))
+    TEST_MODE = strtobool(os.environ.get("TEST_MODE", "true"))
 except ValueError as e:
     rootlogger.warn('TEST_MODE should be set to "true" or "false"')
     rootlogger.warn(e)
-    TEST_MODE = False
+    TEST_MODE = True
 # Check if should add member to organization
 ADD_MEMBER = strtobool(os.environ.get("ADD_MEMBER", "False"))
 REMOVE_ORG_MEMBERS_WITHOUT_TEAM = strtobool(
@@ -49,3 +49,4 @@ REMOVE_ORG_MEMBERS_WITHOUT_TEAM = strtobool(
 )
 USER_SYNC_ATTRIBUTE = os.environ.get("USER_SYNC_ATTRIBUTE", "username").lower()
 SYNCMAP_ONLY = strtobool(os.environ.get("SYNCMAP_ONLY", "False"))
+EXPORT_TO_JSON = strtobool(os.environ.get("EXPORT_TO_JSON", "False"))

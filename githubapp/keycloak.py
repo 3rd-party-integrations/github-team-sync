@@ -1,16 +1,35 @@
-import asyncio
 import collections
 import os
 import logging
-import re
+import threading
 from keycloak import KeycloakAdmin
-
+from . import urls_patterns
+from .exceptions import (
+    KeycloakGetError,
+    raise_error_from_response,
+)
 
 LOG = logging.getLogger(__name__)
 
 
 class Keycloak:
+    _shared_client = None
+    _lock = threading.Lock()
+    PAGE_SIZE = 100
+
     def __init__(self):
+        self.UseGithubIDP = os.environ.get("KEYCLOAK_USE_GITHUB_IDP", "true") == "true"
+
+        with Keycloak._lock:
+            if Keycloak._shared_client is not None:
+                self.client = Keycloak._shared_client
+                return
+
+            self._init_client()
+            Keycloak._shared_client = self.client
+
+    def _init_client(self):
+
         if not os.environ.get("KEYCLOAK_SERVER_URL", None):
             raise Exception("KEYCLOAK_SERVER_URL not defined")
 
@@ -26,15 +45,62 @@ class Keycloak:
         if not os.environ.get("KEYCLOAK_ADMIN_REALM"):
             os.environ["KEYCLOAK_ADMIN_REALM"] = os.environ.get("KEYCLOAK_REALM")
 
-        self.UseGithubIDP = os.environ.get("KEYCLOAK_USE_GITHUB_IDP", "true") == "true"
-
         self.client = KeycloakAdmin(
             server_url=os.environ["KEYCLOAK_SERVER_URL"],
             username=os.environ["KEYCLOAK_USERNAME"],
             password=os.environ["KEYCLOAK_PASSWORD"],
             realm_name=os.environ["KEYCLOAK_REALM"],
-            user_realm_name=os.environ["KEYCLOAK_ADMIN_REALM"]
+            user_realm_name=os.environ["KEYCLOAK_ADMIN_REALM"],
+            auto_refresh_token=["get", "put", "post", "delete"],
         )
+    def __fetch_paginated(self, url, query=None):
+        """Make a specific paginated request.
+
+        :param url: The url on which the query is executed
+        :type url: str
+        :param query: Pagination settings
+        :type query: dict
+        :returns: Response
+        :rtype: dict
+        """
+        query = query or {}
+        return raise_error_from_response(self.client.connection.raw_get(url, **query), KeycloakGetError)
+    
+
+    def __fetch_all(self, url, query=None):
+        """Paginate over get requests.
+
+        Wrapper function to paginate GET requests.
+
+        :param url: The url on which the query is executed
+        :type url: str
+        :param query: Existing query parameters (optional)
+        :type query: dict
+
+        :return: Combined results of paginated queries
+        :rtype: list
+        """
+        results = []
+
+        # initialize query if it was called with None
+        if not query:
+            query = {}
+        page = 0
+        query["max"] = self.PAGE_SIZE
+
+        # fetch until we can
+        while True:
+            query["first"] = page * self.PAGE_SIZE
+            partial_results = raise_error_from_response(
+                self.client.connection.raw_get(url, **query), KeycloakGetError
+            )
+            if not partial_results:
+                break
+            results.extend(partial_results)
+            if len(partial_results) < query["max"]:
+                break
+            page += 1
+        return results
 
     def get_group_members(self, group_name: str = None):
         """
@@ -43,12 +109,13 @@ class Keycloak:
         :param group_name: Group name to look up
         :type group_name: str
 
-        :return member_list: A list of dictionaries containing usernames and emails
+        :return member_list: A list of dictionaries containing usernames and email
+        s
         :rtype member_list: list
         """
         member_list = []
 
-        def get_group_id(client: KeycloakAdmin = None):
+        def get_group_id(client: KeycloakAdmin = None, group_name: str = None):
             """
             Get the UUID of the provided group from Keycloak
 
@@ -57,9 +124,10 @@ class Keycloak:
             :return: The group's UUID in Keycloak
             """
 
-            group = client.get_groups(query={"search": group_name, "briefRepresentation": "true", "exact": "true"})
+            group = client.get_groups(query={"search": group_name, "exact": True, "populateHierarchy": False, "briefRepresentation": True})
             if not group:
-                raise Exception(f"Cannot find group {group_name} in Keycloak")
+                print(f"Cannot find group {group_name} in Keycloak")
+                return ""
             else:
                 return group[0]["id"]
 
@@ -113,7 +181,9 @@ class Keycloak:
                 raise Exception("Cannot find Github username")
             return github_username
 
-        gid = get_group_id(client=self.client)
+        gid = get_group_id(client=self.client, group_name = group_name)
+        if gid == "":
+            return []
         users: collections.Iterable = get_members(client=self.client, group_id=gid)
         for user in users:
             try:
@@ -128,10 +198,49 @@ class Keycloak:
                 member_list.append(
                     {
                         "username": username,
-                        "email": user["email"]
+                        "email": user["email"],
+                        "email_slug": user["email"].split("@")[0].lower()
                     }
                 )
             except Exception as e:
                 user_info = f'{user["username"]} ({user["email"]})'
                 print(f"User {user_info}: {e}")
         return member_list
+
+    def get_group_children(self, group_id, query=None):
+        query = query or {}
+        params_path = {"realm-name": self.client.connection.realm_name, "id": group_id}
+        url = urls_patterns.URL_ADMIN_GROUP_CHILD.format(**params_path)
+        if "first" in query or "max" in query:
+            groups = self.__fetch_paginated(url, query)
+        groups = self.__fetch_all(url, query)
+
+        return groups
+
+
+
+    def list_groups(self):
+        """
+        List all groups in Keycloak under the configured parent group.
+        """
+        group_id = os.environ.get("KEYCLOAK_PARENT_GROUP_ID")
+        if not group_id:
+            return []
+        group = self.client.get_group(group_id)
+        # populate subgroups
+        if group.get("subGroupCount"):
+            group["subGroups"] = self.get_group_children(group.get("id"), query={'max':1000})
+        # print(group)
+        # return group.get("subGroups", [])
+        names = []
+        stack = list(group.get("subGroups", []))
+        print(stack)
+        while stack:
+            g = stack.pop()
+            names.append(g.get("name"))
+            local_subGroups = self.get_group_children(g.get("id"), {})
+            if local_subGroups:
+                stack.extend(local_subGroups)
+        return names
+
+

@@ -1,7 +1,7 @@
 """
 Flask extension for rapid GitHub app development
 """
-import os.path
+import os
 import hmac
 import logging
 import distutils
@@ -34,14 +34,16 @@ class GitHubApp(object):
 
     @staticmethod
     def load_env(app):
-        app.config["GITHUBAPP_ID"] = int(os.environ["APP_ID"])
+        app.config["GITHUBAPP_ID"] = str(os.environ["APP_ID"])
         app.config["GITHUBAPP_SECRET"] = os.environ["WEBHOOK_SECRET"]
         if "GHE_HOST" in os.environ:
             app.config["GITHUBAPP_URL"] = "https://{}".format(os.environ["GHE_HOST"])
             app.config["VERIFY_SSL"] = bool(
                 distutils.util.strtobool(os.environ.get("VERIFY_SSL", "false"))
             )
-        with open(os.environ["PRIVATE_KEY_PATH"], "rb") as key_file:
+        # Expand tilde (~) in the path to the actual home directory
+        private_key_path = os.path.expanduser(os.environ["PRIVATE_KEY_PATH"])
+        with open(private_key_path, "rb") as key_file:
             app.config["GITHUBAPP_KEY"] = key_file.read()
 
     def init_app(self, app):

@@ -1,0 +1,10 @@
+985ac912ff568cd475e11f578840c818e665d1b0		branch 'main' of https://github.com/3rd-party-integrations/github-team-sync
+b7887724c34ff1c2dbcd8ddb55dd5a3613ed13f5	not-for-merge	branch 'dependabot/pip/aiohttp-3.9.4' of https://github.com/3rd-party-integrations/github-team-sync
+c06e5157b58fad054ae000c32366edb2f2ebf277	not-for-merge	branch 'dependabot/pip/black-24.3.0' of https://github.com/3rd-party-integrations/github-team-sync
+c8cd90cafec7d1021584ad2a830fe90818e241ce	not-for-merge	branch 'dependabot/pip/cryptography-42.0.4' of https://github.com/3rd-party-integrations/github-team-sync
+2044b8ea9d43a47d6243c6ffd9051f94a41cae6b	not-for-merge	branch 'dependabot/pip/idna-3.7' of https://github.com/3rd-party-integrations/github-team-sync
+464ddb3caa6ba666af2c3af1ba6bf732d8663d3a	not-for-merge	branch 'dependabot/pip/jinja2-3.1.4' of https://github.com/3rd-party-integrations/github-team-sync
+2a5e8a2dfd1e2ebad8c3e0b349b8328681e096a2	not-for-merge	branch 'dependabot/pip/werkzeug-3.0.3' of https://github.com/3rd-party-integrations/github-team-sync
+27e9cd82dac06057640738706af30485c7ccf6c0	not-for-merge	branch 'primetheus/ghapi' of https://github.com/3rd-party-integrations/github-team-sync
+505c0c1f8e1bf397a4ac45adbf38681669bab8d5	not-for-merge	branch 'primetheus/ldapt-server-port' of https://github.com/3rd-party-integrations/github-team-sync
+690d4834e7c67c875a1e144bf450f0610fc82599	not-for-merge	branch 'primetheus/restructure' of https://github.com/3rd-party-integrations/github-team-sync
